@@ -1,0 +1,4 @@
+/**
+ * This is the submodule list for the Functional Programming in Java project. This list is hold by the fpinjava-parent module
+ */
+include 'fpinjava-common', 'fpinjava-introduction', 'fpinjava-usingfunctions-exercises', 'fpinjava-usingfunctions-solutions', 'fpinjava-makingjavafunctional-exercises', 'fpinjava-makingjavafunctional-solutions', 'fpinjava-recursion-exercises', 'fpinjava-recursion-solutions', 'fpinjava-datastructures-exercises', 'fpinjava-datastructures-solutions', 'fpinjava-errorhandling-exercises', 'fpinjava-errorhandling-solutions'

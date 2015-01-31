@@ -1,0 +1,52 @@
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Others
+.DS_Store
+bin/
+temp/
+log/
+distrib/
+*.contrib
+*.keep
+*.zip
+*.*~
+*.log
+*.iml
+.idea/
+GeneratedCode/doc/api
+target/
+src/site/doc/api
+.classpath
+.project
+.*/
+.springBeans
+.checkstyle
+*-default.graphml
+*-default.html
+*-default.svg
+ivy-report.css
+*link to*
+.idea/
+*/build/
+build/
+*DS_Store
+pom.xml
+*/pom.xml
+out/
+*/out/
+LOG_FILE_IS_UNDEFINED
+.pmd
+*.ser
+*~
+
