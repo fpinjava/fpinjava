@@ -16,10 +16,10 @@ commands will not be described here. If you choose this way, you are supposed to
 
 There are two ways to download this project. You may:
 
-- Click on the Download ZIP button on this page (https://github.com/pysaumont/fpinjava) to download a ZIP archive, then unzip it in the directory
+- Click on the **Download ZIP** button on this page (https://github.com/fpinjava/fpinjava) to download a ZIP archive, then unzip it in the directory
 of your choice
 - Or you can clone the project using Git, in order ot be able to update it easily when modifications or additions are made to the project. For this,
-you will need to have Git installed on you PC and use the URL available on this page in the SSH Clone URL area.
+you will need to have Git installed on you PC and use the URL available on this page in the **SSH clone URL** area.
 
 # Importing into Eclipse
 
@@ -59,22 +59,22 @@ for the **Project language level** option.
 
 # Doing the exercises
 
-For each chapter, you will find two modules called `chaptername-exercises` and `chaptername-solutions . Go to the first exercise, in
+For each chapter, you will find two modules called `chaptername-exercises` and `chaptername-solutions` . Go to the first exercise, in
 the `src/main/java` hierarchy. Here, you will find some code with either a comment saying "To be implemented" or method(s) with the
 implementation replaced with a single line throwing a runtime exception. Just implement the missing code.
 
-Note that code is often duplicated from one exercise to the other, so you should not look at the code for exercise 2 before dowing exercise 1
+Note that code is often duplicated from one exercise to the other, so you should not look at the code for exercise 2 before doing exercise 1
 since it will often contain the solution to exercise one.
 
 # Verifying your answers
 
 To verify that your solution is working, go to the corresponding unit test, in the `src/test/java` hierarchy of the same module, right-click
-on the test class (which as the same name as the exercise class with the "Test" suffix) and select **Run as JUnit test**. The test should
-succeed. If it doesn't, fix you code and try again.
+on the test class (which as the same name as the exercise class with the `Test` suffix) and select **Run as JUnit test**. The test should
+succeed. If it doesn't, fix your code and try again.
 
 # Looking at solutions
 
-If you don't find the correct solution to an exercise, you can look at the corresponding chaptername-solutions module. You may run the solution
+If you don't find the correct solution to an exercise, you can look at the corresponding `chaptername-solutions` module. You may run the solution
 test to verify that the solution is working.
 
 # Remarks
