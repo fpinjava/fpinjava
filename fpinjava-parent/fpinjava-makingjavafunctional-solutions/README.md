@@ -42,23 +42,23 @@ You now need to import the `fpinjava-parent` project into Eclipse:
 
 To import the project into intelliJ:
 
-- Select File > Import project
-- In the Select file or directory to import dialog box, navigate to the directory where you have installed the project and select the fpinjava-parent directory.
+- Select **File > Import** project
+- In the **Select file or directory to import** dialog box, navigate to the directory where you have installed the project and select the `fpinjava-parent` directory.
 - In the import project dialog box, select Gradle and click the Next button.
-- Click the Finish button
-- Find the fpinjava-parent project in the Project pane, right-click and select Open module settings
-- In the Project Structure dialog box, click on Project in the Project setting pane and select 8 - Lambdas, type annotations etc. for the Project language level option.
-- Click OK.
+- Click the **Finish** button
+- Find the `fpinjava-parent` project in the **Project** pane, right-click and select **Open module settings**.
+- In the **Project Structure** dialog box, click on **Project** in the **Project setting** pane and select **8 - Lambdas, type annotations etc.** for the **Project language level** option.
+- Click **OK**.
   
 # Doing the exercises
 
-For each chapter, you will find two modules called chaptername-exercises and chaptername-solutions. Go to the first exercise, in the src/main/java hierarchy. Here, you will find some code with either a comment saying "To be implemented" or method(s) with the implementation replace with a single line throwing a runtime exception. Just implement the missing code.
+For each chapter, you will find two modules called `_chaptername-exercises` and `chaptername-solutions . Go to the first exercise, in the `src/main/java` hierarchy. Here, you will find some code with either a comment saying "To be implemented" or method(s) with the implementation replaced with a single line throwing a runtime exception. Just implement the missing code.
 
-Note that code is often duplicated from one exercise to the other, so you should not look at teh code for exercise 2 before dowing exercise 1 since it will often cotain the solution to exercise one.
+Note that code is often duplicated from one exercise to the other, so you should not look at the code for exercise 2 before dowing exercise 1 since it will often contain the solution to exercise one.
 
 # Verifying your answers
 
-To verify that your solution is working, go to the corresponding unit test, in the src/test/java hierarchy of the same module, right-click on the test class (which as the same name as the exercise class with the "Test" suffix) and select "Run as JUnit test". The test should succeed. If it doesn't, fix you code and try again.
+To verify that your solution is working, go to the corresponding unit test, in the `src/test/java` hierarchy of the same module, right-click on the test class (which as the same name as the exercise class with the "Test" suffix) and select **Run as JUnit test**. The test should succeed. If it doesn't, fix you code and try again.
 
 # Looking at solutions
 
@@ -66,7 +66,7 @@ If you don't find the correct solution to an exercise, you can look at the corre
 
 # Remarks
 
-Lot of code is dupplicated. This is done so that all exercises are made as independant as possible. However, code reused form previous chapters is copied to the fpinjava-common module and should be used from there.
+Lot of code is dupplicated. This is done so that all exercises are made as independant as possible. However, code reused form previous chapters is copied to the `fpinjava-common` module and should be used from there.
   
 	
 
