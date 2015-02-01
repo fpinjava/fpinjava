@@ -16,16 +16,10 @@ public class Store {
     List<OrderLine> order = list(
         new OrderLine(toothPaste, 2), 
         new OrderLine(toothBrush, 3));
-    
-    //Price price = Price.ZERO;
-    //Weight weight = Weight.ZERO;
-    //for (OrderLine orderLine : order) {
-    //  price = price.add(orderLine.getAmount());
-    //  weight = weight.add(orderLine.getWeight());
-    //}
-    
+        
     Price price = foldLeft(order, Price.ZERO, Price.sum);
     Weight weight = foldLeft(order, Weight.ZERO, Weight.sum);
+    
     System.out.println(String.format("Total price: %s", price));
     System.out.println(String.format("Total weight: %s", weight));
 

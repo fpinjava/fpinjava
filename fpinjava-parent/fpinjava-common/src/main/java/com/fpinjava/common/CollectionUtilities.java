@@ -81,6 +81,10 @@ public class CollectionUtilities {
         x -> y -> foldLeft(x, list(y), a -> b -> append(a, b)));
   }
 
+  public static <T, U> List<U> map(List<T> list, Function<T, U> f) {
+    return mapViaFoldLeft(list, f);
+  }
+
   public static <T, U> List<U> mapViaFoldLeft(List<T> list, Function<T, U> f) {
     return foldLeft(list, list(), x -> y -> append(x, f.apply(y)));
   }
@@ -103,6 +107,26 @@ public class CollectionUtilities {
   
   public static List<Integer> range(int start, int end) {
     return unfold(start, x -> x + 1, x -> x < end);
+  }
+
+  public static <T> List<T> iterate(T seed, Function<T, T> f, int n) {
+    List<T> result = new ArrayList<>();
+    T temp = seed;
+    for (int i = 0; i < n; i++) {
+      result.add(temp);
+      temp = f.apply(temp);
+    }
+    return result;
+  }
+
+  public static <T> List<T> iterate(T seed, Function<T, T> f, Function<T, Boolean> p) {
+    List<T> result = new ArrayList<>();
+    T temp = seed;
+    while (p.apply(temp)) {
+      result.add(temp);
+      temp = f.apply(temp);
+    }
+    return result;
   }
 
 }
