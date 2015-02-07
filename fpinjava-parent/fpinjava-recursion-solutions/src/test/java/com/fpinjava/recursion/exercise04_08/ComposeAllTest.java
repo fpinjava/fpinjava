@@ -35,5 +35,4 @@ public class ComposeAllTest {
   public void testAndThenAllRight() {
     assertEquals("[c{b(ax)}]", ComposeAll.andThenAllViaFoldRight(list).apply("x").toString());
   }
-
 }

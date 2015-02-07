@@ -1,14 +1,17 @@
 package com.fpinjava.common;
 
-public interface TailCall<T> {
+public abstract class TailCall<T> {
 
-  TailCall<T> resume();
+  public abstract TailCall<T> resume();
 
-  T eval();
+  public abstract T eval();
 
-  boolean isSuspend();
+  public abstract boolean isSuspend();
 
-  public class Return<T> implements TailCall<T> {
+  private TailCall() {
+  }
+
+  public static class Return<T> extends TailCall<T> {
 
     private final T t;
 
@@ -32,7 +35,7 @@ public interface TailCall<T> {
     }
   }
 
-  public class Suspend<T> implements TailCall<T> {
+  public static class Suspend<T> extends TailCall<T> {
 
     private final Supplier<TailCall<T>> resume;
 

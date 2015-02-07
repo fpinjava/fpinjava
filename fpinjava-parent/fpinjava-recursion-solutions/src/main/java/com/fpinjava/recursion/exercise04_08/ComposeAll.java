@@ -12,7 +12,7 @@ public class ComposeAll {
   }
 
   static <T> Function<T, T> composeAllViaFoldRight(List<Function<T, T>> list) {
-    return x -> foldRight(reverse(list), x, a -> a::apply);
+    return x -> foldRight(list, x, a -> a::apply);
   }
 
   static <T> Function<T, T> andThenAllViaFoldLeft(List<Function<T, T>> list) {
@@ -20,6 +20,6 @@ public class ComposeAll {
   }
 
   static <T> Function<T, T> andThenAllViaFoldRight(List<Function<T, T>> list) {
-    return x -> foldRight(list, x, a -> a::apply);
+    return x -> foldRight(reverse(list), x, a -> a::apply);
   }
 }

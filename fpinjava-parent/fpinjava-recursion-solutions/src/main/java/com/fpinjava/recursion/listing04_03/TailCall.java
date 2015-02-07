@@ -2,15 +2,18 @@ package com.fpinjava.recursion.listing04_03;
 
 import com.fpinjava.common.Supplier;
 
-public interface TailCall<T> {
+public abstract class TailCall<T> {
 
-  TailCall<T> resume();
+  public abstract TailCall<T> resume();
 
-  T eval();
+  public abstract T eval();
 
-  boolean isSuspend();
+  public abstract boolean isSuspend();
+  
+  private TailCall() {
+  }
 
-  public class Return<T> implements TailCall<T> {
+  public static class Return<T> extends TailCall<T> {
 
     private final T t;
 
@@ -34,7 +37,7 @@ public interface TailCall<T> {
     }
   }
 
-  public class Suspend<T> implements TailCall<T> {
+  public static class Suspend<T> extends TailCall<T> {
 
     private final Supplier<TailCall<T>> resume;
 
