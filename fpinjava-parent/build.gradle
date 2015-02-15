@@ -111,3 +111,19 @@ project(':fpinjava-errorhandling-solutions') {
     testCompile group: 'junit', name: 'junit', version: '4.+'
   }
 }
+
+project(':fpinjava-laziness-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-laziness-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
