@@ -25,8 +25,9 @@ public class StreamTest {
         Stream.cons(() -> evaluate(3), 
         Stream.cons(() -> evaluate(4), 
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty()))))).takeWhile(x -> x < 3);
+    assertEquals("[1, NIL]", evaluated.toString());
     assertEquals("[1, 2, NIL]", stream.toString());
-    assertEquals("[2, 1, 3, 2, 1, NIL]", evaluated.toString());
+    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
   }
 
   @Test
