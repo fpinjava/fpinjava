@@ -15,4 +15,8 @@ include 'fpinjava-common',
 		'fpinjava-errorhandling-exercises', 
 		'fpinjava-errorhandling-solutions', 
 		'fpinjava-laziness-exercises', 
-		'fpinjava-laziness-solutions'
+		'fpinjava-laziness-solutions',
+		'fpinjava-functionalstate-exercises',
+		'fpinjava-functionalstate-solutions',
+		'fpinjava-functionalparallelism-exercises',
+		'fpinjava-functionalparallelism-solutions'

@@ -29,11 +29,14 @@ public abstract class Stream<T> {
     return toListIterative();
   }
   
-  @SuppressWarnings("unused")
-  private TailCall<List<T>> toListRecursive(Stream<T> s, List<T> acc) {
+  public List<T> toListRecursive() {
+    return toListRecursive_(this, List.list()).eval().reverse();
+  }
+  
+  private TailCall<List<T>> toListRecursive_(Stream<T> s, List<T> acc) {
     return s instanceof Empty
         ? ret(acc)
-        : sus(() -> toListRecursive(s.tail().get(), List.cons(s.head(), acc)));
+        : sus(() -> toListRecursive_(s.tail().get(), List.cons(s.head(), acc)));
   }
 
   public List<T> toListIterative() {
@@ -79,11 +82,9 @@ public abstract class Stream<T> {
 
   public static class Cons<T> extends Stream<T> {
 
-    protected final Head<T> head;
+    private final Head<T> head;
     
-    protected final Supplier<Stream<T>> tail;
-
-    protected T headM;
+    private final Supplier<Stream<T>> tail;
     
     private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
@@ -98,7 +99,6 @@ public abstract class Stream<T> {
     @Override
     public T head() {
       return this.head.getEvaluated();
-
     }
 
     @Override

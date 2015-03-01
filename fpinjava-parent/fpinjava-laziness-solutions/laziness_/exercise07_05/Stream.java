@@ -20,7 +20,6 @@ public abstract class Stream<T> {
   public abstract Option<T> headOption();
   protected abstract Supplier<T> headS();
   public abstract Boolean exists(Function<T, Boolean> p);
-  public abstract <U> U foldRightStackBased(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f);
   public abstract <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f);
   
   private Stream() {}
@@ -78,6 +77,12 @@ public abstract class Stream<T> {
     return foldRight(() -> true, a -> b -> p.apply(a) && b.get());
   }
 
+  public Stream<T> takeWhileViaFoldRight(Function<T, Boolean> p) {
+    return foldRight(Stream::<T> empty, h -> t -> p.apply(h) 
+        ? cons(() -> h, t.get())
+        : Stream.<T> empty());
+  }
+
   public static class Empty<T> extends Stream<T> {
 
     private Empty() {
@@ -111,11 +116,6 @@ public abstract class Stream<T> {
     @Override
     public Boolean exists(Function<T, Boolean> p) {
       return false;
-    }
-
-    @Override
-    public <U> U foldRightStackBased(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return z.get();
     }
 
     @Override
@@ -168,26 +168,11 @@ public abstract class Stream<T> {
     public Boolean exists(Function<T, Boolean> p) {
       return p.apply(head()) || tail().exists(p);
     }
-    
-    public <U> U foldRightStackBased(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return f.apply(head()).apply(() -> tail().foldRightStackBased(z, f));
-    }
-
-    //@Override
-    public <U> U foldRight__(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return foldRight_(this, z, f).eval();
-    }
-    
-    public <U> TailCall<U> foldRight_(Stream<T> stream, Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return stream.isEmpty()
-          ? ret(z.get())
-          : sus(() -> foldRight_(stream.tail(), () -> f.apply(stream.head()).apply(z), f));
-    }
-
+        
     public <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) { 
       return f.apply(head()).apply(() -> tail().foldRight(z, f));
     }
-}
+  }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
     return new Cons<T>(hd, tl);

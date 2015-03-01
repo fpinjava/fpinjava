@@ -14,15 +14,18 @@ public abstract class Stream<T> {
   private static Stream EMPTY = new Empty();
 
   public abstract T head();
-  public abstract Stream<T> tail();
+  public abstract Supplier<Stream<T>> tail();
   public abstract boolean isEmpty();
   public abstract Option<T> headOption();
-  protected abstract Supplier<T> headS();
+  protected abstract Head<T> headS();
   
   private Stream() {}
   
+  public String toString() {
+    return toList().toString();
+  }
+  
   public List<T> toList() {
-    //return toListRecursive(this, List.list()).eval().reverse();
     return toListIterative();
   }
   
@@ -30,7 +33,7 @@ public abstract class Stream<T> {
   private TailCall<List<T>> toListRecursive(Stream<T> s, List<T> acc) {
     return s instanceof Empty
         ? ret(acc)
-        : sus(() -> toListRecursive(s.tail(), List.cons(s.head(), acc)));
+        : sus(() -> toListRecursive(s.tail().get(), List.cons(s.head(), acc)));
   }
 
   public List<T> toListIterative() {
@@ -38,11 +41,11 @@ public abstract class Stream<T> {
     Stream<T> ws = this;
     while (!ws.isEmpty()) {
       result.add(ws.head());
-      ws = ws.tail();
+      ws = ws.tail().get();
     }
     return List.fromCollection(result);
   }
-  
+
   public static class Empty<T> extends Stream<T> {
 
     private Empty() {
@@ -59,12 +62,12 @@ public abstract class Stream<T> {
     }
 
     @Override
-    protected Supplier<T> headS() {
+    protected Head<T> headS() {
       throw new IllegalStateException("headS called on Empty stream");
     }
 
     @Override
-    public Stream<T> tail() {
+    public Supplier<Stream<T>> tail() {
       throw new IllegalStateException("tail called on Empty stream");
     }
 
@@ -76,13 +79,13 @@ public abstract class Stream<T> {
 
   public static class Cons<T> extends Stream<T> {
 
-    protected final Supplier<T> head;
+    protected final Head<T> head;
     
-    protected final Stream<T> tail;
+    protected final Supplier<Stream<T>> tail;
 
     protected T headM;
     
-    private Cons(Supplier<T> head, Stream<T> tail) {
+    private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
       this.tail = tail;
     }
@@ -94,19 +97,16 @@ public abstract class Stream<T> {
 
     @Override
     public T head() {
-      if (this.headM == null) {
-        this.headM = head.get();
-      }
-      return this.headM;
+      return this.head.getEvaluated();
+
     }
 
-
     @Override
-    protected Supplier<T> headS() {
+    protected Head<T> headS() {
       return this.head;
     }
     @Override
-    public Stream<T> tail() {
+    public Supplier<Stream<T>> tail() {
       return this.tail;
     }
 
@@ -117,7 +117,7 @@ public abstract class Stream<T> {
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<T>(new Head<T>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -128,11 +128,40 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(list::head, cons(list.tail()));
+        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
   }
 
   @SafeVarargs
   public static <T> Stream<T> cons(T... t) {
     return cons(List.list(t));
   }
+  
+  public static class Head<T> {
+    
+    private Supplier<T> nonEvaluated;
+    private T evaluated;
+    
+    public Head(Supplier<T> nonEvaluated) {
+      super();
+      this.nonEvaluated = nonEvaluated;
+    }
+
+    public Head(Supplier<T> nonEvaluated, T evaluated) {
+      super();
+      this.nonEvaluated = nonEvaluated;
+      this.evaluated = evaluated;
+    }
+
+    public Supplier<T> getNonEvaluated() {
+      return nonEvaluated;
+    }
+
+    public T getEvaluated() {
+      if (evaluated == null) {
+        evaluated = nonEvaluated.get();
+      }
+      return evaluated;
+    }
+  }
+
 }

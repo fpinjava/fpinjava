@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.fpinjava.laziness.exercise07_01.Stream;
-
 public class StreamTest {
 
   @Test
@@ -13,6 +11,13 @@ public class StreamTest {
     Stream<Integer> stream = Stream.cons(1, 2, 3, 4, 5);
     assertEquals("[1, 2, 3, 4, 5, NIL]", stream.toList().toString());
     assertEquals("[NIL]", Stream.cons().toList().toString());
+  }
+
+  @Test
+  public void testToListRecursive() {
+    Stream<Integer> stream = Stream.cons(1, 2, 3, 4, 5);
+    assertEquals("[1, 2, 3, 4, 5, NIL]", stream.toListRecursive().toString());
+    assertEquals("[NIL]", Stream.cons().toListRecursive().toString());
   }
 
 }

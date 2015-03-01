@@ -1,7 +1,6 @@
 package com.fpinjava.laziness.exercise07_02;
 
 
-import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
 import com.fpinjava.common.Option;
 import com.fpinjava.common.Supplier;

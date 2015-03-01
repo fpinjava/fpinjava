@@ -10,9 +10,8 @@ import com.fpinjava.laziness.exercise07_03.Stream;
 public class StreamTest {
 
   /**
-   * The following tests verify that no elements are evaluated by the methods.
-   * Only the elements that are in the streams when converting to list are
-   * evaluated.
+   * The following tests verify which elements are evaluated by the methods.
+   * Only the necessary elements should be evaluated.
    */
   List<Integer> evaluated;
 

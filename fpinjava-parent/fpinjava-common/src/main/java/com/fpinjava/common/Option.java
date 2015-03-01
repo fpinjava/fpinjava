@@ -1,5 +1,7 @@
 package com.fpinjava.common;
 
+import java.util.Objects;
+
 public abstract class Option<A> {
 
   public abstract <B> Option<B> map(Function<A, B> f);
@@ -60,6 +62,16 @@ public abstract class Option<A> {
     public boolean isSome() {
       return false;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+      return this == o || o instanceof None;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
   }
 
   private static class Some<A> extends Option<A> {
@@ -94,7 +106,19 @@ public abstract class Option<A> {
     public boolean isSome() {
       return true;
     }
-  }
+
+    @Override
+    public boolean equals(Object o) {
+      return this == o || o instanceof Some
+          ? this.value.equals(((Some<?>) o).value)
+          : false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
+    }
+}
 
   public static <A> Option<A> some(A a) {
     return new Some<>(a);

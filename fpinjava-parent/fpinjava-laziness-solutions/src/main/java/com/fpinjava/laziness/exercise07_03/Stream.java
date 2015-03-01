@@ -19,8 +19,6 @@ public abstract class Stream<T> {
   public abstract boolean isEmpty();
   public abstract Option<T> headOption();
   protected abstract Head<T> headS();
-  public abstract Boolean exists(Function<T, Boolean> p);
-  public abstract <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f);
   
   private Stream() {}
   
@@ -49,10 +47,19 @@ public abstract class Stream<T> {
     return List.fromCollection(result);
   }
   
+  /*
+   * Create a new Stream<T> from taking the n first elements from this. We can
+   * achieve that by recursively calling take on the invoked tail of a cons
+   * cell. We make sure that the tail is not invoked unless we need to, by
+   * handling the special case where n == 1 separately. If n == 0, we can avoid
+   * looking at the stream at all.
+   */
   public Stream<T> take(Integer n) {
-    return n <= 0
-        ? Stream.empty()
-        : Stream.cons(headS(), () -> tail().get().take(n - 1));
+    return this.isEmpty()
+       ? Stream.empty()
+       : n > 1
+           ? Stream.cons(headS(), () -> tail().get().take(n - 1))
+           : Stream.cons(headS(), () -> Stream.empty());
   }
   
   public Stream<T> drop(int n) {
@@ -67,10 +74,6 @@ public abstract class Stream<T> {
         : p.apply(head()) 
             ? cons(headS(), () -> tail().get().takeWhile(p))
             : empty();
-  }
-
-  public Boolean existsViaFoldRight(Function<T, Boolean> p) {
-    return foldRight(() -> false, a -> b -> p.apply(a) || b.get());
   }
 
   public static class Empty<T> extends Stream<T> {
@@ -102,25 +105,13 @@ public abstract class Stream<T> {
     public Option<T> headOption() {
       return Option.none();
     }
-
-    @Override
-    public Boolean exists(Function<T, Boolean> p) {
-      return false;
-    }
-
-    @Override
-    public <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return z.get();
-    }
   }
 
   public static class Cons<T> extends Stream<T> {
 
-    protected final Head<T> head;
+    private final Head<T> head;
     
-    protected final Supplier<Stream<T>> tail;
-
-    protected T headM;
+    private final Supplier<Stream<T>> tail;
     
     private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
@@ -135,7 +126,6 @@ public abstract class Stream<T> {
     @Override
     public T head() {
       return this.head.getEvaluated();
-
     }
 
     @Override
@@ -150,15 +140,6 @@ public abstract class Stream<T> {
     @Override
     public Option<T> headOption() {
       return Option.some(this.head());
-    }
-
-    @Override
-    public Boolean exists(Function<T, Boolean> p) {
-      return p.apply(head()) || tail().get().exists(p);
-    }
-        
-    public <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) { 
-      return f.apply(head()).apply(() -> tail().get().foldRight(z, f));
     }
   }
 

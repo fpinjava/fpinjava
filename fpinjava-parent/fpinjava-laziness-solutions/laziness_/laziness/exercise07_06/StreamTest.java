@@ -10,28 +10,26 @@ import com.fpinjava.laziness.exercise07_06.Stream;
 public class StreamTest {
 
   /**
-   * The following tests verify that no elements are evaluated by the methods.
-   * Only the elements that are in the streams when converting to list are
-   * evaluated.
+   * The following tests verify which elements are evaluated by the methods.
    */
   List<Integer> evaluated;
 
   @Test
-  public void testTakeWhileViaFoldRight() {
+  public void testHeadOptionViaFoldRight() {
     evaluated = List.list();
     Stream<Integer> stream = 
         Stream.cons(() -> evaluate(1), 
         Stream.cons(() -> evaluate(2), 
         Stream.cons(() -> evaluate(3), 
         Stream.cons(() -> evaluate(4), 
-        Stream.cons(() -> evaluate(5), Stream.<Integer>empty()))))).takeWhileViaFoldRight(x -> x < 3);
-    assertEquals("[1, 2, NIL]", stream.toString());
-    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
+        Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
+    assertEquals("Some(1)", stream.headOptionViaFoldRight().toString());
+    assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test
-  public void testTakeWhileViaFoldRightEmpty() {
-    assertEquals("[NIL]", Stream.<Integer>cons().takeWhileViaFoldRight(x -> x < 4).toString());
+  public void testHeadOptionViaFoldRightEmpty() {
+    assertEquals("None", Stream.<Integer>cons().headOptionViaFoldRight().toString());
   }
   
   public int evaluate(int n) {

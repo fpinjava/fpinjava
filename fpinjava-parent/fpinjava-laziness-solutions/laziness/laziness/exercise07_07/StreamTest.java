@@ -10,7 +10,9 @@ import com.fpinjava.common.List;
 public class StreamTest {
 
   /**
-   * The following tests verify which elements are evaluated by the methods.
+   * The following tests verify that no elements are evaluated by the methods.
+   * Only the elements that are in the streams when converting to list are
+   * evaluated.
    */
   List<Integer> evaluated;
 
@@ -24,7 +26,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(4), 
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Stream<Integer> stream2 = stream.map(x -> x * 2);
-    assertEquals("[5, 4, 3, 2, 1, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
     assertEquals("[2, 4, 6, 8, 10, NIL]", stream2.toString());
   }
   
@@ -38,7 +40,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(4), 
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Stream<Integer> stream2 = stream.filter(x -> x % 2 != 0);
-    assertEquals("[5, 4, 3, 2, 1, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
     assertEquals("[1, 3, 5, NIL]", stream2.toString());
   }
   
@@ -52,7 +54,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(4), 
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Stream<Integer> stream2 = stream.append(stream.filter(x -> x % 2 != 0));
-    assertEquals("[5, 4, 3, 2, 1, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
     assertEquals("[1, 2, 3, 4, 5, 1, 3, 5, NIL]", stream2.toString());
   }
   

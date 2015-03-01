@@ -13,4 +13,11 @@ public class StreamTest {
     assertEquals("[NIL]", Stream.cons().toList().toString());
   }
 
+  @Test
+  public void testToListRecursive() {
+    Stream<Integer> stream = Stream.cons(1, 2, 3, 4, 5);
+    assertEquals("[1, 2, 3, 4, 5, NIL]", stream.toListRecursive().toString());
+    assertEquals("[NIL]", Stream.cons().toListRecursive().toString());
+  }
+
 }

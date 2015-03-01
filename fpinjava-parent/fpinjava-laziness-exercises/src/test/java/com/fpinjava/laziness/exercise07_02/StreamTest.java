@@ -30,9 +30,23 @@ public class StreamTest {
     assertEquals("[3, 2, 1, NIL]", evaluated.toString());
   }
 
-  @Test(expected=IllegalStateException.class)
+  @Test
+  public void testTakeMore() {
+    evaluated = List.list();
+    Stream<Integer> stream = 
+        Stream.cons(() -> evaluate(1), 
+        Stream.cons(() -> evaluate(2), 
+        Stream.cons(() -> evaluate(3), 
+        Stream.cons(() -> evaluate(4), 
+        Stream.cons(() -> evaluate(5), Stream.<Integer>empty()))))).take(8);
+    assertEquals("[NIL]", evaluated.toString());
+    assertEquals("[1, 2, 3, 4, 5, NIL]", stream.toString());
+    assertEquals("[5, 4, 3, 2, 1, NIL]", evaluated.toString());
+  }
+
+  @Test
   public void testTakeEmpty() {
-    Stream.cons().take(3).toString();
+    assertEquals("[NIL]", Stream.cons().take(3).toString());
   }
 
   @Test

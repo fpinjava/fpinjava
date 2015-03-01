@@ -49,10 +49,19 @@ public abstract class Stream<T> {
     return List.fromCollection(result);
   }
   
+  /*
+   * Create a new Stream<T> from taking the n first elements from this. We can
+   * achieve that by recursively calling take on the invoked tail of a cons
+   * cell. We make sure that the tail is not invoked unless we need to, by
+   * handling the special case where n == 1 separately. If n == 0, we can avoid
+   * looking at the stream at all.
+   */
   public Stream<T> take(Integer n) {
-    return n <= 0
-        ? Stream.empty()
-        : Stream.cons(headS(), () -> tail().get().take(n - 1));
+    return this.isEmpty()
+       ? Stream.empty()
+       : n > 1
+           ? Stream.cons(headS(), () -> tail().get().take(n - 1))
+           : Stream.cons(headS(), () -> Stream.empty());
   }
   
   public Stream<T> drop(int n) {
@@ -126,11 +135,9 @@ public abstract class Stream<T> {
 
   public static class Cons<T> extends Stream<T> {
 
-    protected final Head<T> head;
+    private final Head<T> head;
     
-    protected final Supplier<Stream<T>> tail;
-
-    protected T headM;
+    private final Supplier<Stream<T>> tail;
     
     private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
@@ -145,7 +152,6 @@ public abstract class Stream<T> {
     @Override
     public T head() {
       return this.head.getEvaluated();
-
     }
 
     @Override

@@ -40,7 +40,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(4), 
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     assertTrue(stream.existsViaFoldRight(x -> x < 4));
-    assertEquals("[3, 4, 5, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test
@@ -54,11 +54,8 @@ public class StreamTest {
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Function<Integer, Boolean> p = x -> x >= 3;
     assertTrue(stream.foldRight(() -> false, a -> b -> p.apply(a) || b.get()));
-    /*
-     * Remember foldRight handle the elements from right to left, so it first tries
-     * 5 and immedialtely stop since the predicate is satisfied
-     */
-    assertEquals("[5, NIL]", evaluated.toString());
+    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
+    assertEquals(Integer.valueOf(15), stream.foldRight(() -> 0, a -> b -> a + b.get()));
   }
 
   @Test
@@ -72,12 +69,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Function<Integer, Boolean> p = x -> x < 4;
     assertTrue(stream.foldRight(() -> false, a -> b -> p.apply(a) || b.get()));
-    /*
-     * Here, foldRight has to evaluate element 5, 4, 3 to find one satisfying
-     * the predicate. As the test use cons to put the evaluated element into
-     * a list, they appear in inverse order.
-     */
-    assertEquals("[3, 4, 5, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test
@@ -91,7 +83,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Function<Integer, Boolean> p = x -> x >= 3;
     assertTrue(stream.foldRightStackBased(() -> false, a -> b -> p.apply(a) || b.get()));
-    assertEquals("[5, NIL]", evaluated.toString());
+    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
   }
 
   @Test
@@ -105,7 +97,7 @@ public class StreamTest {
         Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
     Function<Integer, Boolean> p = x -> x < 4;
     assertTrue(stream.foldRightStackBased(() -> false, a -> b -> p.apply(a) || b.get()));
-    assertEquals("[3, 4, 5, NIL]", evaluated.toString());
+    assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test

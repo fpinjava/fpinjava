@@ -11,7 +11,8 @@ public class StreamTest {
 
   /**
    * The following tests verify that no elements are evaluated by the methods.
-   * Only the necessary elements should be evaluated.
+   * Only the elements that are in the streams when converting to list are
+   * evaluated.
    */
   List<Integer> evaluated;
 

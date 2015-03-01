@@ -49,10 +49,19 @@ public abstract class Stream<T> {
     return List.fromCollection(result);
   }
   
+  /*
+   * Create a new Stream<T> from taking the n first elements from this. We can
+   * achieve that by recursively calling take on the invoked tail of a cons
+   * cell. We make sure that the tail is not invoked unless we need to, by
+   * handling the special case where n == 1 separately. If n == 0, we can avoid
+   * looking at the stream at all.
+   */
   public Stream<T> take(Integer n) {
-    return n <= 0
-        ? Stream.empty()
-        : Stream.cons(headS(), () -> tail().get().take(n - 1));
+    return this.isEmpty()
+       ? Stream.empty()
+       : n > 1
+           ? Stream.cons(headS(), () -> tail().get().take(n - 1))
+           : Stream.cons(headS(), () -> Stream.empty());
   }
   
   public Stream<T> drop(int n) {
@@ -86,13 +95,37 @@ public abstract class Stream<T> {
   public Option<T> headOptionViaFoldRight() {
     return foldRight(() -> Option.<T>none(), t -> st -> Option.some(t));
   }
-  
-  public <U> Stream<U> map(Function<T, U> f) {
+ 
+  /*
+   * An implementation of map that evaluates the first element of the stream
+   */
+  public <U> Stream<U> map_(Function<T, U> f) {
     return foldRight(Stream::<U> empty, t -> su -> cons(() -> f.apply(t), () -> su.get()));
   }
   
+  /*
+   * A more sophisticated implementation that does not evaluate the first element.
+   */
+  public <U> Stream<U> map(Function<T, U> f) {
+    return flatten(this.mapH(lift(f)));
+  }
+  
+  public <U> Stream<Head<U>> mapH(Function<Head<T>, Head<U>> f) {
+    return foldRightH(Stream::<Head<U>> empty, ht -> su -> cons(() -> f.apply(ht), () -> su.get()));
+  }
+  
   public Stream<T> filter(Function<T, Boolean> p) {
-    return foldRight(Stream::<T> empty, t -> st -> (p.apply(t))
+    return foldRight(Stream::<T> empty, t -> st -> p.apply(t)
+        ? cons(() -> t, () -> st.get())
+        : st.get());
+  }
+  
+  public Stream<T> filter_(Function<T, Boolean> p) {
+    return flatten(this.filterH(lift(p)));
+  }
+  
+  private Stream<Head<T>> filterH(Function<Head<T>, Head<Boolean>> p) {
+    return foldRightH(Stream::<Head<T>> empty, t -> st -> p.apply(t).getEvaluated()
         ? cons(() -> t, () -> st.get())
         : st.get());
   }
@@ -103,6 +136,12 @@ public abstract class Stream<T> {
 
   public <U> Stream<U> flatMap(Function<T, Stream<U>> f) {
     return foldRight(Stream::<U> empty, t -> su -> f.apply(t).append(su.get()));
+  }
+
+  private <U> U foldRightH(Supplier<U> z, Function<Head<T>, Function<Supplier<U>, U>> f) { 
+    return this.isEmpty()
+        ? z.get()
+        : f.apply(headS()).apply(() -> tail().get().foldRightH(z, f));
   }
 
   public static class Empty<T> extends Stream<T> {
@@ -148,11 +187,9 @@ public abstract class Stream<T> {
 
   public static class Cons<T> extends Stream<T> {
 
-    protected final Head<T> head;
+    private final Head<T> head;
     
-    protected final Supplier<Stream<T>> tail;
-
-    protected T headM;
+    private final Supplier<Stream<T>> tail;
     
     private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
@@ -167,7 +204,6 @@ public abstract class Stream<T> {
     @Override
     public T head() {
       return this.head.getEvaluated();
-
     }
 
     @Override
@@ -220,6 +256,16 @@ public abstract class Stream<T> {
   @SafeVarargs
   public static <T> Stream<T> cons(T... t) {
     return cons(List.list(t));
+  }
+  
+  public static <T, U> Function<Head<T>, Head<U>> lift(Function<T, U> f) {
+    return t -> new Head<>(() -> f.apply(t.getEvaluated()));
+  }
+  
+  public static <T> Stream<T> flatten(Stream<Head<T>> s) {
+    return s.isEmpty()
+        ? empty()
+        : cons(s.head().getNonEvaluated(), flatten(s.tail().get()));
   }
   
   public static class Head<T> {
