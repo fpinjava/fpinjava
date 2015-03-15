@@ -14,6 +14,7 @@ public class ListTest {
     assertEquals("[NIL]", List.<Integer>list().dropWhile(x -> x < 3).toString());
     assertEquals("[1, 2, 3, NIL]", list(1, 2, 3).dropWhile(x -> x > 3).toString());
     assertEquals("[3, NIL]", list(1, 2, 3).dropWhile(x -> x < 3).toString());
+    assertEquals("[NIL]", list(1, 2, 3).dropWhile(x -> x < 5).toString());
   }
 
 }

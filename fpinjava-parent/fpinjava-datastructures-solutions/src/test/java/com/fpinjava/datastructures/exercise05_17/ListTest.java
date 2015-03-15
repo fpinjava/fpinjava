@@ -1,8 +1,9 @@
 package com.fpinjava.datastructures.exercise05_17;
 
-import static org.junit.Assert.*;
-import static com.fpinjava.datastructures.exercise05_17.List.*;
 import org.junit.Test;
+
+import static com.fpinjava.datastructures.exercise05_17.List.list;
+import static org.junit.Assert.assertEquals;
 
 public class ListTest {
 

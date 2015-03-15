@@ -19,16 +19,16 @@ public abstract class Either<E, A> {
   public static <E, A, B> Either<E, List<B>> traverseRecursive(List<A> as, Function<A, Either<E, B>> f) {
     throw new RuntimeException("To be implemented");
   }
-  
+
   public static <E, A, B> Either<E, List<B>> traverse(List<A> as, Function<A, Either<E, B>> f) {
     throw new RuntimeException("To be implemented");
   }
-  
-  public static <E, A, B> Either<E, List<A>> sequenceViaTraverseRecursive(List<Either<E, A>> es) {
+
+  public static <E, A> Either<E, List<A>> sequenceViaTraverseRecursive(List<Either<E, A>> es) {
     throw new RuntimeException("To be implemented");
   }
-  
-  public static <E, A, B> Either<E, List<A>> sequence(List<Either<E, A>> es) {
+
+  public static <E, A> Either<E, List<A>> sequence(List<Either<E, A>> es) {
     throw new RuntimeException("To be implemented");
   }
 

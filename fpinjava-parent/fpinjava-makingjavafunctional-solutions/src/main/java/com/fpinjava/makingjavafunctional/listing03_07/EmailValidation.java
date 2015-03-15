@@ -1,7 +1,5 @@
 package com.fpinjava.makingjavafunctional.listing03_07;
 
-import static com.fpinjava.makingjavafunctional.exercise03_01.Result.failure;
-import static com.fpinjava.makingjavafunctional.exercise03_01.Result.success;
 
 import java.util.regex.Pattern;
 
@@ -16,13 +14,13 @@ public class EmailValidation {
 
   static Function<String, Result<String>> emailChecker = s -> {
     if (s == null) {
-      return failure("email must not be null");
+      return Result.failure("email must not be null");
     } else if (s.length() == 0) {
-      return failure("email must not be empty");
+      return Result.failure("email must not be empty");
     } else if (emailPattern.matcher(s).matches()) {
-      return success(s);
+      return Result.success(s);
     } else {
-      return failure("email " + s + " is invalid.");
+      return Result.failure("email " + s + " is invalid.");
     }
   };
 

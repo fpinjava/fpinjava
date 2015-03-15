@@ -1,11 +1,11 @@
 package com.fpinjava.common;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
-import com.fpinjava.common.Function;
-import com.fpinjava.common.TailCall;
-
-import static com.fpinjava.common.TailCall.*;
+import static com.fpinjava.common.TailCall.ret;
+import static com.fpinjava.common.TailCall.sus;
 
 public abstract class List<A> {
 
@@ -39,6 +39,8 @@ public abstract class List<A> {
 
   public abstract A reduce(Function<A, Function<A, A>> f);
 
+  public abstract Option<A> headOption();
+
   public List<A> cons(A a) {
     return new Cons<>(a, this);
   }
@@ -49,6 +51,16 @@ public abstract class List<A> {
 
   @SuppressWarnings("rawtypes")
   public static final List NIL = new Nil();
+
+  public Tuple<List<A>, List<A>> splitAt(int i) {
+    return splitAt_(list(), this.reverse(), i).eval();
+  }
+
+  private TailCall<Tuple<List<A>, List<A>>> splitAt_(List<A> acc, List<A> list, int i) {
+    return i == 0 || list.isEmpty()
+        ? ret(new Tuple<>(acc, list))
+        : sus(() -> splitAt_(acc.cons(list.head()), list.tail(), i - 1));
+  }
 
   private List() {
   }
@@ -133,16 +145,24 @@ public abstract class List<A> {
     public A reduce(Function<A, Function<A, A>> f) {
       throw new IllegalStateException("Can't reduce and empty list without a zero");
     }
+
+    @Override
+    public Option<A> headOption() {
+      return Option.none();
+    }
+
   }
 
   private static class Cons<A> extends List<A> {
 
     private final A head;
     private final List<A> tail;
+    private final int length;
 
     private Cons(A head, List<A> tail) {
       this.head = head;
       this.tail = tail;
+      this.length = tail.length() + 1;
     }
 
     public A head() {
@@ -193,7 +213,7 @@ public abstract class List<A> {
     }
 
     private TailCall<List<A>> dropWhile_(List<A> list, Function<A, Boolean> f) {
-      return f.apply(list.head())
+      return !list.isEmpty() && f.apply(list.head())
           ? sus(() -> dropWhile_(list.tail(), f))
           : ret(list);
     }
@@ -216,7 +236,7 @@ public abstract class List<A> {
 
     @Override
     public int length() {
-      return foldRight(this, 0, x -> y -> y + 1);
+      return this.length;
     }
 
     @Override
@@ -257,6 +277,11 @@ public abstract class List<A> {
     @Override
     public A reduce(Function<A, Function<A, A>> f) {
       return this.tail().foldLeft(this.head(), f);
+    }
+
+    @Override
+    public Option<A> headOption() {
+      return Option.some(head);
     }
   }
 
@@ -299,12 +324,12 @@ public abstract class List<A> {
             new Cons<>(f.apply(list1.head()).apply(list2.head()), acc),
             list1.tail(), list2.tail(), f));
   }
-  
+
   public static <A> boolean hasSubsequence(List<A> list, List<A> sub) {
     return hasSubsequence_(list, sub).eval();
   }
 
-  public static <A> TailCall<Boolean> hasSubsequence_(List<A> list, 
+  public static <A> TailCall<Boolean> hasSubsequence_(List<A> list,
                                                       List<A> sub) {
     return list.isEmpty()
         ? ret(Boolean.FALSE)
@@ -319,7 +344,7 @@ public abstract class List<A> {
     return startsWith_(list, sub).eval();
   }
 
-  private static <A> TailCall<Boolean> startsWith_(List<A> list, 
+  private static <A> TailCall<Boolean> startsWith_(List<A> list,
                                                   List<A> sub) {
     return sub.isEmpty()
         ? ret(Boolean.TRUE)
@@ -329,7 +354,7 @@ public abstract class List<A> {
                 ? sus(() -> startsWith_(list.tail(), sub.tail()))
                 : ret(Boolean.FALSE);
   }
-  
+
   public static <T, U> Map<U, List<T>> groupBy(List<T> list, Function<T, U> f) {
     if (list.isEmpty()) {
       return Map.empty();
@@ -363,19 +388,19 @@ public abstract class List<A> {
   }
 
   public static List<Integer> range(int start, int end) {
-    return range_(list(), start, end).eval();
+    return range_(list(), start, end - 1).eval();
   }
 
   public static TailCall<List<Integer>> range_(List<Integer> acc, int start, int end) {
-    return start == end
+    return start >= end + 1
         ? ret(acc)
-        : sus(() -> range_(new Cons<>(start, acc), start + 1, end));
+        : sus(() -> range_(new Cons<>(end, acc), start, end - 1));
   }
 
   public static <A> List<A> fill(int n, Supplier<A> s) {
     return range(0, n).map(ignore -> s.get());
   }
-  
+
   public <A1, A2> Tuple<List<A1>, List<A2>> unzip(Function<A, Tuple<A1, A2>> f) {
     return unzip(this.map(f));
   }
@@ -391,4 +416,22 @@ public abstract class List<A> {
     }
     return new Tuple<>(listT, listU);
   }
+
+  public static List<Integer> sort(List<Integer> list) {
+    return list.foldRight(new IntegerSet(), x -> y -> y.add(x)).toList();
+  }
+
+  static final class IntegerSet {
+    private Set<Integer> set = new TreeSet<>();
+
+    public IntegerSet add(Integer i) {
+      set.add(i);
+      return this;
+    }
+
+    public List<Integer> toList() {
+      return fromCollection(set);
+    }
+  }
+
 }

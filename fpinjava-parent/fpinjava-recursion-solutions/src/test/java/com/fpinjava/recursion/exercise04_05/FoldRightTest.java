@@ -22,5 +22,5 @@ public class FoldRightTest {
     Function<Integer, Function<String, String>> f = x -> y -> addIS(x, y);
     assertEquals("(1 + (2 + (3 + (4 + (5 + 0)))))", FoldRight.foldRight(list, identity, f));
   }
-
+  
 }

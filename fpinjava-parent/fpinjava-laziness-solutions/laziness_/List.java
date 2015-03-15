@@ -3,10 +3,12 @@ package com.fpinjava.laziness;
 import java.util.Collection;
 
 import com.fpinjava.common.Function;
+import com.fpinjava.common.List;
 import com.fpinjava.common.Map;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.TailCall;
 import com.fpinjava.common.Tuple;
+import com.fpinjava.common.List.Cons;
 
 import static com.fpinjava.common.TailCall.*;
 
@@ -367,13 +369,13 @@ public abstract class List<A> {
   }
 
   public static List<Integer> range(int start, int end) {
-    return range_(list(), start, end).eval();
+    return range_(list(), start, end - 1).eval();
   }
 
   public static TailCall<List<Integer>> range_(List<Integer> acc, int start, int end) {
-    return start == end
+    return start >= end + 1
         ? ret(acc)
-        : sus(() -> range_(new Cons<>(start, acc), start + 1, end));
+        : sus(() -> range_(new Cons<>(end, acc), start, end - 1));
   }
 
   public static <A> List<A> fill(int n, Supplier<A> s) {

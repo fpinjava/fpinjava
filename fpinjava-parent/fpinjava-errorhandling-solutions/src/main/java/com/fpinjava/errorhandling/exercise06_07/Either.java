@@ -18,19 +18,19 @@ public abstract class Either<E, A> {
 
   public static <E, A, B> Either<E, List<B>> traverseRecursive(List<A> as, Function<A, Either<E, B>> f) {
     return as.isEmpty()
-        ? right(List.list())
-        : f.apply(as.head()).map2(traverse(as.tail(), f), x -> y -> y.cons(x)); 
+        ? Either.right(List.list())
+        : f.apply(as.head()).map2(traverseRecursive(as.tail(), f), x -> y -> y.cons(x));
   }
-  
+
   public static <E, A, B> Either<E, List<B>> traverse(List<A> as, Function<A, Either<E, B>> f) {
     return as.foldRight(right(List.list()), a -> b -> f.apply(a).map2(b, x -> y -> y.cons(x)));
   }
-  
-  public static <E, A, B> Either<E, List<A>> sequenceViaTraverseRecursive(List<Either<E, A>> es) {
-    return traverse(es, x -> x);
+
+  public static <E, A> Either<E, List<A>> sequenceViaTraverseRecursive(List<Either<E, A>> es) {
+    return traverseRecursive(es, x -> x);
   }
-  
-  public static <E, A, B> Either<E, List<A>> sequence(List<Either<E, A>> es) {
+
+  public static <E, A> Either<E, List<A>> sequence(List<Either<E, A>> es) {
     return traverse(es, x -> x);
   }
 

@@ -164,7 +164,7 @@ public abstract class List<A> {
     }
 
     private TailCall<List<A>> dropWhile_(List<A> list, Function<A, Boolean> f) {
-      return f.apply(list.head())
+      return !list.isEmpty() && f.apply(list.head())
           ? sus(() -> dropWhile_(list.tail(), f))
           : ret(list);
     }

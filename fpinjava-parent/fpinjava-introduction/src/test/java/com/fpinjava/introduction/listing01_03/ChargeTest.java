@@ -1,11 +1,8 @@
 package com.fpinjava.introduction.listing01_03;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
-import com.fpinjava.introduction.listing01_03.Charge;
-import com.fpinjava.introduction.listing01_03.CreditCard;
+import static org.junit.Assert.assertEquals;
 
 public class ChargeTest {
 

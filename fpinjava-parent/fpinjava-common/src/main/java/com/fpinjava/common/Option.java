@@ -10,6 +10,8 @@ public abstract class Option<A> {
 
   public abstract A getOrElse(Supplier<A> defaultValue);
 
+  public abstract A getOrElse(A defaultValue);
+
   public abstract boolean isSome();
 
   public <B> Option<B> flatMap(Function<A, Option<B>> f) {
@@ -72,6 +74,11 @@ public abstract class Option<A> {
     public int hashCode() {
         return 0;
     }
+
+    @Override
+    public A getOrElse(A defaultValue) {
+      return defaultValue;
+    }
   }
 
   private static class Some<A> extends Option<A> {
@@ -117,6 +124,11 @@ public abstract class Option<A> {
     @Override
     public int hashCode() {
         return Objects.hashCode(value);
+    }
+
+    @Override
+    public A getOrElse(A defaultValue) {
+      return value;
     }
 }
 

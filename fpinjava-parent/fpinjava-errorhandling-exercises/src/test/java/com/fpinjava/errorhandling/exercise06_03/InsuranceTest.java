@@ -1,8 +1,8 @@
 package com.fpinjava.errorhandling.exercise06_03;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class InsuranceTest {
 

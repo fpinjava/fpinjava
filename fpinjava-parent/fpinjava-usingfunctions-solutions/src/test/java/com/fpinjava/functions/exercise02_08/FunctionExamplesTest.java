@@ -1,8 +1,8 @@
 package com.fpinjava.functions.exercise02_08;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 
 public class FunctionExamplesTest {
