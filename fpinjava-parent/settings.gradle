@@ -19,4 +19,5 @@ include 'fpinjava-common',
 		'fpinjava-functionalstate-exercises',
 		'fpinjava-functionalstate-solutions',
 		'fpinjava-functionalparallelism-exercises',
-		'fpinjava-functionalparallelism-solutions'
+		'fpinjava-functionalparallelism-solutions',
+		'fpinjava-test'

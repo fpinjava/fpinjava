@@ -1,10 +1,12 @@
-package com.fpinjava.functionaparallelism.listing07;
+package com.fpinjava.functionalparallelism.listing07;
 
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+
+import com.fpinjava.common.TailCall;
 
 /*
 * Implementation is taken from `scalaz` library, with only minor changes. See:
@@ -75,14 +77,18 @@ public class Actor<A> {
     strategy.apply(() -> {act();return null;});
   }
 
+  //private static int countne;
+  //private static int countnotne;
   private void act() {
     Node<A> t = tail.get();
-    Node<A> n = batchHandle(t, 1024);
+    Node<A> n = batchHandle(t, 512);
     if (n != t) {
+      //System.err.println("ne: " + (++countnotne) + " total: " + (countne + countnotne));
       n.a = null;
       tail.lazySet(n);
       schedule();
     } else {
+      //System.err.println("notne: " + (++countne) + " total: " + (countne + countnotne));
       suspended.set(1);
       if (n.get() != null) trySchedule();
     }
@@ -90,6 +96,10 @@ public class Actor<A> {
 
   //@tailrec
   private Node<A> batchHandle(Node<A> t, int i) {
+    return batchHandle_(t, i).eval();
+  }
+  
+  private TailCall<Node<A>> batchHandle_(Node<A> t, int i) {
     Node<A> n = t.get();
     if (n != null) {
       try {
@@ -98,18 +108,18 @@ public class Actor<A> {
         onError.accept(ex);
       }
       if (i > 0) {
-        return batchHandle(n, i - 1);
+        return TailCall.sus(() ->batchHandle_(n, i - 1));
       } else {
-        return n;
+        return TailCall.ret(n);
       }
     } else {
-      return t;
+      return TailCall.ret(t);
     }
   }
 
   @SuppressWarnings("serial")
   static class Node<A> extends AtomicReference<Node<A>> {
-
+    
     private A a;
 
     public Node() {
@@ -119,6 +129,9 @@ public class Actor<A> {
     public Node(A a) {
       super();
       this.a = a;
+      if (a instanceof Node) {
+        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      }
     }
 
     public A getA() {
@@ -131,5 +144,13 @@ public class Actor<A> {
    */
   public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler, Consumer<Throwable> onError) {
     return new Actor<>(Strategy.fromExecutorService(es), handler, onError);
+  }
+  
+  public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler) {
+    return new Actor<>(Strategy.fromExecutorService(es), handler, e -> {throw new IllegalStateException(e);});
+  }
+  
+  public static <A> Actor<A> apply(Consumer<A> handler) {
+    return new Actor<>(Strategy.sequential(), handler, e -> {throw new IllegalStateException(e);});
   }
 }

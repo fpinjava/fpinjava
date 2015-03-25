@@ -1,8 +1,5 @@
 package com.fpinjava.common;
 
-import com.fpinjava.common.Function;
-import com.fpinjava.common.List;
-import com.fpinjava.common.Supplier;
 
 public abstract class Either<E, A> {
 

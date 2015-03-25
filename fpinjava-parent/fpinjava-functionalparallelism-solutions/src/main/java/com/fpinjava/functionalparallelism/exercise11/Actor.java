@@ -1,10 +1,12 @@
-package com.fpinjava.functionaparallelism.listing07;
+package com.fpinjava.functionalparallelism.exercise11;
 
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+
+import com.fpinjava.common.TailCall;
 
 /*
 * Implementation is taken from `scalaz` library, with only minor changes. See:
@@ -19,7 +21,7 @@ import java.util.function.Consumer;
 
 /**
 * Processes messages of type `A`, one at a time. Messages are submitted to
-* the actor with the method `!`. Processing is typically performed asynchronously,
+* the actor with the method `tell`. Processing is typically performed asynchronously,
 * this is controlled by the provided `strategy`.
 *
 * Memory consistency guarantee: when each message is processed by the `handler`, any memory that it
@@ -31,14 +33,13 @@ import java.util.function.Consumer;
 * Implementation based on non-intrusive MPSC node-based queue, described by Dmitriy Vyukov:
 * [[http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue]]
 *
-* @see scalaz.concurrent.Promise for a use case.
 *
 * @param handler The message handler
 * @param onError Exception handler, called if the message handler throws any `Throwable`.
 * @param strategy Execution strategy, for example, a strategy that is backed by an `ExecutorService`
 * @tparam A The type of messages accepted by this actor.
 */
-public class Actor3<A> {
+public class Actor<A> {
 
   private AtomicReference<Node<A>> tail = new AtomicReference<>(new Node<A>());
   private AtomicInteger suspended = new AtomicInteger(1);
@@ -47,7 +48,7 @@ public class Actor3<A> {
   private final Consumer<A> handler;
   private final Consumer<Throwable> onError;
 
-  public Actor3(Strategy strategy, Consumer<A> handler, Consumer<Throwable> onError) {
+  public Actor(Strategy strategy, Consumer<A> handler, Consumer<Throwable> onError) {
     this.strategy = strategy;
     this.handler = handler;
     this.onError = onError;
@@ -62,23 +63,17 @@ public class Actor3<A> {
     trySchedule();
   }
 
-//  public <B> Actor<B> contramap(Function<B, A> f) {
-//    Consumer<B> cb = (B b) -> this.tell(f.apply(b));
-//    return new Actor<B>(strategy, cb, onError);
-//  }
-
   private void trySchedule() {
     if (suspended.compareAndSet(1, 0)) schedule();
   }
 
   private void schedule() {
-    
     strategy.apply(() -> {act();return null;});
   }
 
   private void act() {
     Node<A> t = tail.get();
-    Node<A> n = batchHandle(t, 1024);
+    Node<A> n = batchHandle(t, 512);
     if (n != t) {
       n.a = null;
       tail.lazySet(n);
@@ -89,8 +84,11 @@ public class Actor3<A> {
     }
   }
 
-  //@tailrec
   private Node<A> batchHandle(Node<A> t, int i) {
+    return batchHandle_(t, i).eval();
+  }
+  
+  private TailCall<Node<A>> batchHandle_(Node<A> t, int i) {
     Node<A> n = t.get();
     if (n != null) {
       try {
@@ -99,18 +97,18 @@ public class Actor3<A> {
         onError.accept(ex);
       }
       if (i > 0) {
-        return batchHandle(n, i - 1);
+        return TailCall.sus(() ->batchHandle_(n, i - 1));
       } else {
-        return n;
+        return TailCall.ret(n);
       }
     } else {
-      return t;
+      return TailCall.ret(t);
     }
   }
 
   @SuppressWarnings("serial")
   static class Node<A> extends AtomicReference<Node<A>> {
-
+    
     private A a;
 
     public Node() {
@@ -130,7 +128,15 @@ public class Actor3<A> {
   /*
    *  Create an `Actor` backed by the given `ExecutorService`.
    */
-  public static <A> Actor3<A> apply(ExecutorService es, Consumer<A> handler, Consumer<Throwable> onError) {
-    return new Actor3<>(Strategy.fromExecutorService(es), handler, onError);
+  public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler, Consumer<Throwable> onError) {
+    return new Actor<>(Strategy.fromExecutorService(es), handler, onError);
+  }
+  
+  public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler) {
+    return new Actor<>(Strategy.fromExecutorService(es), handler, e -> {throw new IllegalStateException(e);});
+  }
+  
+  public static <A> Actor<A> apply(Consumer<A> handler) {
+    return new Actor<>(Strategy.sequential(), handler, e -> {throw new IllegalStateException(e);});
   }
 }

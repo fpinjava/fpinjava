@@ -1,15 +1,14 @@
-package com.fpinjava.functionaparallelism.exercise03;
+package com.fpinjava.functionalparallelism.exercise05;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
+import com.fpinjava.common.Nothing;
 import com.fpinjava.common.Option;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.Tuple;
@@ -21,28 +20,6 @@ import com.fpinjava.common.Tuple;
  */
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static Par<Integer> sum(List<Integer> ints) {
-    if (ints.length() <= 1) {
-      return Par.unit(() -> ints.headOption().getOrElse(0));
-    } else {
-      final Tuple<List<Integer>, List<Integer>> tuple = ints.splitAt(ints.length() / 2);
-      return Par.map2(fork(() -> sum(tuple._1)), fork(() -> sum(tuple._2)), x -> y -> x + y);
-    }
-  }
-
-  /*-
-   * `map2` doesn't evaluate the call to `f` in a separate logical thread, in
-   * accord with our design choice of having `fork` be the sole function in the
-   * API for controlling parallelism. We can always do `fork(map2(a,b)(f))` if
-   * we want the evaluation of `f` to occur in a separate thread. 
-   * 
-   * This implementation of `map2` does _not_ respect timeouts. It simply passes 
-   * the `ExecutorService` on to both `Par` values, waits for the results of the
-   * Futures `af` and `bf`, applies `f` to them, and wraps them in a
-   * `UnitFuture`. In order to respect timeouts, we'd need a new `Future`
-   * implementation that records the amount of time spent evaluating `af`, then
-   * subtracts that time from the available time allocated for evaluating `bf`.
-   */
   public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
@@ -50,15 +27,15 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
       return new Map2Future<>(af, bf, f);
     };
   }
-  
+
   public static class Map2Future<A, B, C> implements Future<C> {
-    
+
     private volatile Option<C> cache = Option.none();
 
     private final Future<A> a;
     private final Future<B> b;
     private final Function<A, Function<B, C>> f;
-    
+
     public Map2Future(Future<A> a, Future<B> b, Function<A, Function<B, C>> f) {
       super();
       this.a = a;
@@ -94,10 +71,10 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     public C get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
       return compute(TimeUnit.MILLISECONDS.convert(timeout, unit));
     }
-    
+
     private C compute(long timeoutMs) throws InterruptedException, ExecutionException, TimeoutException {
       if (cache.isSome()) {
-         return cache.get();
+        return cache.get();
       } else {
         final long start = System.currentTimeMillis();
         final A ar = a.get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -132,13 +109,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * later in the chapter.
    */
   public static <A> Par<A> fork(Supplier<Par<A>> a) {
-    return es -> es.submit(new Callable<A>() {
-
-      @Override
-      public A call() throws Exception {
-        return a.get().apply(es).get();
-      }
-    });
+    return es -> es.submit(() -> a.get().apply(es).get());
   }
 
   public static <A> Par<A> lazyUnit(Supplier<A> a) {
@@ -149,6 +120,57 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     return a.apply(s);
   }
 
+  public static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
+    return a -> lazyUnit(() -> f.apply(a));
+  }
+
+  public static Par<List<Integer>> sortPar_(Par<List<Integer>> parList) {
+    return map2(parList, unit(() -> Nothing.instance), a -> ignore -> List.sort(a));
+  }
+
+  public static <A, B> Par<B> map(Par<A> pa, Function<A, B> f) {
+    return map2(pa, unit(() -> Nothing.instance), a -> ignore -> f.apply(a));
+  }
+
+  public static Par<List<Integer>> sortPar(Par<List<Integer>> parList) {
+    return map(parList, x -> List.sort(x));
+  }
+  
+  public static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
+    return fork (() -> {
+      final List<Par<B>> fbs = ps.map(asyncF(f));
+      return sequence_simple(fbs);
+    });
+  }
+
+  public static <A> Par<List<A>> sequence_simple(List<Par<A>> list) {
+    return list.foldRight(unit(() -> List.list()), h -> t -> map2(h, t, x -> y -> y.cons(x)));
+  }
+
+  /*
+   * This implementation forks the recursive step off to a new logical thread,
+   * making it effectively tail-recursive. However, we are constructing a
+   * right-nested parallel program, and we can get better performance by
+   * dividing the list in half, and running both halves in parallel. See
+   * `sequenceBalanced` below.
+   */
+  public static <A> Par<List<A>> sequenceRight(List<Par<A>> list) {
+    return list.isEmpty()
+        ? unit(() -> List.list())
+        : map2(list.head(), fork(() -> sequenceRight(list.tail())), x -> y -> y.cons(x));
+  }
+  
+  public static <A> Par<List<A>> sequence(List<Par<A>> list) {
+    if (list.isEmpty()) {
+      return unit(() -> List.list());
+    } else if (list.length() == 1) {
+      return map(list.head(), a -> List.list(a));
+    } else {
+      Tuple<List<Par<A>>, List<Par<A>>> tuple = list.splitAt(list.length() / 2);
+      return fork(() -> map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
+    }
+  }
+  
   public static class UnitFuture<A> implements Future<A> {
 
     private final A get;

@@ -1,4 +1,4 @@
-package com.fpinjava.functionaparallelism.listing07;
+package com.fpinjava.functionalparallelism.exercise11;
 
 import com.fpinjava.common.Supplier;
 
@@ -19,7 +19,7 @@ public interface Strategy {
    * We can create a `Strategy` from any `ExecutorService`. It's a little more
    * convenient than submitting `Callable` objects directly.
    */
-  public static <A> Strategy fromExecutorService(ExecutorService es) {
+  public static Strategy fromExecutorService(ExecutorService es) {
     return new Strategy() {
 
       @Override
@@ -46,7 +46,7 @@ public interface Strategy {
    * A `Strategy` which begins executing its argument immediately in the calling
    * thread.
    */
-  public static <A> Strategy sequential() {
+  public static Strategy sequential() {
     return new Strategy() {
 
       @Override

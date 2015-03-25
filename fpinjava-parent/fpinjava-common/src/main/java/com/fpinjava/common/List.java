@@ -3,9 +3,11 @@ package com.fpinjava.common;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
+
 
 public abstract class List<A> {
 
@@ -62,6 +64,28 @@ public abstract class List<A> {
         : sus(() -> splitAt_(acc.cons(list.head()), list.tail(), i - 1));
   }
 
+  public void forEach(Consumer<A> effect) {
+    List<A> workList = this;
+    while (!workList.isEmpty()) {
+      effect.accept(workList.head());
+      workList = workList.tail();
+    }
+  }
+  
+  public Option<A> getAt(int index) {
+    return getAt(this, index).eval();
+  }
+  
+  public TailCall<Option<A>> getAt(List<A> list, int index) {
+    return index >= list.length()
+        ? TailCall.ret(Option.none())
+        : list.isEmpty()
+            ? TailCall.ret(Option.none())
+            : index <= 0
+                ? TailCall.ret(Option.some(list.head()))
+                : TailCall.sus(() -> getAt(list.tail(), index - 1));
+  }
+  
   private List() {
   }
 
@@ -251,10 +275,19 @@ public abstract class List<A> {
               identity, f));
     }
 
+//    private static <U, T> U foldLeftIterative(List<T> list, U seed, Function<U, Function<T, U>> f) {
+//      List<T> workList = list;
+//      U result = seed;
+//      while (!workList.isEmpty()) {
+//        result = f.apply(result).apply(workList.head());
+//        workList = workList.tail();
+//      }
+//      return result;
+//    }
+
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return foldLeft(Function.<B> identity(),
-          g -> a -> b -> g.apply(f.apply(a).apply(b))).apply(identity);
+      return this.reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
     }
 
     @Override
@@ -388,10 +421,20 @@ public abstract class List<A> {
   }
 
   public static List<Integer> range(int start, int end) {
-    return range_(list(), start, end - 1).eval();
+    return range_(List.<Integer>list(), start, end - 1).eval();
   }
 
   public static TailCall<List<Integer>> range_(List<Integer> acc, int start, int end) {
+    return start >= end + 1
+        ? ret(acc)
+        : sus(() -> range_(new Cons<>(end, acc), start, end - 1));
+  }
+
+  public static List<Long> range(long start, long end) {
+    return range_(List.<Long>list(), start, end - 1).eval();
+  }
+
+  public static TailCall<List<Long>> range_(List<Long> acc, long start, long end) {
     return start >= end + 1
         ? ret(acc)
         : sus(() -> range_(new Cons<>(end, acc), start, end - 1));

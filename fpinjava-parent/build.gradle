@@ -2,16 +2,11 @@ version = '1.0'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 subprojects {
-	sourceCompatibility = 1.8
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
     
 	repositories {
 	    mavenCentral()
@@ -165,6 +160,18 @@ project(':fpinjava-functionalparallelism-solutions') {
 
   dependencies {
     compile project(':fpinjava-common')
+	compile group: 'org.functionaljava', name: 'functionaljava-java8', version: '4.3'
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.5-alpha-1'
+    testCompile group: 'com.pholser', name: 'junit-quickcheck-generators', version: '0.5-alpha-1'
+	testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'  
+  }
+}
+
+project(':fpinjava-test') {
+
+  dependencies {
+	compile group: 'org.functionaljava', name: 'functionaljava-java8', version: '4.3'
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.5-alpha-1'
     testCompile group: 'com.pholser', name: 'junit-quickcheck-generators', version: '0.5-alpha-1'

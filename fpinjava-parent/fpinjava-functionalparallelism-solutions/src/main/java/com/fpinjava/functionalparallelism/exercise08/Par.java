@@ -1,4 +1,4 @@
-package com.fpinjava.functionaparallelism.exercise05;
+package com.fpinjava.functionalparallelism.exercise08;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,23 +21,6 @@ import com.fpinjava.common.Tuple;
  */
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static Par<Integer> sum(List<Integer> ints) {
-    if (ints.length() <= 1) {
-      return Par.unit(() -> ints.headOption().getOrElse(0));
-    } else {
-      final Tuple<List<Integer>, List<Integer>> tuple = ints.splitAt(ints.length() / 2);
-      return Par.map2(fork(() -> sum(tuple._1)), fork(() -> sum(tuple._2)), x -> y -> x + y);
-    }
-  }
-
-  /*-
-   * `map2` doesn't evaluate the call to `f` in a separate logical thread, in
-   * accord with our design choice of having `fork` be the sole function in the
-   * API for controlling parallelism. We can always do `fork(map2(a,b)(f))` if
-   * we want the evaluation of `f` to occur in a separate thread. 
-   * 
-   * This version respects timeouts. See `Map2Future` below.
-   */
   public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
@@ -161,8 +144,10 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
   }
 
   public static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
-    final List<Par<B>> fbs = ps.map(asyncF(f));
-    return sequence_simple(fbs);
+    return fork (() -> {
+      final List<Par<B>> fbs = ps.map(asyncF(f));
+      return sequence_simple(fbs);
+    });
   }
 
   public static <A> Par<List<A>> sequence_simple(List<Par<A>> list) {
@@ -181,7 +166,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
         ? unit(() -> List.list())
         : map2(list.head(), fork(() -> sequenceRight(list.tail())), x -> y -> y.cons(x));
   }
-  
+
   public static <A> Par<List<A>> sequence(List<Par<A>> list) {
     if (list.isEmpty()) {
       return unit(() -> List.list());
@@ -192,7 +177,20 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
       return fork(() -> map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
     }
   }
-  
+
+  public static <A> Par<List<A>> parFilter(List<A> list, Function<A, Boolean> p) {
+    List<Par<List<A>>> pars = list.map(asyncF(a -> p.apply(a) ? List.list(a) : List.list()));
+    return map(sequence(pars), x -> List.flatten(x));
+  }
+
+  public static <A> boolean equal(ExecutorService es, Par<A> p1, Par<A> p2) {
+    try {
+      return p1.apply(es).get().equals(p2.apply(es).get());
+    } catch (InterruptedException | ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   public static class UnitFuture<A> implements Future<A> {
 
     private final A get;

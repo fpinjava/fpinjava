@@ -1,4 +1,9 @@
-package com.fpinjava.functionaparallelism.listing07;
+package com.fpinjava.functionalparallelism.exercise10;
+
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import com.fpinjava.common.Either;
 import com.fpinjava.common.Function;
@@ -7,11 +12,6 @@ import com.fpinjava.common.Nothing;
 import com.fpinjava.common.Option;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.Tuple;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
@@ -45,11 +45,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * asynchronously, using the given `ExecutorService`.
    */
   public static void eval(ExecutorService es, Runnable r) {
-    es.submit(new Runnable() {
-
-      @Override
-      public void run() {}
-    });
+    es.submit(r);
   }
 
   public static <A> A run(ExecutorService es, Par<A> p) {
@@ -107,9 +103,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
               }
             }
           };
-          Actor<Either<A,B>> combiner = Actor.apply(es, handler, e -> {
-            throw new IllegalStateException(e);
-          });
+          Actor<Either<A,B>> combiner = Actor.apply(es, handler);
           p1.apply(es).apply(a -> combiner.tell(Either.left(a)));
           p2.apply(es).apply(b -> combiner.tell(Either.right(b)));
         }
@@ -120,10 +114,13 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     public Option<A> ar = Option.none();
     public Option<B> br = Option.none();
   }
-  
-  public static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
-    final List<Par<B>> fbs = ps.map(asyncF(f));
+
+  public static <A, B> Par<List<B>> parMap(List<A> as, Function<A, B> f) {
+    final List<Par<B>> fbs = as.map(asyncF(f));
+//    fbs.forEach(x -> x.apply(Executors.newFixedThreadPool(2)).apply(z -> System.out.println(z)));      
+//    fbs.forEach(y -> y.apply(java.util.concurrent.Executors.newFixedThreadPool(2)).apply(x -> System.out.println(x)));
 //    System.out.println(fbs);
+//    System.out.println(fbs.length());
     return sequence(fbs);
   }
 
@@ -134,6 +131,10 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
   public static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
     return a -> lazyUnit(() -> f.apply(a));
   }
+  
+//  public static <A> Par<List<A>> sequence_simple(List<Par<A>> list) {
+//    return list.foldRight(unit(() -> List.list()), h -> t -> map2(h, t, x -> y -> y.cons(x)));
+//  }
 
   public static <A> Par<List<A>> sequence(List<Par<A>> list) {
     if (list.isEmpty()) {
@@ -142,6 +143,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
       return map(list.head(), a -> List.list(a));
     } else {
       Tuple<List<Par<A>>, List<Par<A>>> tuple = list.splitAt(list.length() / 2);
+      System.out.println(tuple._1.length() + " - " + tuple._2.length());
       return fork(() -> map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
     }
   }
