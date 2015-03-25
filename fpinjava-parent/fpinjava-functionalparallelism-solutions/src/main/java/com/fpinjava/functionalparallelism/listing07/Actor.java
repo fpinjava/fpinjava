@@ -77,18 +77,14 @@ public class Actor<A> {
     strategy.apply(() -> {act();return null;});
   }
 
-  //private static int countne;
-  //private static int countnotne;
   private void act() {
     Node<A> t = tail.get();
     Node<A> n = batchHandle(t, 512);
     if (n != t) {
-      //System.err.println("ne: " + (++countnotne) + " total: " + (countne + countnotne));
       n.a = null;
       tail.lazySet(n);
       schedule();
     } else {
-      //System.err.println("notne: " + (++countne) + " total: " + (countne + countnotne));
       suspended.set(1);
       if (n.get() != null) trySchedule();
     }
@@ -129,9 +125,6 @@ public class Actor<A> {
     public Node(A a) {
       super();
       this.a = a;
-      if (a instanceof Node) {
-        System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      }
     }
 
     public A getA() {

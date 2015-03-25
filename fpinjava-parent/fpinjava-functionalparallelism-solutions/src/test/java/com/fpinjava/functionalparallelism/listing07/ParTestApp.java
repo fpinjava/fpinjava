@@ -1,7 +1,6 @@
 package com.fpinjava.functionalparallelism.listing07;
 
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,13 +12,7 @@ public class ParTestApp {
   private static boolean printThreadName;
   
   public static void main(String... args) throws InterruptedException {
-    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        e.printStackTrace();
-      }});
-    long testLimit = 20_000; // <= program hangs fo value > 25 000 (may vary over time and depending on the platform)
+    long testLimit = 20_000; // <= program hangs fo value > 25 000 - 37 000
     int numberOfThreads = 2;
     if (args.length > 0) {
       try {
@@ -38,8 +31,8 @@ public class ParTestApp {
     if (args.length > 2) {
       printThreadName = Boolean.parseBoolean(args[2]);
     }
-    //ExecutorService es = Executors.newFixedThreadPool(numberOfThreads);
-    ExecutorService es = new MyExecutorService(numberOfThreads);
+    ExecutorService es = Executors.newFixedThreadPool(numberOfThreads);
+    //ExecutorService es = new MyExecutorService(numberOfThreads);
     List<Long> testList = List.range(0L, testLimit);
     long expected = testList.map(x -> x * x).foldRight(0L, x -> y -> x + y);
     System.out.println("Expected: " + expected);
@@ -62,9 +55,9 @@ public class ParTestApp {
     if (printThreadName) {
       System.out.println(Thread.currentThread().getName());
     }
-    if (x == 10) {
-      throw new IllegalStateException("x == 10!!!!!!!!!!!!!!!");
-    }
+//    if (x == 10) {
+//      throw new IllegalStateException("x == 10");
+//    }
     return x * x;
   };
 
