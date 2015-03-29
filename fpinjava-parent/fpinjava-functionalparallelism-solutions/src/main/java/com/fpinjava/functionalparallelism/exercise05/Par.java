@@ -139,7 +139,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
   public static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
     return fork (() -> {
       final List<Par<B>> fbs = ps.map(asyncF(f));
-      return sequence_simple(fbs);
+      return sequence(fbs);
     });
   }
 
@@ -161,14 +161,12 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
   }
   
   public static <A> Par<List<A>> sequence(List<Par<A>> list) {
-    if (list.isEmpty()) {
-      return unit(() -> List.list());
-    } else if (list.length() == 1) {
-      return map(list.head(), a -> List.list(a));
-    } else {
-      Tuple<List<Par<A>>, List<Par<A>>> tuple = list.splitAt(list.length() / 2);
-      return fork(() -> map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
-    }
+    Tuple<List<Par<A>>, List<Par<A>>> tuple = list.splitAt(list.length() / 2);
+    return fork(() -> list.isEmpty() 
+        ? unit(() -> List.list())
+        : list.length() == 1
+            ? map(list.head(), a -> List.list(a))
+            : map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
   }
   
   public static class UnitFuture<A> implements Future<A> {

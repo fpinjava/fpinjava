@@ -24,22 +24,33 @@ public abstract class Try<V> implements Serializable {
   public static <V> Try<V> success(V value) {
     return new Success<>(value);
   }
+  
+  public abstract boolean isSuccess();
+  
+  public abstract boolean isFailure();
+  
+  public abstract boolean isEmpty();
+
+  public abstract Try<Exception> forEachOrException(Effect<V> ef);
+
+  public abstract void forEach(Effect<V> ef);
 
   private static class Failure<V> extends Empty<V> {
 
     private final String message;
 
-    private Exception exception;
+    private final Option<Exception> exception;
 
     public Failure(String message) {
       super();
       this.message = message;
+      this.exception = Option.none();
     }
 
     public Failure(String message, Exception e) {
       super();
       this.message = message;
-      this.exception = e;
+      this.exception = Option.some(e);
     }
 
     @Override
@@ -49,11 +60,39 @@ public abstract class Try<V> implements Serializable {
 
     @Override
     public V getOrThrow() {
-      throw this.exception != null
-          ? new IllegalStateException(exception)
+      throw this.exception.isSome()
+          ? new IllegalStateException(exception.get())
           : new IllegalStateException(message);
     }
-  }
+    
+    @Override
+    public String toString() {
+      return String.format("Failure(%s)", message);
+    }
+    
+    @Override
+    public Try<Exception> forEachOrException(Effect<V> c) {
+      return exception.isSome()
+          ? success(exception.get())
+          : success(new IllegalStateException(this.message));
+    }
+
+
+    @Override
+    public boolean isSuccess() {
+      return false;
+    }
+
+    @Override
+    public boolean isFailure() {
+      return true;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+ }
   
   public static <V> Try<V> of(Callable<V> callable, String message) {
     try {
@@ -82,6 +121,35 @@ public abstract class Try<V> implements Serializable {
       throw new IllegalStateException("Empty eval");
     }
 
+    @Override
+    public String toString() {
+      return "Empty()";
+    }
+
+    @Override
+    public Try<Exception> forEachOrException(Effect<V> c) {
+      return success(new IllegalStateException("Empty Try"));
+    }
+
+    @Override
+    public void forEach(Effect<V> ef) {
+      // Do nothing
+    }
+
+    @Override
+    public boolean isSuccess() {
+      return false;
+    }
+
+    @Override
+    public boolean isFailure() {
+      return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return true;
+    }
   }
 
   private static class Success<V> extends Try<V> {
@@ -101,6 +169,37 @@ public abstract class Try<V> implements Serializable {
     @Override
     public V getOrThrow() {
       return this.value;
+    }
+    
+    @Override
+    public String toString() {
+      return String.format("Success(%s)", value.toString());
+    }
+
+    @Override
+    public Try<Exception> forEachOrException(Effect<V> ef) {
+      ef.apply(value);
+      return failure("No exception");
+    }
+
+    @Override
+    public void forEach(Effect<V> ef) {
+      ef.apply(value);
+    }
+
+    @Override
+    public boolean isSuccess() {
+      return true;
+    }
+
+    @Override
+    public boolean isFailure() {
+      return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
     }
   }
 }

@@ -55,9 +55,9 @@ public class ParTestApp {
     if (printThreadName) {
       System.out.println(Thread.currentThread().getName());
     }
-//    if (x == 10) {
-//      throw new IllegalStateException("Value is 10");
-//    }
+    if (x == 10) {
+      throw new IllegalStateException("Value is 10");
+    }
     return x * x;
   };
 

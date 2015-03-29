@@ -60,7 +60,7 @@ public abstract class List<A> {
 
   private TailCall<Tuple<List<A>, List<A>>> splitAt_(List<A> acc, List<A> list, int i) {
     return i == 0 || list.isEmpty()
-        ? ret(new Tuple<>(acc, list))
+        ? ret(new Tuple<>(list.reverse(), acc))
         : sus(() -> splitAt_(acc.cons(list.head()), list.tail(), i - 1));
   }
 
