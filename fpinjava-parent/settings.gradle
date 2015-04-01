@@ -20,4 +20,6 @@ include 'fpinjava-common',
 		'fpinjava-functionalstate-solutions',
 		'fpinjava-functionalparallelism-exercises',
 		'fpinjava-functionalparallelism-solutions',
+		'fpinjava-propertybasedtesting-exercises',
+		'fpinjava-propertybasedtesting-solutions',
 		'fpinjava-test'
