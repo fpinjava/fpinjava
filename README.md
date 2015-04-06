@@ -8,6 +8,7 @@ The code is available as a Gradle project that may be used  by:
 - Running Gradle commands in a terminal
 - Importing in Eclipse
 - Importing in IntelliJ
+- Importing in NetBeans
 
 One may of course use only the source files to import them into any other editor and/or compile and run them from the command line. Running Gradle
 commands will not be described here. If you choose this way, you should already know how to do it.
@@ -56,6 +57,29 @@ the `fpinjava-parent` directory.
 1. In the **Project Structure** dialog box, click on **Project** in the **Project setting** pane and select **8 - Lambdas, type annotations etc.**
 for the **Project language level** option.
 1. Click **OK**.
+
+## Importing into NetBeans
+
+To import the project into Netbeans, you must first install the Gradle plug-in. To do this:
+
+1. Select **Tools > Plugins > Available Plugins**
+1. In the **Search** text area, type **gradle**
+1. Tick the **Install** checkbox on the **Gradle Support** row.
+1. Click the **Install** button.
+
+You will have to accept installing unsigned software, and then restarting NetBeans.
+
+### Importing the project
+
+You now need to import the `fpinjava-parent` project into NetBeans:
+
+1. Select **File > Open Project...**
+1. In the **Open Project** dialog box, go to the directory were you put the project and select
+the `fpinjava-parent` project name
+1. Click on the **Open Project** button
+
+The project should now be imported.
+
 
 ## Doing the exercises
 
