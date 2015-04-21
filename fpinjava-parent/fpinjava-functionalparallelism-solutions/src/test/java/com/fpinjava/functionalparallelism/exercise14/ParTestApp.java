@@ -1,25 +1,24 @@
-package test;
+package com.fpinjava.functionalparallelism.exercise14;
 
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import fj.F;
-import fj.P;
-import fj.P2;
-import fj.control.parallel.ParModule;
-import fj.control.parallel.Promise;
-import fj.control.parallel.Strategy;
-import fj.data.List;
-import fj.data.Option;
+import com.fpinjava.common.Function;
+import com.fpinjava.common.List;
+import com.fpinjava.common.Try;
 
 
-public class ParModuleTestApp {
+public class ParTestApp {
 
   private static boolean printThreadName = false;
   
   public static void main(String... args) throws InterruptedException {
-    int testLimit = 30000; // Erroneous result above 50000
+    int testLimit = 47000; // <= program hangs fo value > 50000
+    // for 47000, result is:
+    // Expected: 31776178726436
+    // Result:   34606562174500
+
     int numberOfThreads = 2;
     if (args.length > 0) {
       try {
@@ -39,26 +38,25 @@ public class ParModuleTestApp {
       printThreadName = Boolean.parseBoolean(args[2]);
     }
     ExecutorService es = Executors.newFixedThreadPool(numberOfThreads);
-    int limit = testLimit;
-    F<Integer, Option<P2<Integer, Integer>>> range = x -> x < limit ? Option.some(P.p(x + 1, x + 1)) : Option.none();
-    List<Integer> testList = List.unfold(range, 0); // List range will stack overflow
-    long expected = testList.map(x -> x * x).foldRightC((x, y) -> x + y, 0L).run();
+    List<Integer> testList = List.range(0, testLimit);
+    long expected = testList.map(x -> x * x).foldRight(0L, x -> y -> x + y);
     System.out.println("Expected: " + expected);
-
-    List<Long> l = testList.map(x -> (long) x);
-    Strategy<fj.Unit> st = Strategy.errorStrategy(Strategy.executorStrategy(es), x -> x.printStackTrace());
-    Promise<List<Long>> p = ParModule.parModule(st).parMap(l, g);
+    /*
+     * Construct a Function<ExecutorService, Future<List<Long>> (our Future, not java.util.concurrent.Future)
+     * where List<Long> is the original list lazily mapped with x -> x * x.
+     */
+    NonBlocking.Par<List<Long>> p = NonBlocking.parMap(testList.map(x -> (long) x), g);
     /*
      * Apply the function and wait for the Future to complete, then return the result.
      * This is where the program might hang.
      */
-    List<Long> list = p.claim();
-    long result = list.foldRightC((x, y) -> x + y, 0L).run();
+    Try<List<Long>> list = NonBlocking.run(es, p);
+    long result = list.getOrThrow().foldRight(0L, x -> y -> x + y);
     System.out.println("Result:   " + result);
     es.shutdown();
   }
   
-  private static F<Long, Long> g = x -> {
+  private static Function<Long, Long> g = x -> {
     if (printThreadName) {
       System.out.println(Thread.currentThread().getName());
     }

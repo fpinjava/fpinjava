@@ -10,7 +10,7 @@ public class FunctionalMethods {
 
   public final int percent3 = 13;
 
-  public int add(int a, Integer b) {
+  public int add(int a, int b) {
     return a + b;
   }
 

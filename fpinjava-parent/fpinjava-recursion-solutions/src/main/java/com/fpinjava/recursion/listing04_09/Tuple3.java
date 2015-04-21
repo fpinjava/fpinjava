@@ -19,13 +19,20 @@ public class Tuple3<T, U, V> {
     if (!(o instanceof Tuple3))
       return false;
     else {
+      @SuppressWarnings("rawtypes")
       Tuple3 that = (Tuple3) o;
       return _1.equals(that._1) && _2.equals(that._2) && _3.equals(that._3);
     }
   }
-
+  
   @Override
   public int hashCode() {
-    return _1.hashCode() + _2.hashCode() + _3.hashCode();
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _1.hashCode();
+    result = prime * result + _2.hashCode();
+    result = prime * result + _3.hashCode();
+    return result;
   }
+
 }

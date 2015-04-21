@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.fpinjava.makingjavafunctional.exercise03_03.CollectionUtilities.list;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class CollectionUtilitiesTest {
 
@@ -27,6 +27,7 @@ public class CollectionUtilitiesTest {
   public void testListListOfT() {
     List<String> list0 = list("1", "2", "3", "4");
     List<String> list = list(list0);
+    assertFalse(list == list0);
     assertEquals(4, list.size());
     assertEquals("1", list.get(0));
     assertEquals("2", list.get(1));
@@ -42,6 +43,7 @@ public class CollectionUtilitiesTest {
     assertEquals("2", list.get(1));
     assertEquals("3", list.get(2));
     assertEquals("4", list.get(3));
+    
   }
 
 }

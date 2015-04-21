@@ -289,12 +289,10 @@ public abstract class List<A> {
   public static <A> TailCall<Boolean> hasSubsequence_(List<A> list, 
                                                       List<A> sub) {
     return list.isEmpty()
-        ? ret(Boolean.FALSE)
-        : sub.isEmpty()
-            ? ret(Boolean.TRUE)
-            : list.head().equals(sub.head())
-                ? ret(startsWith(list.tail(), sub.tail()))
-                : sus(() -> hasSubsequence_(list.tail(), sub));
+        ? ret(sub.isEmpty())
+        : startsWith(list, sub)
+          ? ret(true)
+          : sus(() -> hasSubsequence_(list.tail(), sub));
   }
 
   public static <A> Boolean startsWith(List<A> list, List<A> sub) {

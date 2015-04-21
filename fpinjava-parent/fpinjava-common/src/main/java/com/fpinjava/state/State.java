@@ -1,7 +1,8 @@
-package com.fpinjava.functionalstate.exercise08_11;
+package com.fpinjava.state;
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
+import com.fpinjava.common.Nothing;
 import com.fpinjava.common.Tuple;
 
 public class State<S, A> {

@@ -9,7 +9,7 @@ public interface Function<T, U> {
     return x -> y -> z -> x.apply(y.apply(z));
   }
 
-  public static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
-    return x -> y -> z -> y.apply(x.apply(z));
-  }
+public static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
+  return x -> y -> z -> y.apply(x.apply(z));
+}
 }

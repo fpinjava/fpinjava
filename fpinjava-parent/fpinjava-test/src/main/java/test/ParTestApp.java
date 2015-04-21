@@ -13,7 +13,7 @@ public class ParTestApp {
   private static boolean printThreadName = false;
   
   public static void main(String... args) throws InterruptedException {
-    int testLimit = 50; // <= program hangs fo value > 60
+    int testLimit = 60; // <= program hangs fo value > 60
     int numberOfThreads = 2;
     if (args.length > 0) {
       try {
@@ -55,9 +55,9 @@ public class ParTestApp {
     if (printThreadName) {
       System.out.println(Thread.currentThread().getName());
     }
-    if (x == 10) {
-      throw new IllegalStateException("Value is 10");
-    }
+//    if (x == 10) {
+//      throw new IllegalStateException("Value is 10");
+//    }
     return x * x;
   };
 

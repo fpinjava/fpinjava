@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
+
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
-
 
 public abstract class List<A> {
 
@@ -27,6 +27,10 @@ public abstract class List<A> {
 
   public abstract List<A> init();
 
+  public abstract List<A> take(int n);
+
+  public abstract List<A> takeWhile(Function<A, Boolean> p);
+
   public abstract int length();
 
   public abstract <B> B foldLeft(B identity, Function<B, Function<A, B>> f);
@@ -42,6 +46,8 @@ public abstract class List<A> {
   public abstract A reduce(Function<A, Function<A, A>> f);
 
   public abstract Option<A> headOption();
+
+  public abstract Option<A> lastOption();
 
   public List<A> cons(A a) {
     return new Cons<>(a, this);
@@ -71,11 +77,11 @@ public abstract class List<A> {
       workList = workList.tail();
     }
   }
-  
+
   public Option<A> getAt(int index) {
     return getAt(this, index).eval();
   }
-  
+
   public TailCall<Option<A>> getAt(List<A> list, int index) {
     return index >= list.length()
         ? TailCall.ret(Option.none())
@@ -85,7 +91,29 @@ public abstract class List<A> {
                 ? TailCall.ret(Option.some(list.head()))
                 : TailCall.sus(() -> getAt(list.tail(), index - 1));
   }
-  
+
+  public <B> List<Tuple<Option<A>, Option<B>>> zipAll(List<B> s2) {
+    return zipWithAll(s2, tuple -> new Tuple<>(tuple._1, tuple._2));
+  }
+
+  public <B, C> List<C> zipWithAll(List<B> s2, Function<Tuple<Option<A>, Option<B>>, C> f) {
+    Function<Tuple<List<A>, List<B>>, Option<Tuple<C, Tuple<List<A>, List<B>>>>> g = x -> x._1
+        .isEmpty() && x._2.isEmpty()
+        ? Option.none()
+        : x._2.isEmpty()
+            ? Option.some(new Tuple<>(f.apply(new Tuple<>(Option.some(x._1
+                .head()), Option.none())), new Tuple<>(x._1.tail(), List
+                .<B> list())))
+            : x._1.isEmpty()
+                ? Option.some(new Tuple<>(f.apply(new Tuple<>(Option.none(),
+                    Option.some(x._2.head()))), new Tuple<>(List.<A> list(),
+                    x._2.tail())))
+                : Option.some(new Tuple<>(f.apply(new Tuple<>(Option.some(x._1
+                    .head()), Option.some(x._2.head()))), new Tuple<>(x._1
+                    .tail(), x._2.tail())));
+    return unfold(new Tuple<>(this, s2), g);
+  }
+
   private List() {
   }
 
@@ -136,6 +164,16 @@ public abstract class List<A> {
     }
 
     @Override
+    public List<A> take(int n) {
+      throw new IllegalStateException("take called on an empty list");
+    }
+
+    @Override
+    public List<A> takeWhile(Function<A, Boolean> p) {
+      throw new IllegalStateException("takeWhile called on an empty list");
+    }
+
+    @Override
     public int length() {
       return 0;
     }
@@ -167,7 +205,8 @@ public abstract class List<A> {
 
     @Override
     public A reduce(Function<A, Function<A, A>> f) {
-      throw new IllegalStateException("Can't reduce and empty list without a zero");
+      throw new IllegalStateException(
+          "Can't reduce and empty list without a zero");
     }
 
     @Override
@@ -175,6 +214,20 @@ public abstract class List<A> {
       return Option.none();
     }
 
+    @Override
+    public Option<A> lastOption() {
+      return Option.none();
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Nil;
+    }
   }
 
   private static class Cons<A> extends List<A> {
@@ -259,6 +312,24 @@ public abstract class List<A> {
     }
 
     @Override
+    public List<A> take(int n) {
+      return this.isEmpty()
+          ? this
+          : n > 1
+              ? new Cons<>(head(), tail().take(n - 1))
+              : new Cons<>(head(), list());
+    }
+
+    @Override
+    public List<A> takeWhile(Function<A, Boolean> p) {
+      return isEmpty()
+          ? this
+          : p.apply(head())
+              ? new Cons<>(head(), tail().takeWhile(p))
+              : list();
+    }
+
+    @Override
     public int length() {
       return this.length;
     }
@@ -275,15 +346,16 @@ public abstract class List<A> {
               identity, f));
     }
 
-//    private static <U, T> U foldLeftIterative(List<T> list, U seed, Function<U, Function<T, U>> f) {
-//      List<T> workList = list;
-//      U result = seed;
-//      while (!workList.isEmpty()) {
-//        result = f.apply(result).apply(workList.head());
-//        workList = workList.tail();
-//      }
-//      return result;
-//    }
+    // private static <U, T> U foldLeftIterative(List<T> list, U seed,
+    // Function<U, Function<T, U>> f) {
+    // List<T> workList = list;
+    // U result = seed;
+    // while (!workList.isEmpty()) {
+    // result = f.apply(result).apply(workList.head());
+    // workList = workList.tail();
+    // }
+    // return result;
+    // }
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
@@ -316,6 +388,30 @@ public abstract class List<A> {
     public Option<A> headOption() {
       return Option.some(head);
     }
+
+    @Override
+    public Option<A> lastOption() {
+      return tail.isEmpty()
+          ? Option.some(head)
+          : tail.lastOption();
+    }
+
+    @Override
+    public int hashCode() {
+      return foldRight(0, x -> y -> x.hashCode() + y);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Cons && isEquals(this, (Cons<?>) o);
+    }
+
+    private boolean isEquals(Cons<A> cons, Cons<?> o) {
+      Function<Option<A>, Function<Option<?>, Boolean>> equals = x -> y -> x
+          .isSome() && y.map(a -> a.equals(x.get())).getOrElse(() -> false);
+      return zipAll(o)
+          .foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -330,6 +426,13 @@ public abstract class List<A> {
       n = new Cons<>(a[i], n);
     }
     return n;
+  }
+
+  public static <A, S> List<A> unfold(S z, Function<S, Option<Tuple<A, S>>> f) {
+    Option<Tuple<A, S>> x = f.apply(z);
+    return x.isSome()
+        ? new Cons<>(x.get()._1, unfold(x.get()._2, f))
+        : list();
   }
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f) {
@@ -362,23 +465,19 @@ public abstract class List<A> {
     return hasSubsequence_(list, sub).eval();
   }
 
-  public static <A> TailCall<Boolean> hasSubsequence_(List<A> list,
-                                                      List<A> sub) {
+  public static <A> TailCall<Boolean> hasSubsequence_(List<A> list, List<A> sub) {
     return list.isEmpty()
-        ? ret(Boolean.FALSE)
-        : sub.isEmpty()
-            ? ret(Boolean.TRUE)
-            : list.head().equals(sub.head())
-                ? ret(startsWith(list.tail(), sub.tail()))
-                : sus(() -> hasSubsequence_(list.tail(), sub));
+        ? ret(sub.isEmpty())
+        : startsWith(list, sub)
+            ? ret(true)
+            : sus(() -> hasSubsequence_(list.tail(), sub));
   }
 
   public static <A> Boolean startsWith(List<A> list, List<A> sub) {
     return startsWith_(list, sub).eval();
   }
 
-  private static <A> TailCall<Boolean> startsWith_(List<A> list,
-                                                  List<A> sub) {
+  private static <A> TailCall<Boolean> startsWith_(List<A> list, List<A> sub) {
     return sub.isEmpty()
         ? ret(Boolean.TRUE)
         : list.isEmpty()
@@ -421,7 +520,7 @@ public abstract class List<A> {
   }
 
   public static List<Integer> range(int start, int end) {
-    return range_(List.<Integer>list(), start, end - 1).eval();
+    return range_(List.<Integer> list(), start, end - 1).eval();
   }
 
   public static TailCall<List<Integer>> range_(List<Integer> acc, int start, int end) {
@@ -431,7 +530,7 @@ public abstract class List<A> {
   }
 
   public static List<Long> range(long start, long end) {
-    return range_(List.<Long>list(), start, end - 1).eval();
+    return range_(List.<Long> list(), start, end - 1).eval();
   }
 
   public static TailCall<List<Long>> range_(List<Long> acc, long start, long end) {

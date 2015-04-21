@@ -86,7 +86,7 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      throw new IllegalStateException("To be implemented");
+      return identity;
     }
   }
 
@@ -185,7 +185,7 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      throw new IllegalStateException("To be implemented");
+      return foldLeft(Function.<B>identity(), g -> a -> b -> g.apply(f.apply(a).apply(b))).apply(identity);
     }
   }
 
