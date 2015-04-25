@@ -3,16 +3,16 @@ package com.fpinjava.common;
 import java.util.Objects;
 
 
-public class Tuple<T, U> {
+public final class Tuple<T, U> {
 
-	public final T _1;
-	public final U _2;
+  public final T _1;
+  public final U _2;
 
-	public Tuple(T t, U u) {
-		this._1 = Objects.requireNonNull(t);
-		this._2 = Objects.requireNonNull(u);
-	}
-	
+  public Tuple(T t, U u) {
+    this._1 = Objects.requireNonNull(t);
+    this._2 = Objects.requireNonNull(u);
+  }
+
   @Override
   public String toString() {
     return String.format("(%s,%s)", _1,  _2);
@@ -20,11 +20,11 @@ public class Tuple<T, U> {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof Tuple3))
+    if (!(o instanceof Tuple))
       return false;
     else {
       @SuppressWarnings("rawtypes")
-      Tuple3 that = (Tuple3) o;
+      Tuple that = (Tuple) o;
       return _1.equals(that._1) && _2.equals(that._2);
     }
   }
