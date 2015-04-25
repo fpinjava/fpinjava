@@ -3,7 +3,7 @@ package com.fpinjava.common;
 import java.util.Objects;
 
 
-public final class Tuple<T, U> {
+public class Tuple<T, U> {
 
   public final T _1;
   public final U _2;
