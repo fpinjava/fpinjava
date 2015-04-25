@@ -13,14 +13,6 @@ public class PureFunction {
     System.out.println(r2);
   }
 
-  public static String reverse(String string) {
-    StringBuilder builder = new StringBuilder();
-    for(int i = string.length() - 1; i >= 0; i--) {
-      builder.append(string.charAt(i));
-    }
-    return builder.toString();
-  }
-
   public static String sayHello(String string) {
     return "Hello, " + string + "!";
   }

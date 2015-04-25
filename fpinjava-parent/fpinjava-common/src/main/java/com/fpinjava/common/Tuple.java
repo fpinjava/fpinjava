@@ -20,11 +20,11 @@ public class Tuple<T, U> {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof Tuple3))
+    if (!(o instanceof Tuple))
       return false;
     else {
       @SuppressWarnings("rawtypes")
-      Tuple3 that = (Tuple3) o;
+      Tuple that = (Tuple) o;
       return _1.equals(that._1) && _2.equals(that._2);
     }
   }
