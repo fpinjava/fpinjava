@@ -29,6 +29,10 @@ public interface Function<T, U> {
     return x -> g.compose(f).apply(x);
   }
 
+  static <T, U, V> Function<T, V> andThen3(Function<T, U> f, Function<U, V> g) {
+    return compose(g, f);
+  }
+
   static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> compose() {
     return x -> y -> y.compose(x);
   }
