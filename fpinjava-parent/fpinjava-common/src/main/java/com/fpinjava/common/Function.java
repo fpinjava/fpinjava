@@ -1,5 +1,6 @@
 package com.fpinjava.common;
 
+
 public interface Function<T, U> {
 
   U apply(T arg);
@@ -23,6 +24,10 @@ public interface Function<T, U> {
   static <T, U, V> Function<T, V> andThen(Function<T, U> f, Function<U, V> g) {
     return x -> g.apply(f.apply(x));
   }
+  
+  static <T, U, V> Function<T, V> andThen2(Function<T, U> f, Function<U, V> g) {
+    return x -> g.compose(f).apply(x);
+  }
 
   static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> compose() {
     return x -> y -> y.compose(x);
@@ -32,12 +37,11 @@ public interface Function<T, U> {
     return x -> y -> y.andThen(x);
   }
 
-  static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
-    return x -> y -> z -> y.apply(x.apply(z));
+  public static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
+    return f -> g -> x -> f.apply(g.apply(x));
   }
 
-  static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
-    return (Function<U, V> x) ->
-        (Function<T, U> y) -> (T z) -> x.apply(y.apply(z));
+  public static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
+    return f -> g -> z -> g.apply(f.apply(z));
   }
 }

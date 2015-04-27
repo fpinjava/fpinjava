@@ -15,4 +15,9 @@ public class FunctionTest {
     assertEquals(Integer.valueOf(12), Function.<Integer, Integer, Integer>higherAndThen().apply(square).apply(triple).apply(2));
   }
 
+  @Test
+  public void test2() {
+    assertEquals(Integer.valueOf(12), Function.<Integer, Integer, Integer>higherAndThen2().apply(square).apply(triple).apply(2));
+  }
+
 }
