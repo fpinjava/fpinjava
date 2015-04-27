@@ -11,7 +11,7 @@ public class Charge {
   }
   
   public Charge combine(Charge other) {
-    if (cc == other.cc) {
+    if (cc.equals(other.cc)) {
       return new Charge(cc, amount + other.amount); 
     } else {
       throw new RuntimeException("Can't combine charges to different cards");
