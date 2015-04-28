@@ -14,8 +14,4 @@ public class ImpureFunction1 {
     String r2 = y.toString();
     System.out.println(r2);
   }
-
-  public static String sayHello(String string) {
-    return "Hello, " + string + "!";
-  }
 }

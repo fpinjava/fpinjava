@@ -14,6 +14,6 @@ public class Cafe {
                                                        final int n) {
     final Tuple<List<Coffee>, List<Charge>> purchases = 
                                fill(n, () -> buyCoffee(cc)).unzip(x -> x);
-    return new Tuple<>(purchases._1, purchases._2.reduce((c1 -> c1::combine)));
+    return new Tuple<>(purchases._1, purchases._2.reduce(c1 -> c1::combine));
   }
 }
