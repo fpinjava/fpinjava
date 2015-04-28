@@ -3,7 +3,7 @@ package com.fpinjava.common;
 import java.util.Objects;
 
 
-public final class Tuple3<T, U, V> {
+public class Tuple3<T, U, V> {
 
   public final T _1;
   public final U _2;
@@ -22,7 +22,7 @@ public final class Tuple3<T, U, V> {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof Tuple3))
+    if (!(o.getClass() == this.getClass()))
       return false;
     else {
       @SuppressWarnings("rawtypes")

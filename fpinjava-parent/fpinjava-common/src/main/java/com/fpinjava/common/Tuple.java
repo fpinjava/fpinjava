@@ -20,7 +20,7 @@ public class Tuple<T, U> {
   
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof Tuple))
+    if (!(o.getClass() == this.getClass()))
       return false;
     else {
       @SuppressWarnings("rawtypes")
