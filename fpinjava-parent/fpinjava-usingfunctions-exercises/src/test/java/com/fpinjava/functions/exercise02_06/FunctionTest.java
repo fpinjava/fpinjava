@@ -1,6 +1,6 @@
 package com.fpinjava.functions.exercise02_06;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
