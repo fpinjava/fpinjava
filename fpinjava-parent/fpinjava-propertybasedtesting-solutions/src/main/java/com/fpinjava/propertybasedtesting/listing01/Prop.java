@@ -4,10 +4,10 @@ import com.fpinjava.common.Function;
 
 public interface Prop {
 
-  public Prop and(Prop forAll);
-  public boolean check();
+  Prop and(Prop forAll);
+  boolean check();
 
-  public static <A> Prop forAll(Gen<A> intList, Function<A, Boolean> p) {
+  static <A> Prop forAll(Gen<A> intList, Function<A, Boolean> p) {
     return null;
   }
 

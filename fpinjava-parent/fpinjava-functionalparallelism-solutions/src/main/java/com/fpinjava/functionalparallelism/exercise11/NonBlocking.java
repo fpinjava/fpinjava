@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fpinjava.common.Effect;
 import com.fpinjava.common.Either;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
@@ -45,7 +44,7 @@ public class NonBlocking {
   }
 
   /*
-   * The run method provides the erro handler. The returned type has
+   * The run method provides the error handler. The returned type has
    * been changed to possibly return the error.
    */
   public static <A> Try<A> run(ExecutorService es, Par<A> p) {

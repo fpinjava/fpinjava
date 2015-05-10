@@ -9,17 +9,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
 
-  public static <A> A run(ExecutorService es, Par<A> p) {
-  
+  static <A> A run(ExecutorService es, Par<A> p) {
+
     AtomicReference<A> ref = new AtomicReference<>(); //#A
-  
+
     CountDownLatch latch = new CountDownLatch(1);  //#B
-  
+
     p.apply(es).apply(a -> {      //#C
       ref.set(a);
       latch.countDown();
     });
-  
+
     try {
       latch.await();   //#D
     } catch (InterruptedException e) {

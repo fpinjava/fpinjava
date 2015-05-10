@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fpinjava.common.Effect;
 import com.fpinjava.common.Either;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
@@ -46,7 +45,7 @@ public class NonBlocking {
   }
 
   /*
-   * The run method provides the erro handler. The returned type has
+   * The run method provides the error handler. The returned type has
    * been changed to possibly return the error.
    */
   public static <A> Try<A> run(ExecutorService es, Par<A> p) {
@@ -164,9 +163,7 @@ public class NonBlocking {
   }
 
   public static <K, V> Par<V> choiceMap(Par<K> p, Map<K,Par<V>> ps) {
-    return es -> (cb, ce) -> p.apply(es).apply(k -> {
-      ps.get(k).forEachOrException(x -> x.apply(es).apply(cb, ce)).forEach(e -> ce.apply(e));
-    }, ce);
+    return es -> (cb, ce) -> p.apply(es).apply(k -> ps.get(k).forEachOrException(x -> x.apply(es).apply(cb, ce)).forEach(ce::apply), ce);
   }
 
   /*

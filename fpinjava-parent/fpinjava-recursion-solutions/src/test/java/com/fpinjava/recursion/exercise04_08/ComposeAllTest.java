@@ -15,24 +15,24 @@ public class ComposeAllTest {
   Function<String, String> f2 = x -> "{b" + x + "}";
   Function<String, String> f3 = x -> "[c" + x + "]";
   List<Function<String, String>> list = list(f1, f2, f3);
-  
+
   @Test
   public void testComposeAllLeft() {
-    assertEquals("(a{b[cx]})", ComposeAll.composeAllViaFoldLeft(list).apply("x").toString());
+    assertEquals("(a{b[cx]})", ComposeAll.composeAllViaFoldLeft(list).apply("x"));
   }
 
   @Test
   public void testComposeAllRight() {
-    assertEquals("(a{b[cx]})", ComposeAll.composeAllViaFoldRight(list).apply("x").toString());
+    assertEquals("(a{b[cx]})", ComposeAll.composeAllViaFoldRight(list).apply("x"));
   }
 
   @Test
   public void testAndThenAllLeft() {
-    assertEquals("[c{b(ax)}]", ComposeAll.andThenAllViaFoldLeft(list).apply("x").toString());
+    assertEquals("[c{b(ax)}]", ComposeAll.andThenAllViaFoldLeft(list).apply("x"));
   }
 
   @Test
   public void testAndThenAllRight() {
-    assertEquals("[c{b(ax)}]", ComposeAll.andThenAllViaFoldRight(list).apply("x").toString());
+    assertEquals("[c{b(ax)}]", ComposeAll.andThenAllViaFoldRight(list).apply("x"));
   }
 }

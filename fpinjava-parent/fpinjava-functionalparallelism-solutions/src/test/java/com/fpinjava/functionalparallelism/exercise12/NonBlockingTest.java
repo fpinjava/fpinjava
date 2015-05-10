@@ -2,7 +2,6 @@ package com.fpinjava.functionalparallelism.exercise12;
 
 import static org.junit.Assert.*;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,17 +79,11 @@ public class NonBlockingTest {
     assertEquals("[1, 4, 9, 16, 25, 36, 49, 64, 81, NIL]", result.toString());
   }
 
-  private static Function<Integer, Integer> f2 = x -> {
-    return x * x;
-  };
+  private static Function<Integer, Integer> f2 = x -> x * x;
 
-  private static Function<Integer, Integer> f3 = x -> {
-    return x * x * x;
-  };
+  private static Function<Integer, Integer> f3 = x -> x * x * x;
 
-  private static Function<Integer, Integer> f4 = x -> {
-    return x * x * x * x;
-  };
+  private static Function<Integer, Integer> f4 = x -> x * x * x * x;
 
   private static Function<Integer, Integer> g = x -> {
     if (x == 5) {

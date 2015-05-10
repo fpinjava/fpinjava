@@ -1,10 +1,10 @@
 package com.fpinjava.makingjavafunctional.listing03_03;
 
 public interface Result {
-  
-  public static class Success implements Result {}
 
-  public class Failure implements Result {
+  class Success implements Result {}
+
+  class Failure implements Result {
 
     private final String errorMessage;
 

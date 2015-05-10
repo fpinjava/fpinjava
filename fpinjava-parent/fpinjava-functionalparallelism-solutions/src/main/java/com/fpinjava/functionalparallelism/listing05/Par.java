@@ -10,11 +10,11 @@ import com.fpinjava.common.Supplier;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static <A> Par<A> unit(Supplier<A> a) {
+  static <A> Par<A> unit(Supplier<A> a) {
     return es -> new UnitFuture<>(a.get());
   }
 
-  public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
+  static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
       Future<B> bf = b.apply(es);
@@ -39,15 +39,15 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * This problem is difficult to see when using lambdas, so we include a
    * second version fork_ using an explicit anonymous class.
    */
-  public static <A> Par<A> fork(Supplier<Par<A>> a) {
+  static <A> Par<A> fork(Supplier<Par<A>> a) {
     return es -> es.submit(() -> a.get().apply(es).get());
   }
 
-  public static <A> Future<A> run(ExecutorService s, Par<A> a) {
+  static <A> Future<A> run(ExecutorService s, Par<A> a) {
     return a.apply(s);
   }
 
-  public static class UnitFuture<A> implements Future<A> {
+  class UnitFuture<A> implements Future<A> {
 
     private final A get;
 

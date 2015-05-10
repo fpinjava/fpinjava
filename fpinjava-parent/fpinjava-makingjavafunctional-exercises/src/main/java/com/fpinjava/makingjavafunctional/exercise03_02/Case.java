@@ -1,6 +1,5 @@
 package com.fpinjava.makingjavafunctional.exercise03_02;
 
-import com.fpinjava.common.Tuple;
 import com.fpinjava.makingjavafunctional.exercise03_01.Result;
 
 public class Case<T> { // Case class should extend Tuple

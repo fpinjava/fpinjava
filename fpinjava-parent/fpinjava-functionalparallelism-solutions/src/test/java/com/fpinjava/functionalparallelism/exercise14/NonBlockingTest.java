@@ -99,18 +99,12 @@ public class NonBlockingTest {
     List<Integer> result = NonBlocking.run(es,  pl).getOrThrow();
     assertEquals("[1, 16, 81, 256, 625, 1296, 2401, 4096, 6561, NIL]", result.toString());
   }
-  
-  private static Function<Integer, Integer> f2 = x -> {
-    return x * x;
-  };
 
-  private static Function<Integer, Integer> f3 = x -> {
-    return x * x * x;
-  };
+  private static Function<Integer, Integer> f2 = x -> x * x;
 
-  private static Function<Integer, Integer> f4 = x -> {
-    return x * x * x * x;
-  };
+  private static Function<Integer, Integer> f3 = x -> x * x * x;
+
+  private static Function<Integer, Integer> f4 = x -> x * x * x * x;
 
   private static Function<Integer, Integer> g = x -> {
     if (x == 5) {

@@ -4,6 +4,6 @@ public interface Input {
   Type type();
   boolean isCoin();
   boolean isTurn();
-  
-  public static enum Type {COIN,TURN}
+
+  enum Type {COIN,TURN}
 }

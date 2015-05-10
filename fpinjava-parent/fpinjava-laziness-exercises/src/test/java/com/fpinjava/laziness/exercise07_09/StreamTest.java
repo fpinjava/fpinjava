@@ -2,7 +2,6 @@ package com.fpinjava.laziness.exercise07_09;
 
 import static org.junit.Assert.*;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 

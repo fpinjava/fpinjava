@@ -44,7 +44,7 @@ public class NonBlocking {
   }
 
   /*
-   * The run method provides the erro handler. The returned type has
+   * The run method provides the error handler. The returned type has
    * been changed to possibly return the error.
    */
   public static <A> Try<A> run(ExecutorService es, Par<A> p) {
@@ -89,7 +89,7 @@ public class NonBlocking {
       p2.apply(es).apply(b -> combiner.tell(Either.right(b)), ce);
     };
   }
-  
+
   public static class Wrapper<A> {
     public Option<A> value;
 
@@ -97,11 +97,11 @@ public class NonBlocking {
       super();
       this.value = value;
     }
-    
+
     public Option<A> get() {
       return value;
     }
-    
+
     public void set(Option<A> value) {
       this.value = value;
     }

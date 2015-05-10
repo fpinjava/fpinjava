@@ -3,7 +3,6 @@ package com.fpinjava.errorhandling.exercise06_06;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.Supplier;
 
-import static com.fpinjava.errorhandling.exercise06_05.Option.*;
 
 public class Insurance {
 

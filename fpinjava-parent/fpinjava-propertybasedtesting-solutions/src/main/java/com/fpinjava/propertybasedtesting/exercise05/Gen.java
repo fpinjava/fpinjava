@@ -4,21 +4,16 @@ import com.fpinjava.common.List;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.Tuple;
 import com.fpinjava.state.RNG;
-import com.fpinjava.state.Rand;
 import com.fpinjava.state.SimpleRNG;
 import com.fpinjava.state.State;
 
 public class Gen<A> {
 
-  final State<RNG, A> sample;
+  public final State<RNG, A> sample;
 
   public Gen(State<RNG, A> sample) {
     super();
     this.sample = sample;
-  }
-
-  public static <A> Gen<A> choose(A i, A j) {
-    return null;
   }
 
   public static Gen<Integer> choose(int start, int stopExclusive) {
@@ -36,19 +31,18 @@ public class Gen<A> {
       return new Tuple<>(start + tuple._1 % (stopExclusive - start), tuple._2);
     }));
   }
-  
+
   public static <A> Gen<A> unit(Supplier<A> a) {
-    Rand<A> rnd = SimpleRNG.unit(a.get());
-    return null; //new Gen<A>(rnd);
+    State<RNG, A> rnd = State.unit(a.get());
+    return new Gen<>(rnd);
   }
 
-//  def boolean: Gen[Boolean] =
-//      Gen(State(RNG.boolean))
-//
-//  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
-//      Gen(State.sequence(List.fill(n)(g.sample)))
-
-  public static <A> Gen<List<A>> listOf(Gen<A> a) {
-    return null;
+  public static Gen<Boolean> booleanRnd() {
+    return new Gen<>(new State<>(SimpleRNG.booleanRnd()));
   }
+
+  public static <A> Gen<List<A>> listOfN(int n, Gen<A> g) {
+    return new Gen<>(State.sequence(List.fill(n, () -> g.sample)));
+  }
+
 }

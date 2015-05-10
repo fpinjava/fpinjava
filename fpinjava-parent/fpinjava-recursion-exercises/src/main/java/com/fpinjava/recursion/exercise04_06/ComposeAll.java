@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.fpinjava.common.Function;
 
-import static com.fpinjava.recursion.exercise04_05.FoldRight.*;
-import static com.fpinjava.common.Function.*;
 
 public class ComposeAll {
 

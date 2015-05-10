@@ -46,7 +46,7 @@ public class NonBlocking {
   }
 
   /*
-   * The run method provides the erro handler. The returned type has
+   * The run method provides the error handler. The returned type has
    * been changed to possibly return the error.
    */
   public static <A> Try<A> run(ExecutorService es, Par<A> p) {
@@ -91,7 +91,7 @@ public class NonBlocking {
       p2.apply(es).apply(b -> combiner.tell(Either.right(b)), ce);
     };
   }
-  
+
   public static class Wrapper<A> {
     public Option<A> value;
 
@@ -99,11 +99,11 @@ public class NonBlocking {
       super();
       this.value = value;
     }
-    
+
     public Option<A> get() {
       return value;
     }
-    
+
     public void set(Option<A> value) {
       this.value = value;
     }
@@ -152,10 +152,10 @@ public class NonBlocking {
        }
     };
   }
-  
+
   public static <A> Par<A> choiceN(Par<Integer> n, List<Par<A>> ps) {
     return es -> new Future<A>() {
-      
+
       @Override
       public void apply(Effect<A> cb, Effect<Throwable> ce) {
         n.apply(es).apply(ind -> eval(es, () -> {
@@ -164,27 +164,25 @@ public class NonBlocking {
           } catch (Exception e) {
             ce.apply(e);
           }
-        }), ce);        
+        }), ce);
       }
     };
   }
-  
+
   public static <A> Par<A> choiceViaChoiceN(Par<Boolean> a, Par<A> ifTrue, Par<A> ifFalse) {
     return choiceN(map(a, b -> b ? 0 : 1), List.list(ifTrue, ifFalse));
   }
 
   public static <K, V> Par<V> choiceMap(Par<K> p, Map<K,Par<V>> ps) {
     return es -> new Future<V>() {
-      
+
         @Override
         public void apply(Effect<V> cb, Effect<Throwable> ce) {
-          p.apply(es).apply(k -> {
-            ps.get(k).forEachOrException(x -> x.apply(es).apply(cb, ce)).forEach(e -> ce.apply(e));
-          }, ce);
+          p.apply(es).apply(k -> ps.get(k).forEachOrException(x -> x.apply(es).apply(cb, ce)).forEach(ce::apply), ce);
         }
       };
   }
-  
+
   /* `chooser` is usually called `flatMap` or `bind`. */
   public static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> f) {
     return flatMap(p, f);

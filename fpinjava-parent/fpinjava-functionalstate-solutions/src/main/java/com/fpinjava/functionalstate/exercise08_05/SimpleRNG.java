@@ -62,13 +62,13 @@ public class SimpleRNG {
   }
 
   /*
-   * A tail-recursive stack safe solution. Note that the ouptut list is in
+   * A tail-recursive stack safe solution. Note that the output list is in
    * reverse order, but this is perfectly acceptable regarding the requirements.
    */
   public static Tuple<List<Integer>, RNG> ints2(int count, RNG rng) {
     return ints2_(count, rng, List.list()).eval();
   }
-  
+
   private static TailCall<Tuple<List<Integer>, RNG>> ints2_(int count, RNG rng, List<Integer> xs) {
     if (count == 0)
       return TailCall.ret(new Tuple<>(xs, rng));
@@ -77,25 +77,25 @@ public class SimpleRNG {
       return TailCall.sus(() -> ints2_(count - 1, t1._2, xs.cons(t1._1)));
     }
   }
-  
-  public static Rand<Integer> intRnd = x -> x.nextInt();
-  
+
+  public static Rand<Integer> intRnd = RNG::nextInt;
+
   public static <A> Rand<A> unit(A a) {
     return rng -> new Tuple<>(a, rng);
   }
-  
+
   public static <A, B> Rand<B> map(Rand<A> s, Function<A, B> f) {
     return rng -> {
         Tuple<A, RNG> t = s.apply(rng);
         return new Tuple<>(f.apply(t._1), t._2);
       };
   }
-  
-  public static Rand<Integer> nonNegativeInt = x -> nonNegativeInt(x);
-  
+
+  public static Rand<Integer> nonNegativeInt = SimpleRNG::nonNegativeInt;
+
   public static Rand<Integer> nonNegativeEven() {
     return SimpleRNG.<Integer, Integer>map(nonNegativeInt, i -> i - i % 2);
   }
-  
+
   public static Rand<Double> doubleRnd = map(nonNegativeInt, x -> x / (((double) Integer.MAX_VALUE) + 1.0));
 }

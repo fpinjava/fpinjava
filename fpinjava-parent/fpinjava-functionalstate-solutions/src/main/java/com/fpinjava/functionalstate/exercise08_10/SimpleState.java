@@ -12,20 +12,20 @@ import com.fpinjava.common.Tuple3;
  * In this class, we have the State interface with the State class as indicated
  * by "We might want to write it as its own class, wrapping the underlying
  * function like this:
- * 
+ *
  * public class State<S, A> {
- * 
+ *
  * public final Function<S, Tuple<A, S>> run;
  *
- * public State(Function<S, Tuple<A, S>> run) { 
- * 
- *   super(); 
- *   this.run = run; 
+ * public State(Function<S, Tuple<A, S>> run) {
+ *
+ *   super();
+ *   this.run = run;
  *   }
  * }
  *
  * in section 8.5.
- * 
+ *
  * @author pysaumont
  */
 public class SimpleState {
@@ -82,7 +82,7 @@ public class SimpleState {
   }
 
   /*
-   * A tail-recursive stack safe solution. Note that the ouptut list is in
+   * A tail-recursive stack safe solution. Note that the output list is in
    * reverse order, but this is perfectly acceptable regarding the requirements.
    */
   public static Tuple<List<Integer>, RNG> ints2(int count, RNG rng) {
@@ -98,7 +98,7 @@ public class SimpleState {
     }
   }
 
-  public static Rand<Integer> intRnd = new Rand<>(x -> x.nextInt());
+  public static Rand<Integer> intRnd = new Rand<>(RNG::nextInt);
 
   public static <S, A> State<S, A> unit(A a) {
     return new State<>(s -> new Tuple<>(a, s));
@@ -111,7 +111,7 @@ public class SimpleState {
     });
   }
 
-  public static State<RNG, Integer> nonNegativeInt = new State<>(x -> nonNegativeInt(x));
+  public static State<RNG, Integer> nonNegativeInt = new State<>(SimpleState::nonNegativeInt);
 
   public static State<RNG, Integer> nonNegativeEven() {
     return SimpleState.<RNG, Integer, Integer> map(nonNegativeInt, i -> i - i
@@ -155,7 +155,7 @@ public class SimpleState {
    * the current element in the list. `map2(f, acc)(_ :: _)` results in a value
    * of type `Rand[List[A]]` We map over that to prepend (cons) the element onto
    * the accumulated list.
-   * 
+   *
    * We are using `foldRight`. If we used `foldLeft` then the values in the
    * resulting list would appear in reverse order. It would be arguably better
    * to use `foldLeft` followed by `reverse`. What do you think?
@@ -201,10 +201,10 @@ public class SimpleState {
   public static State<RNG, Integer> rollDieBug = nonNegativeLessThan(6);
 
   public static State<RNG, Integer> rollDie = map(nonNegativeLessThan(6), x -> x + 1);
-  
+
   State<RNG, List<Integer>> ns =
       intRnd.flatMap(x ->
-        intRnd.flatMap(y -> 
+        intRnd.flatMap(y ->
           ints(x).map(xs ->
             xs.map(z -> z % y))));
 }

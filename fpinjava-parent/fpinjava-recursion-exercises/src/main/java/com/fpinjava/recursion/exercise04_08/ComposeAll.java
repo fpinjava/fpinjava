@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.fpinjava.common.Function;
 
-import static com.fpinjava.common.CollectionUtilities.*;
 
 public class ComposeAll {
 

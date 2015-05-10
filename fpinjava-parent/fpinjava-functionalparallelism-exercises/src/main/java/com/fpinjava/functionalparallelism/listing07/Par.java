@@ -8,11 +8,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static <A> Par<A> unit(A a) {
+  static <A> Par<A> unit(A a) {
     return es -> cb -> cb.accept(a);
   }
 
-  public static <A> Par<A> fork(Supplier<Par<A>> a) {
+  static <A> Par<A> fork(Supplier<Par<A>> a) {
     return es -> cb -> eval(es, () -> a.get().apply(es).apply(cb));
   }
 
@@ -20,11 +20,11 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * Helper function, for evaluating an action asynchronously, using the given
    * `ExecutorService`.
    */
-  public static void eval(ExecutorService es, Runnable r) {
+  static void eval(ExecutorService es, Runnable r) {
     es.submit(r);
   }
 
-  public static <A> A run(ExecutorService es, Par<A> p) {
+  static <A> A run(ExecutorService es, Par<A> p) {
     /*
      * A mutable, thread safe reference, to use for storing the result
      */
@@ -51,11 +51,11 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     return ref.get();
   }
 
-  public static <A, B, C> Par<C> map2(Par<A> p1, Par<B> p2, Function<A, Function<B, C>> f) {
+  static <A, B, C> Par<C> map2(Par<A> p1, Par<B> p2, Function<A, Function<B, C>> f) {
     return es -> cb -> {
       Wrapper<A> ar = new Wrapper<>(Option.none());
       Wrapper<B> br = new Wrapper<>(Option.none());
-  
+
       Actor<Either<A, B>> combiner = Actor.apply(es, x -> {
         if (x.isLeft()) {
           if (br.get().isSome()) {
@@ -75,45 +75,45 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
       p2.apply(es).apply(b -> combiner.tell(Either.right(b)));
     };
   }
-  
-  public static class Wrapper<A> {
+
+  class Wrapper<A> {
     public Option<A> value;
-  
+
     public Wrapper(Option<A> value) {
       super();
       this.value = value;
     }
-    
+
     public Option<A> get() {
       return value;
     }
-    
+
     public void set(Option<A> value) {
       this.value = value;
     }
   }
 
-  public static <A, B> Par<B> map(Par<A> p, Function<A, B> f) {
+  static <A, B> Par<B> map(Par<A> p, Function<A, B> f) {
     return es -> cb -> p.apply(es).apply(a -> eval(es, () -> cb.accept(f.apply(a))));
   }
 
-  public static <A, B> Par<List<B>> parMap(List<A> as, Function<A, B> f) {
+  static <A, B> Par<List<B>> parMap(List<A> as, Function<A, B> f) {
     return sequence(as.map(asyncF(f)));
   }
-  
-  public static <A> Par<A> lazyUnit(Supplier<A> a) {
+
+  static <A> Par<A> lazyUnit(Supplier<A> a) {
     return fork(() -> unit(a.get()));
   }
 
-  public static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
+  static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
     return a -> lazyUnit(() -> f.apply(a));
   }
 
-  public static <A> Par<List<A>> sequence(List<Par<A>> as) {
+  static <A> Par<List<A>> sequence(List<Par<A>> as) {
      return map(sequenceBalanced(as), x -> x);
   }
 
-  public static <A> Par<List<A>> sequenceBalanced(List<Par<A>> as) {
+  static <A> Par<List<A>> sequenceBalanced(List<Par<A>> as) {
     Tuple<List<Par<A>>, List<Par<A>>> tuple = as.splitAt(as.length() / 2);
     return fork(() -> as.isEmpty()
         ? unit(List.list())
@@ -121,5 +121,5 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
             ? map(as.head(), List::list)
             : map2(sequenceBalanced(tuple._1), sequenceBalanced(tuple._2), x -> y -> List.concat(x, y)));
   }
-  
+
 }

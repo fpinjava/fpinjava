@@ -12,7 +12,7 @@ public abstract class Stream<T> {
   public abstract Supplier<T> head();
   public abstract Supplier<Stream<T>> tail();
   public abstract boolean isEmpty();
-  
+
   private Stream() {}
 
   public static class Empty<T> extends Stream<T> {
@@ -39,7 +39,7 @@ public abstract class Stream<T> {
   public static class Cons<T> extends Stream<T> {  //#A
 
     protected final Supplier<T> head;
-    
+
     protected final Supplier<Stream<T>> tail;
 
     private Cons(Supplier<T> head, Supplier<Stream<T>> tail) {
@@ -63,23 +63,23 @@ public abstract class Stream<T> {
     }
   }
 
-  public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) { //#B
-    return new Cons<T>(hd, () -> tl);
+  public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
+    return new Cons<>(hd, () -> tl);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Stream<T> empty() { // #C
+  public static <T> Stream<T> empty() {
     return EMPTY;
   }
 
-  public static <T> Stream<T> cons(List<T> list) { //#D
+  public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(list::head, () -> cons(list.tail()));
+        : new Cons<>(list::head, () -> cons(list.tail()));
   }
 
   @SafeVarargs
-  public static <T> Stream<T> cons(T... t) { //#E
+  public static <T> Stream<T> cons(T... t) {
     return cons(List.list(t));
   }
 }

@@ -74,7 +74,7 @@ public abstract class Stream<T> {
        ? Stream.empty()
        : n > 1
            ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), () -> Stream.empty());
+           : Stream.cons(headS(), Stream::empty);
   }
 
   public Stream<T> drop(int n) {
@@ -106,7 +106,7 @@ public abstract class Stream<T> {
   }
 
   public Option<T> headOptionViaFoldRight() {
-    return foldRight(() -> Option.<T> none(), t -> st -> Option.some(t));
+    return foldRight(Option::<T>none, t -> st -> Option.some(t));
   }
 
   public <U> Stream<U> map(Function<T, U> f) {
@@ -151,21 +151,21 @@ public abstract class Stream<T> {
         ? Option.none()
         : Option.some(new Tuple<>(f.apply(x.head()), x.tail().get())));
   }
-  
+
   /*
-   * We must declare the funtion g first in order to write its type, so that the compiler may
+   * We must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
-  public Stream<T> takeViaUnfold(Integer n) {  
-    Function<Tuple<Stream<T>, Integer>, Option<Tuple<T, Tuple<Stream<T>, Integer>>>> g = 
-        x -> (!x._1.isEmpty() && x._2 == 1) 
+  public Stream<T> takeViaUnfold(Integer n) {
+    Function<Tuple<Stream<T>, Integer>, Option<Tuple<T, Tuple<Stream<T>, Integer>>>> g =
+        x -> (!x._1.isEmpty() && x._2 == 1)
             ? Option.some(new Tuple<>(x._1.head(), new Tuple<>(empty(), 0)))
             : (!x._1.isEmpty() && x._2 > 1)
                 ? Option.some(new Tuple<>(x._1.head(), new Tuple<>(x._1.tail().get(), x._2 - 1)))
                 : Option.none();
     return unfold(new Tuple<>(this, n), g);
   }
-  
+
   /*
    * Another solution is to use the if..else construct instead of the ternary operator
    */
@@ -181,34 +181,34 @@ public abstract class Stream<T> {
           }
        });
   }
-  
+
   public Stream<T> takeWhileViaUnfold(Function<T, Boolean> f) {
     return unfold(this, x -> !x.isEmpty() && f.apply(x.head())
         ? Option.some(new Tuple<>(x.head(), x.tail().get()))
         : Option.none());
   }
-  
+
   public <U> Stream<Tuple<T, U>> zip(Stream<U> s2) {
     return zipWith(s2, x -> y -> new Tuple<>(x, y));
   }
 
   /*
-   * Again, we must declare the funtion g first in order to write its type, so that the compiler may
+   * Again, we must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
   public <U, V> Stream<V> zipWith(Stream<U> s2, Function<T, Function<U, V>> f) {
     Function<Tuple<Stream<T>, Stream<U>>, Option<Tuple<V, Tuple<Stream<T>, Stream<U>>>>> g = x -> x._1.isEmpty() || x._2.isEmpty()
         ? Option.none()
-        : Option.some(new Tuple<>(f.apply(x._1.head()).apply(x._2.head()), new Tuple<>(x._1.tail().get(), x._2.tail().get()))); 
+        : Option.some(new Tuple<>(f.apply(x._1.head()).apply(x._2.head()), new Tuple<>(x._1.tail().get(), x._2.tail().get())));
     return unfold(new Tuple<>(this, s2), g);
   }
-  
+
   public <U> Stream<Tuple<Option<T>, Option<U>>> zipAll(Stream<U> s2) {
     return zipWithAll(s2, tuple -> new Tuple<>(tuple._1, tuple._2));
   }
-  
+
   /*
-   * Again, we must declare the funtion g first in order to write its type, so that the compiler may
+   * Again, we must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
   public <U, V> Stream<V> zipWithAll(Stream<U> s2, Function<Tuple<Option<T>, Option<U>>, V> f) {
@@ -222,7 +222,7 @@ public abstract class Stream<T> {
                     : Option.some(new Tuple<>(f.apply(new Tuple<>(Option.some(x._1.head()), Option.some(x._2.head()))), new Tuple<>(x._1.tail().get(), x._2.tail().get())));
     return unfold(new Tuple<>(this, s2), g);
   }
-  
+
   public static class Empty<T> extends Stream<T> {
 
     private Empty() {
@@ -312,15 +312,15 @@ public abstract class Stream<T> {
   }
 
   private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<>(hd, tl);
   }
 
   private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(new Head<T>(hd), tl);
+    return new Cons<>(new Head<>(hd), tl);
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -331,7 +331,7 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
   public static Stream<Integer> ones = cons(() -> 1, () -> Stream.ones);
@@ -347,7 +347,7 @@ public abstract class Stream<T> {
   public static Stream<Integer> fibs() {
     return fibs_(new Tuple<>(0, 1)).map(x -> x._1);
   }
-  
+
   private static Stream<Tuple<Integer, Integer>> fibs_(Tuple<Integer, Integer> tuple) {
     return cons(() -> tuple, () -> fibs_(new Tuple<>(tuple._2, tuple._1 + tuple._2)));
   }
@@ -365,17 +365,17 @@ public abstract class Stream<T> {
       case None => empty
   }
   */
-  
+
   public static Stream<Integer> onesViaUnfold = unfold(1, x -> Option.some(new Tuple<>(1, 1)));
-  
+
   public static <T> Stream<T> constantViaUnfold(T t) {
     return unfold(t, x -> Option.some(new Tuple<>(t, t)));
   }
-  
+
   public static Stream<Integer> fromViaUnfold(int n) {
     return unfold(n, x -> Option.some(new Tuple<>(x, x + 1)));
   }
-  
+
   public static Stream<Integer> fibsViaUnfold() {
     return unfold(new Tuple<>(0, 1), x -> Option.some(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
   }

@@ -12,11 +12,11 @@ import com.fpinjava.common.Tuple3;
  * In this class, we have just replaced Rand with State in SimpleRNG. This
  * modification corresponds to the sentence: "We should then come up with a more
  * general type than Rand, for handling any type of state:
- * 
+ *
  * public interface State<S, A> extends Function<S, Tuple<A, S>> {}"
- * 
+ *
  * in section 8.5.
- * 
+ *
  * @author pysaumont
  */
 public class SimpleState {
@@ -73,7 +73,7 @@ public class SimpleState {
   }
 
   /*
-   * A tail-recursive stack safe solution. Note that the ouptut list is in
+   * A tail-recursive stack safe solution. Note that the output list is in
    * reverse order, but this is perfectly acceptable regarding the requirements.
    */
   public static Tuple<List<Integer>, RNG> ints2(int count, RNG rng) {
@@ -89,7 +89,7 @@ public class SimpleState {
     }
   }
 
-  public static State<RNG, Integer> intRnd = x -> x.nextInt();
+  public static State<RNG, Integer> intRnd = RNG::nextInt;
 
   public static <S, A> State<S, A> unit(A a) {
     return s -> new Tuple<>(a, s);
@@ -102,7 +102,7 @@ public class SimpleState {
     };
   }
 
-  public static State<RNG, Integer> nonNegativeInt = x -> nonNegativeInt(x);
+  public static State<RNG, Integer> nonNegativeInt = SimpleState::nonNegativeInt;
 
   public static State<RNG, Integer> nonNegativeEven() {
     return SimpleState.<RNG, Integer, Integer> map(nonNegativeInt, i -> i - i
@@ -146,7 +146,7 @@ public class SimpleState {
    * the current element in the list. `map2(f, acc)(_ :: _)` results in a value
    * of type `Rand[List[A]]` We map over that to prepend (cons) the element onto
    * the accumulated list.
-   * 
+   *
    * We are using `foldRight`. If we used `foldLeft` then the values in the
    * resulting list would appear in reverse order. It would be arguably better
    * to use `foldLeft` followed by `reverse`. What do you think?

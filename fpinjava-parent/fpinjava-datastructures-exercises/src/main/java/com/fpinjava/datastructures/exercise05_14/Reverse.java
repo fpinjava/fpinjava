@@ -1,7 +1,6 @@
 package com.fpinjava.datastructures.exercise05_14;
 
 import com.fpinjava.datastructures.exercise05_12.List;
-import static com.fpinjava.datastructures.exercise05_12.List.*;
 
 public class Reverse {
 

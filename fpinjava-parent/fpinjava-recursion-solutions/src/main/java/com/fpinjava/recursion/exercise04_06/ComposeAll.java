@@ -15,7 +15,7 @@ public class ComposeAll {
 
   /*
    * Since the functions are from T to T, composition may be implemented
-   * using andThen instead of compse.
+   * using andThen instead of compose.
    */
   static <T> Function<T, T> composeAllViaAndThen(List<Function<T, T>> list) {
     return foldRight(list, identity(), x -> y -> y.andThen(x));

@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
-
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
 
@@ -48,6 +47,8 @@ public abstract class List<A> {
   public abstract Option<A> headOption();
 
   public abstract Option<A> lastOption();
+
+  public abstract String mkString(final String sep);
 
   public List<A> cons(A a) {
     return new Cons<>(a, this);
@@ -170,7 +171,7 @@ public abstract class List<A> {
 
     @Override
     public List<A> takeWhile(Function<A, Boolean> p) {
-      throw new IllegalStateException("takeWhile called on an empty list");
+      return this;
     }
 
     @Override
@@ -227,6 +228,11 @@ public abstract class List<A> {
     @Override
     public boolean equals(Object o) {
       return o instanceof Nil;
+    }
+
+    @Override
+    public String mkString(String sep) {
+      return "";
     }
   }
 
@@ -346,17 +352,6 @@ public abstract class List<A> {
               identity, f));
     }
 
-    // private static <U, T> U foldLeftIterative(List<T> list, U seed,
-    // Function<U, Function<T, U>> f) {
-    // List<T> workList = list;
-    // U result = seed;
-    // while (!workList.isEmpty()) {
-    // result = f.apply(result).apply(workList.head());
-    // workList = workList.tail();
-    // }
-    // return result;
-    // }
-
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
       return this.reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
@@ -411,6 +406,11 @@ public abstract class List<A> {
           .isSome() && y.map(a -> a.equals(x.get())).getOrElse(() -> false);
       return zipAll(o)
           .foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
+    }
+
+    @Override
+    public String mkString(String sep) {
+      return head().toString() + tail().foldLeft("", t -> u -> t + sep + u.toString());
     }
   }
 
@@ -574,6 +574,52 @@ public abstract class List<A> {
     public List<Integer> toList() {
       return fromCollection(set);
     }
+  }
+  
+  public static Option<Integer> maxOption(List<Integer> list) {
+    return list.isEmpty() 
+        ? Option.none() 
+        : Option.some(list.tail().foldRight(list.head(), x -> y -> x > y ? x : y));
+  }
+  
+  /*
+   * A special version of max, throwing an exception if the list is empty. This version
+   * is used in chapter 10.
+   */
+  public static int max(List<Integer> list) {
+    return list.tail().foldRight(list.head(), x -> y -> x > y ? x : y);
+  }
+
+  public static <A> Boolean exists(List<A> list, Function<A, Boolean> p) {
+    List<A> workList = list;
+    while (!workList.isEmpty()) {
+      if (p.apply(workList.head())) {
+        return true;
+      }
+      workList = workList.tail();
+    }
+    return false;
+  }
+
+  public Boolean exists(Function<A, Boolean> p) {
+    return exists(this, p);
+  }
+  
+  public static <A> boolean forAll(List<A> list, Function<A, Boolean> p) {
+    if (list.isEmpty())
+      return true;
+    List<A> workList = list;
+    while (!workList.isEmpty()) {
+      if (!p.apply(workList.head())) {
+        return false;
+      }
+      workList = workList.tail();
+    }
+    return true;
+  }
+
+  public boolean forAll(Function<A, Boolean> p) {
+    return forAll(this, p);
   }
 
 }

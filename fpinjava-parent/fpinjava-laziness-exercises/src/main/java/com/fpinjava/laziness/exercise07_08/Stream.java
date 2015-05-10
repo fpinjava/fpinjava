@@ -72,7 +72,7 @@ public abstract class Stream<T> {
        ? Stream.empty()
        : n > 1
            ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), () -> Stream.empty());
+           : Stream.cons(headS(), Stream::empty);
   }
 
   public Stream<T> drop(int n) {
@@ -104,23 +104,23 @@ public abstract class Stream<T> {
   }
 
   public Option<T> headOptionViaFoldRight() {
-    return foldRight(() -> Option.<T> none(), t -> st -> Option.some(t));
+    return foldRight(Option::<T>none, t -> st -> Option.some(t));
   }
 
   public <U> Stream<U> map(Function<T, U> f) {
     return foldRight(Stream::<U> empty, t -> su -> cons(() -> f.apply(t), () -> su.get()));
   }
-  
+
   public Stream<T> filter(Function<T, Boolean> p) {
     return foldRight(Stream::<T> empty, t -> st -> (p.apply(t))
         ? cons(() -> t, () -> st.get())
         : st.get());
   }
-  
+
   public Stream<T> append(Stream<T> s) {
     return foldRight(() -> s, t -> st -> cons(() -> t, () -> st.get()));
   }
-  
+
   public <U> Stream<U> flatMap(Function<T, Stream<U>> f) {
     return foldRight(Stream::<U> empty, t -> su -> f.apply(t).append(su.get()));
   }
@@ -235,15 +235,15 @@ public abstract class Stream<T> {
   }
 
   private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<>(hd, tl);
   }
 
   private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(new Head<T>(hd), tl);
+    return new Cons<>(new Head<>(hd), tl);
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -254,10 +254,10 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
-  public static Stream<Integer> ones = Stream.<Integer>cons(() -> 1, () -> Stream.ones);
+  public static Stream<Integer> ones = Stream.cons(() -> 1, () -> Stream.ones);
 
   public static <T> Stream<T> constant(T t) {
     throw new IllegalStateException("To be implemented");

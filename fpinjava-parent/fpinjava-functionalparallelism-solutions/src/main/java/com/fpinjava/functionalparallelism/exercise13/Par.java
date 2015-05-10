@@ -17,7 +17,7 @@ import com.fpinjava.common.Tuple;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
+  static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
       Future<B> bf = b.apply(es);
@@ -25,7 +25,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     };
   }
 
-  public static class Map2Future<A, B, C> implements Future<C> {
+  class Map2Future<A, B, C> implements Future<C> {
 
     private volatile Option<C> cache = Option.none();
 
@@ -91,7 +91,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * doesn't use the `ExecutorService` at all. It's always done and can't be
    * cancelled. Its `get` method simply returns the value that we gave it.;
    */
-  public static <A> Par<A> unit(Supplier<A> a) {
+  static <A> Par<A> unit(Supplier<A> a) {
     return (ExecutorService es) -> new UnitFuture<>(a.get());
   }
 
@@ -105,7 +105,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * more serious problem with the implementation, and we will discuss this
    * later in the chapter.
    */
-  public static <A> Par<A> fork(Supplier<Par<A>> a) {
+  static <A> Par<A> fork(Supplier<Par<A>> a) {
     return es -> es.submit(new Callable<A>() {
 
       @Override
@@ -115,40 +115,40 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     });
   }
 
-  public static <A> Par<A> delay(Supplier<Par<A>> fa) {
+  static <A> Par<A> delay(Supplier<Par<A>> fa) {
     return es -> fa.get().apply(es);
   }
-      
-  public static <A> Par<A> lazyUnit(Supplier<A> a) {
+
+  static <A> Par<A> lazyUnit(Supplier<A> a) {
     return fork(() -> unit(a));
   }
 
-  public static <A> Future<A> run(ExecutorService s, Par<A> a) {
+  static <A> Future<A> run(ExecutorService s, Par<A> a) {
     return a.apply(s);
   }
 
-  public static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
+  static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
     return a -> lazyUnit(() -> f.apply(a));
   }
 
-  public static Par<List<Integer>> sortPar_(Par<List<Integer>> parList) {
+  static Par<List<Integer>> sortPar_(Par<List<Integer>> parList) {
     return map2(parList, unit(() -> Nothing.instance), a -> ignore -> List.sort(a));
   }
 
-  public static <A, B> Par<B> map(Par<A> pa, Function<A, B> f) {
+  static <A, B> Par<B> map(Par<A> pa, Function<A, B> f) {
     return map2(pa, unit(() -> Nothing.instance), a -> ignore -> f.apply(a));
   }
 
-  public static Par<List<Integer>> sortPar(Par<List<Integer>> parList) {
+  static Par<List<Integer>> sortPar(Par<List<Integer>> parList) {
     return map(parList, x -> List.sort(x));
   }
 
-  public static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
+  static <A, B> Par<List<B>> parMap(List<A> ps, Function<A, B> f) {
     final List<Par<B>> fbs = ps.map(asyncF(f));
     return sequence_simple(fbs);
   }
 
-  public static <A> Par<List<A>> sequence_simple(List<Par<A>> list) {
+  static <A> Par<List<A>> sequence_simple(List<Par<A>> list) {
     return list.foldRight(unit(() -> List.list()), h -> t -> map2(h, t, x -> y -> y.cons(x)));
   }
 
@@ -159,35 +159,35 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * dividing the list in half, and running both halves in parallel. See
    * `sequenceBalanced` below.
    */
-  public static <A> Par<List<A>> sequenceRight(List<Par<A>> list) {
+  static <A> Par<List<A>> sequenceRight(List<Par<A>> list) {
     return list.isEmpty()
         ? unit(() -> List.list())
         : map2(list.head(), fork(() -> sequenceRight(list.tail())), x -> y -> y.cons(x));
   }
 
-  public static <A> Par<List<A>> sequence(List<Par<A>> list) {
+  static <A> Par<List<A>> sequence(List<Par<A>> list) {
     Tuple<List<Par<A>>, List<Par<A>>> tuple = list.splitAt(list.length() / 2);
-    return fork(() -> list.isEmpty() 
+    return fork(() -> list.isEmpty()
         ? unit(() -> List.list())
         : list.length() == 1
             ? map(list.head(), a -> List.list(a))
             : map2(sequence(tuple._1), sequence(tuple._2), x -> y -> List.concat(x, y)));
   }
 
-  public static <A> Par<List<A>> parFilter(List<A> list, Function<A, Boolean> p) {
+  static <A> Par<List<A>> parFilter(List<A> list, Function<A, Boolean> p) {
     List<Par<List<A>>> pars = list.map(asyncF(a -> p.apply(a) ? List.list(a) : List.list()));
     return map(sequence(pars), x -> List.flatten(x));
   }
 
-  public static <A> boolean equal(ExecutorService es, Par<A> p1, Par<A> p2) {
+  static <A> boolean equal(ExecutorService es, Par<A> p1, Par<A> p2) {
     try {
       return p1.apply(es).get().equals(p2.apply(es).get());
     } catch (InterruptedException | ExecutionException e) {
       throw new IllegalStateException(e);
     }
   }
-  
-  public static <A> Par<A> choice(Par<Boolean> cond, Par<A> t, Par<A> f) {
+
+  static <A> Par<A> choice(Par<Boolean> cond, Par<A> t, Par<A> f) {
     return es -> {
       Boolean fu;
       try {
@@ -200,7 +200,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
           : f.apply(es);};
   }
 
-  public static <A> Par<A> choiceN(Par<Integer> n, List<Par<A>> choices) {
+  static <A> Par<A> choiceN(Par<Integer> n, List<Par<A>> choices) {
     return es -> {
         int ind;
         try {
@@ -212,12 +212,12 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
         return run(es, a);
       };
   }
-  
-  public static <A> Par<A> choiceViaChoiceN(Par<Boolean> a, Par<A> ifTrue, Par<A> ifFalse) {
+
+  static <A> Par<A> choiceViaChoiceN(Par<Boolean> a, Par<A> ifTrue, Par<A> ifFalse) {
     return choiceN(map(a, b -> b ? 0 : 1), List.list(ifTrue, ifFalse));
   }
 
-  public static <K, V> Par<V> choiceMap(Par<K> key, Map<K,Par<V>> choices) {
+  static <K, V> Par<V> choiceMap(Par<K> key, Map<K, Par<V>> choices) {
     return es -> {
         K k;
         try {
@@ -228,8 +228,8 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
         return run(es, choices.get(k).getOrThrow());
       };
   }
-  
-public static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> choices) {
+
+static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> choices) {
   return es -> {
       A a;
       try {
@@ -241,10 +241,10 @@ public static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> choices) {
     };
 }
 
-  /* 
-   * `chooser` is usually called `flatMap` or `bind`. 
+  /*
+   * `chooser` is usually called `flatMap` or `bind`.
    */
-  public static <A, B> Par<B> flatMap(Par<A> p, Function<A, Par<B>> choices) {
+  static <A, B> Par<B> flatMap(Par<A> p, Function<A, Par<B>> choices) {
     return es -> {
       A a;
       try {
@@ -256,15 +256,15 @@ public static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> choices) {
     };
   }
 
-  public static <A> Par<A> choiceViaFlatMap(Par<Boolean> p, Par<A> t, Par<A> f) {
+  static <A> Par<A> choiceViaFlatMap(Par<Boolean> p, Par<A> t, Par<A> f) {
     return flatMap(p, b -> b ? t : f);
   }
 
-  public static <A> Par<A> choiceNViaFlatMap(Par<Integer> p, List<Par<A>> choices) {
+  static <A> Par<A> choiceNViaFlatMap(Par<Integer> p, List<Par<A>> choices) {
     return flatMap(p, i -> choices.getAt(i).get()); // Throws an exception if index out of range
   }
 
-  public static class UnitFuture<A> implements Future<A> {
+  class UnitFuture<A> implements Future<A> {
 
     private final A get;
 
@@ -298,5 +298,5 @@ public static <A, B> Par<B> chooser(Par<A> p, Function<A, Par<B>> choices) {
       return this.get;
     }
   }
-  
+
 }

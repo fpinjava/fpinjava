@@ -10,6 +10,6 @@ public class ComposingFunctionsStackOverflow {
   static {
     for (int i = 0; i < fnum; i++) {
       g = g.compose(f);
-    };
+    }
   }
 }

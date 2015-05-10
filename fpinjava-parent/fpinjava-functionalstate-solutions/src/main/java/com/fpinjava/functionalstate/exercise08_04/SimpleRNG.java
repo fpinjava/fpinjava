@@ -61,13 +61,13 @@ public class SimpleRNG {
   }
 
   /*
-   * A tail-recursive stack safe solution. Note that the ouptut list is in
+   * A tail-recursive stack safe solution. Note that the output list is in
    * reverse order, but this is perfectly acceptable regarding the requirements.
    */
   public static Tuple<List<Integer>, RNG> ints2(int count, RNG rng) {
     return ints2_(count, rng, List.list()).eval();
   }
-  
+
   private static TailCall<Tuple<List<Integer>, RNG>> ints2_(int count, RNG rng, List<Integer> xs) {
     if (count == 0)
       return TailCall.ret(new Tuple<>(xs, rng));

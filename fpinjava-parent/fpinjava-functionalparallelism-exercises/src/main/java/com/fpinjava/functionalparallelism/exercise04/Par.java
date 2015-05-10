@@ -12,22 +12,22 @@ import com.fpinjava.common.Supplier;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
+  static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
       Future<B> bf = b.apply(es);
       return new Map2Future<>(af, bf, f);
     };
   }
-  
-  public static class Map2Future<A, B, C> implements Future<C> {
-    
+
+  class Map2Future<A, B, C> implements Future<C> {
+
     private volatile Option<C> cache = Option.none();
 
     private final Future<A> a;
     private final Future<B> b;
     private final Function<A, Function<B, C>> f;
-    
+
     public Map2Future(Future<A> a, Future<B> b, Function<A, Function<B, C>> f) {
       super();
       this.a = a;
@@ -63,7 +63,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     public C get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
       return compute(TimeUnit.MILLISECONDS.convert(timeout, unit));
     }
-    
+
     private C compute(long timeoutMs) throws InterruptedException, ExecutionException, TimeoutException {
       if (cache.isSome()) {
          return cache.get();
@@ -86,7 +86,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * doesn't use the `ExecutorService` at all. It's always done and can't be
    * cancelled. Its `get` method simply returns the value that we gave it.;
    */
-  public static <A> Par<A> unit(Supplier<A> a) {
+  static <A> Par<A> unit(Supplier<A> a) {
     return (ExecutorService es) -> new UnitFuture<>(a.get());
   }
 
@@ -100,23 +100,23 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * more serious problem with the implementation, and we will discuss this
    * later in the chapter.
    */
-  public static <A> Par<A> fork(Supplier<Par<A>> a) {
+  static <A> Par<A> fork(Supplier<Par<A>> a) {
     return es -> es.submit(() -> a.get().apply(es).get());
   }
 
-  public static <A> Par<A> lazyUnit(Supplier<A> a) {
+  static <A> Par<A> lazyUnit(Supplier<A> a) {
     return fork(() -> unit(a));
   }
 
-  public static <A> Future<A> run(ExecutorService s, Par<A> a) {
+  static <A> Future<A> run(ExecutorService s, Par<A> a) {
     return a.apply(s);
   }
 
-  public static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
+  static <A, B> Function<A, Par<B>> asyncF(Function<A, B> f) {
     throw new RuntimeException("To be implemented");
   }
 
-  public static class UnitFuture<A> implements Future<A> {
+  class UnitFuture<A> implements Future<A> {
 
     private final A get;
 

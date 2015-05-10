@@ -45,7 +45,7 @@ public class NonBlocking {
   }
 
   /*
-   * The run method provides the erro handler. The returned type has
+   * The run method provides the error handler. The returned type has
    * been changed to possibly return the error.
    */
   public static <A> Try<A> run(ExecutorService es, Par<A> p) {

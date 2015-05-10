@@ -6,12 +6,12 @@ import com.fpinjava.common.List;
 public class Listing01 {
 
   public void main(String... args) {
-    
-    Gen<List<Integer>> intList = Gen.listOf(Gen.choose(0, 100)); //#A
-    Prop prop =  //#B
-      Prop.<List<Integer>>forAll(intList, ns -> ns.reverse().reverse().equals(ns)).and( // #C
-      Prop.<List<Integer>>forAll(intList, ns -> ns.headOption().equals(ns.reverse().lastOption()))); // #D
-    Prop failingProp = Prop.<List<Integer>>forAll(intList, ns -> ns.reverse().equals(ns)); // #E
+
+    Gen<List<Integer>> intList = Gen.listOf(Gen.choose(0, 100));
+    Prop prop =
+      Prop.forAll(intList, ns -> ns.reverse().reverse().equals(ns)).and(
+      Prop.forAll(intList, ns -> ns.headOption().equals(ns.reverse().lastOption())));
+    Prop failingProp = Prop.forAll(intList, ns -> ns.reverse().equals(ns));
     prop.check();
     failingProp.check();
   }

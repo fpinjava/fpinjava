@@ -10,11 +10,11 @@ import com.fpinjava.common.Tuple;
 
 public interface Par<A> extends Function<ExecutorService, Future<A>> {
 
-  public static Integer sum_(List<Integer> ints) {
+  static Integer sum_(List<Integer> ints) {
     return ints.foldLeft(0, a -> b -> a + b);
   }
 
-  public static Integer sum(List<Integer> ints) {
+  static Integer sum(List<Integer> ints) {
     if (ints.length() <= 1) {
       return ints.headOption().getOrElse(0);
     } else {
@@ -29,23 +29,23 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * doesn't use the `ExecutorService` at all. It's always done and can't be
    * cancelled. Its `get` method simply returns the value that we gave it.;
    */
-  public static <A> Par<A> unit(Supplier<A> a) {
+  static <A> Par<A> unit(Supplier<A> a) {
     return (ExecutorService es) -> new UnitFuture<>(a.get());
  }
- 
-  public static <A> A get(Par<A> a) {
+
+  static <A> A get(Par<A> a) {
     return null;
  }
- 
-  public static class UnitFuture<A> implements Future<A> {
-    
+
+  class UnitFuture<A> implements Future<A> {
+
     private final A get;
-    
+
     public UnitFuture(A get) {
       super();
       this.get = get;
     }
-    
+
     @Override
     public boolean cancel(boolean evenIfRunning) {
       return false;
@@ -62,7 +62,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     public A get(long timeout, TimeUnit unit) {
       return get();
     }
-    
+
     @Override
     public A get() {
       return this.get;

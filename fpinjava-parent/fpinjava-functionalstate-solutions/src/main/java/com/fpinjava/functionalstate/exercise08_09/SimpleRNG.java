@@ -62,7 +62,7 @@ public class SimpleRNG {
   }
 
   /*
-   * A tail-recursive stack safe solution. Note that the ouptut list is in
+   * A tail-recursive stack safe solution. Note that the output list is in
    * reverse order, but this is perfectly acceptable regarding the requirements.
    */
   public static Tuple<List<Integer>, RNG> ints2(int count, RNG rng) {
@@ -78,7 +78,7 @@ public class SimpleRNG {
     }
   }
 
-  public static Rand<Integer> intRnd = x -> x.nextInt();
+  public static Rand<Integer> intRnd = RNG::nextInt;
 
   public static <A> Rand<A> unit(A a) {
     return rng -> new Tuple<>(a, rng);
@@ -91,7 +91,7 @@ public class SimpleRNG {
     };
   }
 
-  public static Rand<Integer> nonNegativeInt = x -> nonNegativeInt(x);
+  public static Rand<Integer> nonNegativeInt = SimpleRNG::nonNegativeInt;
 
   public static Rand<Integer> nonNegativeEven() {
     return SimpleRNG.<Integer, Integer> map(nonNegativeInt, i -> i - i % 2);
@@ -134,7 +134,7 @@ public class SimpleRNG {
    * the current element in the list. `map2(f, acc)(_ :: _)` results in a value
    * of type `Rand[List[A]]` We map over that to prepend (cons) the element onto
    * the accumulated list.
-   * 
+   *
    * We are using `foldRight`. If we used `foldLeft` then the values in the
    * resulting list would appear in reverse order. It would be arguably better
    * to use `foldLeft` followed by `reverse`. What do you think?
@@ -159,7 +159,7 @@ public class SimpleRNG {
       return g.apply(t._1).apply(t._2); // We pass the new state along
     };
   }
-  
+
   public static Rand<Integer> nonNegativeLessThan(int n) {
     return flatMap(nonNegativeInt, i -> {
       int mod = i % n;
@@ -168,16 +168,16 @@ public class SimpleRNG {
           : nonNegativeLessThan(n);
     });
   }
-  
+
   public static <A, B> Rand<B> map(Rand<A> s, Function<A, B> f) {
     return flatMap(s, a -> unit(f.apply(a)));
   }
-  
+
   public static <A, B, C> Rand<C> map2(Rand<A> ra, Rand<B> rb, Function<A, Function<B, C>> f) {
     return flatMap(ra, a -> map(rb, b -> f.apply(a).apply(b)));
   }
-  
+
   public static Rand<Integer> rollDieBug = nonNegativeLessThan(6);
-  
+
   public static Rand<Integer> rollDie = map(nonNegativeLessThan(6), x -> x + 1);
 }

@@ -1,7 +1,5 @@
 package com.fpinjava.makingjavafunctional.exercise03_03;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 

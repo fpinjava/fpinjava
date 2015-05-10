@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.fpinjava.recursion.listing04_01.TailCall;
-import com.fpinjava.recursion.listing04_04.Standalone;
 
 public class AddTest {
 

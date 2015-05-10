@@ -33,16 +33,10 @@ import com.fpinjava.common.TailCall;
 * Implementation based on non-intrusive MPSC node-based queue, described by Dmitriy Vyukov:
 * [[http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue]]
 *
-* @see scalaz.concurrent.Promise for a use case.
-*
-* @param handler The message handler
-* @param onError Exception handler, called if the message handler throws any `Throwable`.
-* @param strategy Execution strategy, for example, a strategy that is backed by an `ExecutorService`
-* @tparam A The type of messages accepted by this actor.
 */
 public class Actor<A> {
 
-  private AtomicReference<Node<A>> tail = new AtomicReference<>(new Node<A>());
+  private AtomicReference<Node<A>> tail = new AtomicReference<>(new Node<>());
   private AtomicInteger suspended = new AtomicInteger(1);
   private AtomicReference<Node<A>> head = new AtomicReference<>(tail.get());
   private final Strategy strategy;
@@ -59,7 +53,7 @@ public class Actor<A> {
    *  Pass the message `a` to the mailbox of this actor
    */
   public void tell(A a) {
-    Node<A> n = new Node<A>(a);
+    Node<A> n = new Node<>(a);
     head.getAndSet(n).lazySet(n);
     trySchedule();
   }
@@ -88,7 +82,7 @@ public class Actor<A> {
   private Node<A> batchHandle(Node<A> t, int i) {
     return batchHandle_(t, i).eval();
   }
-  
+
   private TailCall<Node<A>> batchHandle_(Node<A> t, int i) {
     Node<A> n = t.get();
     if (n != null) {
@@ -106,7 +100,7 @@ public class Actor<A> {
       return TailCall.ret(t);
     }
   }
-//  
+//
 //  private Node<A> batchHandle(Node<A> t, int i) {
 //    Node<A> n = t.get();
 //    if (n != null) {
@@ -127,7 +121,7 @@ public class Actor<A> {
 
   @SuppressWarnings("serial")
   static class Node<A> extends AtomicReference<Node<A>> {
-    
+
     private A a;
 
     public Node() {
@@ -147,11 +141,11 @@ public class Actor<A> {
   public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler, Consumer<Throwable> onError) {
     return new Actor<>(Strategy.fromExecutorService(es), handler, onError);
   }
-  
+
   public static <A> Actor<A> apply(ExecutorService es, Consumer<A> handler) {
     return new Actor<>(Strategy.fromExecutorService(es), handler, e -> {throw new IllegalStateException(e);});
   }
-  
+
   public static <A> Actor<A> apply(Consumer<A> handler) {
     return new Actor<>(Strategy.sequential(), handler, e -> {throw new IllegalStateException(e);});
   }

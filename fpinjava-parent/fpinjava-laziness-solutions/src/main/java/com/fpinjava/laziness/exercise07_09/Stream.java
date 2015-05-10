@@ -72,7 +72,7 @@ public abstract class Stream<T> {
        ? Stream.empty()
        : n > 1
            ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), () -> Stream.empty());
+           : Stream.cons(headS(), Stream::empty);
   }
 
   public Stream<T> drop(int n) {
@@ -104,7 +104,7 @@ public abstract class Stream<T> {
   }
 
   public Option<T> headOptionViaFoldRight() {
-    return foldRight(() -> Option.<T> none(), t -> st -> Option.some(t));
+    return foldRight(Option::<T>none, t -> st -> Option.some(t));
   }
 
   public <U> Stream<U> map(Function<T, U> f) {
@@ -233,15 +233,15 @@ public abstract class Stream<T> {
   }
 
   private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<>(hd, tl);
   }
 
   private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(new Head<T>(hd), tl);
+    return new Cons<>(new Head<>(hd), tl);
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -252,17 +252,17 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
-  public static Stream<Integer> ones = Stream.<Integer>cons(() -> 1, () -> Stream.ones);
+  public static Stream<Integer> ones = Stream.cons(() -> 1, () -> Stream.ones);
 
   public static <T> Stream<T> constant(T t) {
     return cons(() -> t, () -> constant(t));
   }
 
   static Stream<Integer> from(int n) {
-    return Stream.<Integer>cons(() -> n, () -> from(n + 1));
+    return Stream.cons(() -> n, () -> from(n + 1));
   }
 
   @SafeVarargs

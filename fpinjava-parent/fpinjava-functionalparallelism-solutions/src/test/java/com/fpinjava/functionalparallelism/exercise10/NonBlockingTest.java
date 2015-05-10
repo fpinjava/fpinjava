@@ -2,11 +2,8 @@ package com.fpinjava.functionalparallelism.exercise10;
 
 import static org.junit.Assert.*;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -32,9 +29,7 @@ public class NonBlockingTest {
     assertEquals("Failure(x == 5)", result.toString());
   }
 
-  private static Function<Integer, Integer> f = x -> {
-    return x * x;
-  };
+  private static Function<Integer, Integer> f = x -> x * x;
 
   private static Function<Integer, Integer> g = x -> {
     if (x == 5) {

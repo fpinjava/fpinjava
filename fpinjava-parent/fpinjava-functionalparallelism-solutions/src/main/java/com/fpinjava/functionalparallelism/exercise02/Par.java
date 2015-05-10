@@ -29,7 +29,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * implementation that records the amount of time spent evaluating `af`, then
    * subtracts that time from the available time allocated for evaluating `bf`.
    */
-  public static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
+  static <A, B, C> Par<C> map2(Par<A> a, Par<B> b, Function<A, Function<B, C>> f) {
     return (ExecutorService es) -> {
       Future<A> af = a.apply(es);
       Future<B> bf = b.apply(es);
@@ -47,7 +47,7 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * doesn't use the `ExecutorService` at all. It's always done and can't be
    * cancelled. Its `get` method simply returns the value that we gave it.;
    */
-  public static <A> Par<A> unit(Supplier<A> a) {
+  static <A> Par<A> unit(Supplier<A> a) {
     return es -> new UnitFuture<>(a.get());
   }
 
@@ -64,14 +64,14 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
    * This problem is difficult to see when using lambdas, so we include a
    * second version fork_ using an explicit anonymous class.
    */
-  public static <A> Par<A> fork(Supplier<Par<A>> a) {
+  static <A> Par<A> fork(Supplier<Par<A>> a) {
     return es -> es.submit(() -> a.get().apply(es).get());
   }
 
   /*
    * The fork implementation using an anonymous class
    */
-  public static <A> Par<A> fork_(Supplier<Par<A>> a) {
+  static <A> Par<A> fork_(Supplier<Par<A>> a) {
     return es -> es.submit(new Callable<A>() {
 
       @Override
@@ -81,15 +81,15 @@ public interface Par<A> extends Function<ExecutorService, Future<A>> {
     });
   }
 
-  public static <A> Par<A> lazyUnit(Supplier<A> a) {
+  static <A> Par<A> lazyUnit(Supplier<A> a) {
     return fork(() -> unit(a));
   }
 
-  public static <A> Future<A> run(ExecutorService s, Par<A> a) {
+  static <A> Future<A> run(ExecutorService s, Par<A> a) {
     return a.apply(s);
   }
 
-  public static class UnitFuture<A> implements Future<A> {
+  class UnitFuture<A> implements Future<A> {
 
     private final A get;
 

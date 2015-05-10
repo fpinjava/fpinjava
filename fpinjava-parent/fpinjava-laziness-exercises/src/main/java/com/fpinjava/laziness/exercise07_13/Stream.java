@@ -74,7 +74,7 @@ public abstract class Stream<T> {
        ? Stream.empty()
        : n > 1
            ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), () -> Stream.empty());
+           : Stream.cons(headS(), Stream::empty);
   }
 
   public Stream<T> drop(int n) {
@@ -106,7 +106,7 @@ public abstract class Stream<T> {
   }
 
   public Option<T> headOptionViaFoldRight() {
-    return foldRight(() -> Option.<T> none(), t -> st -> Option.some(t));
+    return foldRight(Option::<T>none, t -> st -> Option.some(t));
   }
 
   public <U> Stream<U> map(Function<T, U> f) {
@@ -149,43 +149,43 @@ public abstract class Stream<T> {
   public <U> Stream<U> mapViaUnfold(Function<T, U> f) {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   /*
-   * We must declare the funtion g first in order to write its type, so that the compiler may
+   * We must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
-  public Stream<T> takeViaUnfold(Integer n) {  
+  public Stream<T> takeViaUnfold(Integer n) {
     throw new IllegalStateException("To be implemented");
   }
-    
+
   public Stream<T> takeWhileViaUnfold(Function<T, Boolean> f) {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   public <U> Stream<Tuple<T, U>> zip(Stream<U> s2) {
     throw new IllegalStateException("To be implemented");
   }
 
   /*
-   * Again, we must declare the funtion g first in order to write its type, so that the compiler may
+   * Again, we must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
   public <U, V> Stream<V> zipWith(Stream<U> s2, Function<T, Function<U, V>> f) {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   public <U> Stream<Tuple<Option<T>, Option<U>>> zipAll(Stream<U> s2) {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   /*
-   * Again, we must declare the funtion g first in order to write its type, so that the compiler may
+   * Again, we must declare the function g first in order to write its type, so that the compiler may
    * pick it, because it would not be able to infer it.
    */
   public <U, V> Stream<V> zipWithAll(Stream<U> s2, Function<Tuple<Option<T>, Option<U>>, V> f) {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   public static class Empty<T> extends Stream<T> {
 
     private Empty() {
@@ -275,15 +275,15 @@ public abstract class Stream<T> {
   }
 
   private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<>(hd, tl);
   }
 
   private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(new Head<T>(hd), tl);
+    return new Cons<>(new Head<>(hd), tl);
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -294,7 +294,7 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
   public static Stream<Integer> ones = cons(() -> 1, () -> Stream.ones);
@@ -310,7 +310,7 @@ public abstract class Stream<T> {
   public static Stream<Integer> fibs() {
     return fibs_(new Tuple<>(0, 1)).map(x -> x._1);
   }
-  
+
   private static Stream<Tuple<Integer, Integer>> fibs_(Tuple<Integer, Integer> tuple) {
     return cons(() -> tuple, () -> fibs_(new Tuple<>(tuple._2, tuple._1 + tuple._2)));
   }
@@ -328,17 +328,17 @@ public abstract class Stream<T> {
       case None => empty
   }
   */
-  
+
   public static Stream<Integer> onesViaUnfold = unfold(1, x -> Option.some(new Tuple<>(1, 1)));
-  
+
   public static <T> Stream<T> constantViaUnfold(T t) {
     return unfold(t, x -> Option.some(new Tuple<>(t, t)));
   }
-  
+
   public static Stream<Integer> fromViaUnfold(int n) {
     return unfold(n, x -> Option.some(new Tuple<>(x, x + 1)));
   }
-  
+
   public static Stream<Integer> fibsViaUnfold() {
     return unfold(new Tuple<>(0, 1), x -> Option.some(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
   }

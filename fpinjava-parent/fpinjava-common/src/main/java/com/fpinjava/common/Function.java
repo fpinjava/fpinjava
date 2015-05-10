@@ -24,7 +24,7 @@ public interface Function<T, U> {
   static <T, U, V> Function<T, V> andThen(Function<T, U> f, Function<U, V> g) {
     return x -> g.apply(f.apply(x));
   }
-  
+
   static <T, U, V> Function<T, V> andThen2(Function<T, U> f, Function<U, V> g) {
     return x -> g.compose(f).apply(x);
   }
@@ -41,11 +41,11 @@ public interface Function<T, U> {
     return x -> y -> y.andThen(x);
   }
 
-  public static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
+  static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
     return f -> g -> x -> f.apply(g.apply(x));
   }
 
-  public static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
+  static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
     return f -> g -> z -> g.apply(f.apply(z));
   }
 }

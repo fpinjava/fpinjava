@@ -19,7 +19,7 @@ public interface Strategy {
    * We can create a `Strategy` from any `ExecutorService`. It's a little more
    * convenient than submitting `Callable` objects directly.
    */
-  public static Strategy fromExecutorService(ExecutorService es) {
+  static Strategy fromExecutorService(ExecutorService es) {
     return new Strategy() {
 
       @Override
@@ -46,7 +46,7 @@ public interface Strategy {
    * A `Strategy` which begins executing its argument immediately in the calling
    * thread.
    */
-  public static Strategy sequential() {
+  static Strategy sequential() {
     return new Strategy() {
 
       @Override

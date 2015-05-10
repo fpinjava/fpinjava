@@ -32,11 +32,11 @@ public interface Function<T, U> {
     return x -> y -> y.andThen(x);
   }
 
-  public static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
+  static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
     return f -> g -> x -> f.apply(g.apply(x));
   }
 
-  public static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
+  static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
     return f -> g -> z -> g.apply(f.apply(z));
   }
 }

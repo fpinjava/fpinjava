@@ -4,9 +4,7 @@ package com.fpinjava.laziness.exercise07_01;
 import com.fpinjava.common.List;
 import com.fpinjava.common.Option;
 import com.fpinjava.common.Supplier;
-import com.fpinjava.common.TailCall;
 
-import static com.fpinjava.common.TailCall.*;
 
 public abstract class Stream<T> {
 
@@ -18,21 +16,21 @@ public abstract class Stream<T> {
   public abstract boolean isEmpty();
   public abstract Option<T> headOption();
   protected abstract Head<T> headS();
-  
+
   private Stream() {}
-  
+
   public String toString() {
     return toList().toString();
   }
-  
+
   public List<T> toList() {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   public List<T> toListRecursive() {
     throw new IllegalStateException("To be implemented");
   }
-  
+
   public static class Empty<T> extends Stream<T> {
 
     private Empty() {
@@ -67,9 +65,9 @@ public abstract class Stream<T> {
   public static class Cons<T> extends Stream<T> {
 
     private final Head<T> head;
-    
+
     private final Supplier<Stream<T>> tail;
-    
+
     private Cons(Head<T> head, Supplier<Stream<T>> tail) {
       this.head = head;
       this.tail = tail;
@@ -101,7 +99,7 @@ public abstract class Stream<T> {
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -112,19 +110,19 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
   @SafeVarargs
   public static <T> Stream<T> cons(T... t) {
     return cons(List.list(t));
   }
-  
+
   public static class Head<T> {
-    
+
     private Supplier<T> nonEvaluated;
     private T evaluated;
-    
+
     public Head(Supplier<T> nonEvaluated) {
       super();
       this.nonEvaluated = nonEvaluated;

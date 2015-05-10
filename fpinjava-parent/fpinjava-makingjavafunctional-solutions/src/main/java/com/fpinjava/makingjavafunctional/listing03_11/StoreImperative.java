@@ -13,7 +13,7 @@ public class StoreImperative {
     Product toothPaste = new Product("Tooth paste", 1.5, 0.5);
     Product toothBrush = new Product("Tooth brush", 3.5, 0.3);
 
-    List<OrderLine> order = new ArrayList<OrderLine>();
+    List<OrderLine> order = new ArrayList<>();
     order.add(new OrderLine(toothPaste, 2));
     order.add(new OrderLine(toothBrush, 3));
 

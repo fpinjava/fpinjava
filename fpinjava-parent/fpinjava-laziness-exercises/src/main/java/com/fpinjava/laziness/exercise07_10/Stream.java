@@ -5,7 +5,6 @@ import com.fpinjava.common.List;
 import com.fpinjava.common.Option;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.TailCall;
-import com.fpinjava.common.Tuple;
 
 import static com.fpinjava.common.TailCall.*;
 
@@ -73,7 +72,7 @@ public abstract class Stream<T> {
        ? Stream.empty()
        : n > 1
            ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), () -> Stream.empty());
+           : Stream.cons(headS(), Stream::empty);
   }
 
   public Stream<T> drop(int n) {
@@ -105,7 +104,7 @@ public abstract class Stream<T> {
   }
 
   public Option<T> headOptionViaFoldRight() {
-    return foldRight(() -> Option.<T> none(), t -> st -> Option.some(t));
+    return foldRight(Option::<T>none, t -> st -> Option.some(t));
   }
 
   public <U> Stream<U> map(Function<T, U> f) {
@@ -233,15 +232,15 @@ public abstract class Stream<T> {
   }
 
   private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(hd, tl);
+    return new Cons<>(hd, tl);
   }
 
   private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<T>(new Head<T>(hd), tl);
+    return new Cons<>(new Head<>(hd), tl);
   }
 
   public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<T>(new Head<T>(hd), () -> tl);
+    return new Cons<>(new Head<>(hd), () -> tl);
   }
 
   @SuppressWarnings("unchecked")
@@ -252,7 +251,7 @@ public abstract class Stream<T> {
   public static <T> Stream<T> cons(List<T> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<T>(new Head<T>(() -> list.head(), list.head()), () -> cons(list.tail()));
+        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
   }
 
   public static Stream<Integer> ones = cons(() -> 1, () -> Stream.ones);
