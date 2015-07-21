@@ -415,6 +415,7 @@ public abstract class Stream<T> {
 
   public static <T, S> Stream<T> unfold(S z, Function<S, Option<Tuple<T, S>>> f) {
     Option<Tuple<T, S>> x = f.apply(z);
+    System.out.println(x);
     return x.isSome()
         ? cons(() -> x.get()._1, () -> unfold(x.get()._2, f))
         : empty();

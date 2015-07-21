@@ -75,7 +75,7 @@ project(':fpinjava-recursion-solutions') {
   }
 }
 
-project(':fpinjava-datastructures-exercises') {
+project(':fpinjava-lists-exercises') {
 
   dependencies {
     compile project(':fpinjava-common')
@@ -83,7 +83,7 @@ project(':fpinjava-datastructures-exercises') {
   }
 }
 
-project(':fpinjava-datastructures-solutions') {
+project(':fpinjava-lists-solutions') {
 
   dependencies {
     compile project(':fpinjava-common')
@@ -91,98 +91,4 @@ project(':fpinjava-datastructures-solutions') {
   }
 }
 
-project(':fpinjava-errorhandling-exercises') {
 
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-errorhandling-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-laziness-exercises') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-laziness-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-functionalstate-exercises') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-functionalstate-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-functionalparallelism-exercises') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-functionalparallelism-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-propertybasedtesting-exercises') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-propertybasedtesting-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-test') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-	compile group: 'org.functionaljava', name: 'functionaljava-java8', version: '4.3'
-    compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.5'
-    compile group: 'com.typesafe.akka', name: 'akka-actor_2.11', version: '2.3.9'
-    compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.5'
-    compile group: 'org.scalacheck', name: 'scalacheck_2.11', version: '1.12.2'
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-    testCompile group: 'com.pholser', name: 'junit-quickcheck-core', version: '0.5-alpha-1'
-    testCompile group: 'com.pholser', name: 'junit-quickcheck-generators', version: '0.5-alpha-1'
-	testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'  
-  }
-}
