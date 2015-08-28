@@ -139,7 +139,7 @@ public class SimpleRNG {
    * do this the other way around, since the results are random anyway. We could
    * even pass the initial RNG to both `f` and `g`, but that might have
    * unexpected results. E.g. if both arguments are `RNG.int` then we would
-   * always get two of the same `Int` in the result. When implementing functions
+   * always getOrThrow two of the same `Int` in the result. When implementing functions
    * like this, it's important to consider how we would test them for
    * correctness.
    */

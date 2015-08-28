@@ -3,13 +3,6 @@ package com.fpinjava.common;
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
 
-import com.fpinjava.common.Function;
-import com.fpinjava.common.List;
-import com.fpinjava.common.Option;
-import com.fpinjava.common.Supplier;
-import com.fpinjava.common.TailCall;
-import com.fpinjava.common.Tuple;
-
 public abstract class Stream<T> {
 
   @SuppressWarnings("rawtypes")
@@ -417,7 +410,7 @@ public abstract class Stream<T> {
     Option<Tuple<T, S>> x = f.apply(z);
     System.out.println(x);
     return x.isSome()
-        ? cons(() -> x.get()._1, () -> unfold(x.get()._2, f))
+        ? cons(() -> x.getOrThrow()._1, () -> unfold(x.getOrThrow()._2, f))
         : empty();
   }
 

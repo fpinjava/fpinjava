@@ -11,4 +11,12 @@ include 'fpinjava-common',
 		'fpinjava-recursion-exercises', 
 		'fpinjava-recursion-solutions', 
 		'fpinjava-lists-exercises', 
-		'fpinjava-lists-solutions'
+		'fpinjava-lists-solutions', 
+		'fpinjava-optionaldata-exercises', 
+		'fpinjava-optionaldata-solutions',
+		'fpinjava-handlingerrors-exercises', 
+		'fpinjava-handlingerrors-solutions',
+		'fpinjava-advancedlisthandling-exercises', 
+		'fpinjava-advancedlisthandling-solutions',
+		'fpinjava-laziness-exercises', 
+		'fpinjava-laziness-solutions'

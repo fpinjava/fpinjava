@@ -115,6 +115,21 @@ public abstract class List<A> {
     return unfold(new Tuple<>(this, s2), g);
   }
 
+  public Result<A> first(Function<A, Boolean> p) {
+    return firstHelper(this, p).eval().mapFailure(String.format("No element satisfying function %s in list %s", p, this));
+  }
+
+  private static <A> TailCall<Result<A>> firstHelper(final List<A> list, final Function<A, Boolean> f) {
+    if (list.isEmpty()) {
+      return ret(Result.<A> failure("Empty list"));
+    }
+    if (f.apply(list.head())) {
+      return ret(Result.success(list.head()));
+    } else {
+      return sus(() -> firstHelper(list.tail(), f));
+    }
+  }
+
   private List() {
   }
 
@@ -403,7 +418,7 @@ public abstract class List<A> {
 
     private boolean isEquals(Cons<A> cons, Cons<?> o) {
       Function<Option<A>, Function<Option<?>, Boolean>> equals = x -> y -> x
-          .isSome() && y.map(a -> a.equals(x.get())).getOrElse(() -> false);
+          .isSome() && y.map(a -> a.equals(x.getOrThrow())).getOrElse(() -> false);
       return zipAll(o)
           .foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
     }
@@ -431,7 +446,7 @@ public abstract class List<A> {
   public static <A, S> List<A> unfold(S z, Function<S, Option<Tuple<A, S>>> f) {
     Option<Tuple<A, S>> x = f.apply(z);
     return x.isSome()
-        ? new Cons<>(x.get()._1, unfold(x.get()._2, f))
+        ? new Cons<>(x.getOrThrow()._1, unfold(x.getOrThrow()._2, f))
         : list();
   }
 
@@ -575,13 +590,13 @@ public abstract class List<A> {
       return fromCollection(set);
     }
   }
-  
+
   public static Option<Integer> maxOption(List<Integer> list) {
-    return list.isEmpty() 
-        ? Option.none() 
+    return list.isEmpty()
+        ? Option.none()
         : Option.some(list.tail().foldRight(list.head(), x -> y -> x > y ? x : y));
   }
-  
+
   /*
    * A special version of max, throwing an exception if the list is empty. This version
    * is used in chapter 10.
@@ -604,7 +619,7 @@ public abstract class List<A> {
   public Boolean exists(Function<A, Boolean> p) {
     return exists(this, p);
   }
-  
+
   public static <A> boolean forAll(List<A> list, Function<A, Boolean> p) {
     if (list.isEmpty())
       return true;

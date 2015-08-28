@@ -6,7 +6,7 @@ public abstract class Option<A> {
 
   public abstract <B> Option<B> map(Function<A, B> f);
 
-  public abstract A get();
+  public abstract A getOrThrow();
 
   public abstract A getOrElse(Supplier<A> defaultValue);
 
@@ -51,7 +51,7 @@ public abstract class Option<A> {
     }
 
     @Override
-    public A get() {
+    public A getOrThrow() {
       throw new IllegalStateException("None has no value");
     }
 
@@ -64,7 +64,7 @@ public abstract class Option<A> {
     public boolean isSome() {
       return false;
     }
-    
+
     @Override
     public boolean equals(Object o) {
       return this == o || o instanceof None;
@@ -100,7 +100,7 @@ public abstract class Option<A> {
     }
 
     @Override
-    public A get() {
+    public A getOrThrow() {
       return this.value;
     }
 
@@ -116,9 +116,7 @@ public abstract class Option<A> {
 
     @Override
     public boolean equals(Object o) {
-      return this == o || o instanceof Some
-          ? this.value.equals(((Some<?>) o).value)
-          : false;
+      return (this == o || o instanceof Some) && this.value.equals(((Some<?>) o).value);
     }
 
     @Override
@@ -147,7 +145,7 @@ public abstract class Option<A> {
 
   public static <A, B, C> Option<C> map2(Option<A> a, Option<B> b, Function<A, Function<B, C>> f) {
     return a.isSome() && b.isSome()
-        ? some(f.apply(a.get()).apply(b.get()))
+        ? some(f.apply(a.getOrThrow()).apply(b.getOrThrow()))
         : none();
   }
 

@@ -23,10 +23,10 @@ public class Map<T, U> {
     return m;
   }
 
-  public Try<U> get(final T t) {
+  public Result<U> get(final T t) {
     return t == null
-        ? Try.failure(NULL_KEY, new IllegalArgumentException(NULL_KEY))
-        : Try.of(() -> this.map.get(t), String.format("Key %s not found in map", t));
+        ? Result.failure(NULL_KEY, new IllegalArgumentException(NULL_KEY))
+        : Result.of(() -> this.map.get(t), String.format("Key %s not found in map", t));
   }
 
   public boolean containsKey(final T t) {

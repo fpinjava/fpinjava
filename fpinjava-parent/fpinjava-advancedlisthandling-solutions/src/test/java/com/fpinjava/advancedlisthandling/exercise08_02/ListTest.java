@@ -1,0 +1,20 @@
+package com.fpinjava.advancedlisthandling.exercise08_02;
+
+import static org.junit.Assert.*;
+
+import com.fpinjava.advancedlisthandling.exercise08_03.*;
+import org.junit.Test;
+
+public class ListTest {
+
+  @Test
+  public void testHeadOptionEmpty() {
+    assertEquals("Empty()", List.list().headOption().toString());
+  }
+
+  @Test
+  public void testHeadOptionNonEmpty() {
+    assertEquals("Success(1)", List.list(1, 2, 3).headOption().toString());
+  }
+
+}

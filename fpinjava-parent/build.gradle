@@ -91,4 +91,66 @@ project(':fpinjava-lists-solutions') {
   }
 }
 
+project(':fpinjava-optionaldata-exercises') {
 
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-optionaldata-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-handlingerrors-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-handlingerrors-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-advancedlisthandling-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-advancedlisthandling-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-laziness-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-laziness-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
