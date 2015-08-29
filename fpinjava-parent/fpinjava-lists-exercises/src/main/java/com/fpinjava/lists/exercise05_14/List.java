@@ -169,7 +169,7 @@ public abstract class List<A> {
 
     @Override
     public int length() {
-      return foldRight(this, 0, x -> y -> y + 1);
+      return foldRight(0, x -> y -> y + 1);
     }
 
     @Override
@@ -204,8 +204,6 @@ public abstract class List<A> {
   }
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f ) {
-    return list.isEmpty()
-        ? n
-        : f.apply(list.head()).apply(foldRight(list.tail(), n, f));
+    return list.foldRight(n, f);
   }
 }

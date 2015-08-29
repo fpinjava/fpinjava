@@ -1,6 +1,8 @@
 package com.fpinjava.laziness.listing09_01;
 
 
+import java.util.Optional;
+
 public class BooleanMethods {
 
 
@@ -14,6 +16,7 @@ public class BooleanMethods {
       System.out.println(and(true, false));
       System.out.println(and(false, true));
       System.out.println(and(false, false));
+      Optional x = Optional.of(0);
 
     }
 

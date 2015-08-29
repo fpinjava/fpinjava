@@ -405,7 +405,7 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return foldLeft(Function.<B>identity(), g -> a -> b -> g.apply(f.apply(a).apply(b))).apply(identity);
+      return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
     }
 
     @Override
@@ -420,6 +420,8 @@ public abstract class List<A> {
 
     @Override
     public <B> List<B> flatMap(Function<A, List<B>> f) {
+      /* Java is unable to infer type of the second parameter for the second function */
+      //return foldRight(list(), h -> t -> f.apply(h).foldRight(t, x -> (List<B> y) -> new Cons<>(x, y)));
       return foldRight(list(), h -> t -> concat(f.apply(h), t));
     }
 
@@ -444,9 +446,7 @@ public abstract class List<A> {
   }
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f ) {
-    return list.isEmpty()
-        ? n
-        : f.apply(list.head()).apply(foldRight(list.tail(), n, f));
+    return list.foldRight(n, f);
   }
 
   public static <A> List<A> concat(List<A> list1, List<A> list2) {

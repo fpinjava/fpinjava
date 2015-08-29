@@ -310,20 +310,20 @@ public abstract class List<A> {
           : sus(() -> foldLeft(f.apply(acc).apply(list.head()), list.tail(), f));
     }
 
-  @Override
-  public <B> B foldLeft(B identity, B zero, Function<B, Function<A, B>> f) {
-    return foldLeft(identity, zero, this, f).eval();
-  }
+    @Override
+    public <B> B foldLeft(B identity, B zero, Function<B, Function<A, B>> f) {
+      return foldLeft(identity, zero, this, f).eval();
+    }
 
-  private <B> TailCall<B> foldLeft(B acc, B zero, List<A> list, Function<B, Function<A, B>> f) {
-    return list.isEmpty() || acc.equals(zero)
-        ? ret(acc)
-        : sus(() -> foldLeft(f.apply(acc).apply(list.head()), zero, list.tail(), f));
-  }
+    private <B> TailCall<B> foldLeft(B acc, B zero, List<A> list, Function<B, Function<A, B>> f) {
+      return list.isEmpty() || acc.equals(zero)
+          ? ret(acc)
+          : sus(() -> foldLeft(f.apply(acc).apply(list.head()), zero, list.tail(), f));
+    }
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return foldLeft(Function.<B>identity(), g -> a -> b -> g.apply(f.apply(a).apply(b))).apply(identity);
+      return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
     }
 
     @Override
@@ -362,9 +362,7 @@ public abstract class List<A> {
   }
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f ) {
-    return list.isEmpty()
-        ? n
-        : f.apply(list.head()).apply(foldRight(list.tail(), n, f));
+    return list.foldRight(n, f);
   }
 
   public static <A> List<A> concat(List<A> list1, List<A> list2) {

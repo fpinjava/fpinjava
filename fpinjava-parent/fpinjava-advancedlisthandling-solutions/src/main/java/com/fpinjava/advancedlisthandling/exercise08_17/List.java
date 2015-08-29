@@ -405,7 +405,7 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return foldLeft(Function.<B>identity(), g -> a -> b -> g.apply(f.apply(a).apply(b))).apply(identity);
+      return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
     }
 
     @Override
@@ -444,9 +444,7 @@ public abstract class List<A> {
   }
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f ) {
-    return list.isEmpty()
-        ? n
-        : f.apply(list.head()).apply(foldRight(list.tail(), n, f));
+    return list.foldRight(n, f);
   }
 
   public static <A> List<A> concat(List<A> list1, List<A> list2) {
