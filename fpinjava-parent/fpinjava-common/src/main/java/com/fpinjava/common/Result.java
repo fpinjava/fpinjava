@@ -430,34 +430,34 @@ public Result<RuntimeException> forEachOrException(Effect<T> c) {
     }
   }
 
-public static <T> Result<T> of(final Callable<T> callable) {
-  return of(callable, "Null value");
-}
-
-public static <T> Result<T> of(final Callable<T> callable,
-                               final String message) {
-  try {
-    T value = callable.call();
-    return value == null
-        ? Result.failure(message)
-        : Result.success(value);
-  } catch (Exception e) {
-    return Result.failure(e.getMessage(), e);
+  public static <T> Result<T> of(final Callable<T> callable) {
+    return of(callable, "Null value");
   }
-}
 
-public static <T> Result<T> of(final Function<T, Boolean> predicate,
-                               final T value,
-                               final String message) {
-  try {
-    return predicate.apply(value)
-        ? Result.success(value)
-        : Result.failure(String.format(message, value));
-  } catch (Exception e) {
-    String errMessage = String.format("Exception while evaluating predicate: %s", String.format(message, value));
-    return Result.failure(errMessage, e);
+  public static <T> Result<T> of(final Callable<T> callable,
+                                 final String message) {
+    try {
+      T value = callable.call();
+      return value == null
+          ? Result.failure(message)
+          : Result.success(value);
+    } catch (Exception e) {
+      return Result.failure(e.getMessage(), e);
+    }
   }
-}
+
+  public static <T> Result<T> of(final Function<T, Boolean> predicate,
+                                 final T value,
+                                 final String message) {
+    try {
+      return predicate.apply(value)
+          ? Result.success(value)
+          : Result.failure(String.format(message, value));
+    } catch (Exception e) {
+      String errMessage = String.format("Exception while evaluating predicate: %s", String.format(message, value));
+      return Result.failure(errMessage, e);
+    }
+  }
 
   public static <T> Result<T> of(final T value) {
     return of(value, "Null value");
