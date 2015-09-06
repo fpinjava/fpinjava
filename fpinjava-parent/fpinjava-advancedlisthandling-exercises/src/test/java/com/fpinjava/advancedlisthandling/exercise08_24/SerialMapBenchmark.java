@@ -1,4 +1,4 @@
-package com.fpinjava.advancedlisthandling.exercise08_22;
+package com.fpinjava.advancedlisthandling.exercise08_24;
 
 
 import com.fpinjava.common.Function;

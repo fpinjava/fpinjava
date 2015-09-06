@@ -206,31 +206,8 @@ public abstract class List<A> {
     return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
   }
 
-  public boolean forAll(Function<A, Boolean> p) {
-    Function<Boolean, Function<A, Boolean>> f = x -> y -> x && p.apply(y);
-    return foldLeft(true, false, f)._1;
-  }
-
-  public List<List<A>> splitListAt(int i) {
-    return splitListAt(list(), this.reverse(), i).eval();
-  }
-
-  private TailCall<List<List<A>>> splitListAt(List<A> acc, List<A> list, int i) {
-    return i == 0 || list.isEmpty()
-        ? ret(List.list(list.reverse(), acc))
-        : sus(() -> splitListAt(acc.cons(list.head()), list.tail(), i - 1));
-  }
-
-  public List<List<A>> divide(int depth) {
-    return this.isEmpty()
-        ? list(this)
-        : divide(list(this), depth);
-  }
-
-  private List<List<A>> divide(List<List<A>> list, int depth) {
-    return list.head().length() < depth || depth < 2
-        ? list
-        : divide(list.flatMap(x -> x.splitListAt(x.length() / 2)), depth / 2);
+  public boolean exists(Function<A, Boolean> p) {
+    return foldLeft(false, true, x -> y -> x || p.apply(y))._1;
   }
 
   public <B> List<Tuple<Result<A>, Result<B>>> zipAll(List<B> s2) {

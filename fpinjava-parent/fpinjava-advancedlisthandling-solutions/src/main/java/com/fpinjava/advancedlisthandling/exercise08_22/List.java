@@ -3,14 +3,11 @@ package com.fpinjava.advancedlisthandling.exercise08_22;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.Map;
 import com.fpinjava.common.Result;
-import com.fpinjava.common.Supplier;
 import com.fpinjava.common.TailCall;
 import com.fpinjava.common.Tuple;
 import com.fpinjava.common.Tuple3;
 
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
@@ -209,9 +206,12 @@ public abstract class List<A> {
     return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
   }
 
+  public boolean exists(Function<A, Boolean> p) {
+    return foldLeft(false, true, x -> y -> x || p.apply(y))._1;
+  }
+
   public boolean forAll(Function<A, Boolean> p) {
-    Function<Boolean, Function<A, Boolean>> f = x -> y -> x && p.apply(y);
-    return foldLeft(true, false, f)._1;
+    return foldLeft(true, false, x -> y -> x && p.apply(y))._1;
   }
 
   public List<List<A>> splitListAt(int i) {
@@ -249,37 +249,6 @@ public abstract class List<A> {
                 ? Result.success(new Tuple<>(f.apply(new Tuple<>(Result.empty(), Result.success(x._2.head()))), new Tuple<>(List.<A> list(), x._2.tail())))
                 : Result.success(new Tuple<>(f.apply(new Tuple<>(Result.success(x._1.head()), Result.success(x._2.head()))), new Tuple<>(x._1.tail(), x._2.tail())));
     return unfold(new Tuple<>(this, s2), g);
-  }
-
-  public<B> Result<B> parFoldLeft(ExecutorService es, B identity, Function<B, Function<A, B>> f, Function<B, Function<B, B>> m) {
-    final int chunks = 1024;
-    final List<List<A>> dList = divide(chunks);
-    try {
-      List<B> result = dList.map(x -> es.submit(() -> x.foldLeft(identity, f))).map(x -> {
-        try {
-          return x.get();
-        } catch (InterruptedException | ExecutionException e) {
-          throw new RuntimeException(e);
-        }
-      });
-      return Result.success(result.foldLeft(identity, m));
-    } catch (Exception e) {
-      return Result.failure(e.getMessage(), e);
-    }
-  }
-
-  public <B> Result<List<B>> parMap(ExecutorService es, Function<A, B> g) {
-    try {
-      return Result.success(this.map(x -> es.submit(() -> g.apply(x))).map(x -> {
-        try {
-          return x.get();
-        } catch (InterruptedException | ExecutionException e) {
-          throw new RuntimeException(e);
-        }
-      }));
-    } catch (Exception e) {
-      return Result.failure(e.getMessage(), e);
-    }
   }
 
   @SuppressWarnings("rawtypes")
@@ -520,7 +489,6 @@ public abstract class List<A> {
       Function<Result<A>, Function<Result<?>, Boolean>> equals = x -> y -> x.isSuccess() && y.map(a -> a.equals(x.getOrThrow())).getOrElse(() -> false);
       return zipAll(o).foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
     }
-
   }
 
   @SuppressWarnings("unchecked")
@@ -629,10 +597,6 @@ public abstract class List<A> {
     return List.unfold(start, i -> i < end
         ? Result.success(new Tuple<>(i, i + 1))
         : Result.empty());
-  }
-
-  public static <A> List<A> fill(int n, Supplier<A> s) {
-    return range(0, n).map(ignore -> s.get());
   }
 
 }
