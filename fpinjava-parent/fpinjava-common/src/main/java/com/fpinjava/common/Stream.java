@@ -43,7 +43,7 @@ public abstract class Stream<T> {
   private TailCall<List<T>> toListRecursive_(Stream<T> s, List<T> acc) {
     return s instanceof Empty
         ? ret(acc)
-        : sus(() -> toListRecursive_(s.tail().get(), List.cons(s.head(), acc)));
+        : sus(() -> toListRecursive_(s.tail().get(), acc.cons(s.head())));
   }
 
   public List<T> toListIterative() {

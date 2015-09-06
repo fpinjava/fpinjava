@@ -128,9 +128,9 @@ public abstract class Result<T> implements Serializable {
     }
 
     @Override
-public Result<RuntimeException> forEachOrException(Effect<T> c) {
-  return success(exception);
-}
+    public Result<RuntimeException> forEachOrException(Effect<T> c) {
+      return success(exception);
+    }
 
     @Override
     public Result<T> filter(Function<T, Boolean> f) {
@@ -499,61 +499,4 @@ public Result<RuntimeException> forEachOrException(Effect<T> c) {
                                          final Function<A, Function<B, C>> f) {
     return lift2(f).apply(a).apply(b);
   }
-
-//  public static class Test {
-//    public static void main(String... args) {
-//      Result<Toon> toon = getFirstName()
-//          .flatMap(firstName -> getLastName()
-//              .flatMap(lastName -> getMail()
-//                  .map(mail -> new Toon(firstName, lastName, mail))));
-//
-//  Function<String, Function<String, Function<String, Toon>>> createPerson = x -> y -> z -> new Toon(x, y, z);
-//  Result<Toon> toon2 = lift3((String x) -> (String y) -> (String z) -> new Toon(x, y, z))
-//      .apply(getFirstName())
-//      .apply(getLastName())
-//      .apply(getMail());
-//      }
-//  }
-//
-//  public static class Toon {
-//    public final String firstName;
-//    public final String lastName;
-//    public final String mail;
-//
-//    public Toon(String firstName, String lastName, String mail) {
-//      this.firstName = firstName;
-//      this.lastName = lastName;
-//      this.mail = mail;
-//    }
-//
-//  }
-//
-//  static Result<String> getFirstName() {
-//    return success("Mickey");
-//  }
-//
-//  static Result<String> getLastName() {
-//    return success("Mickey");
-//  }
-//
-//  static Result<String> getMail() {
-//    return success("mickey@disney.com");
-//  }
-//
-//  Result<Integer> result1 = success(1);
-//  Result<Integer> result2 = success(2);
-//  Result<Integer> result3 = success(3);
-//  Result<Integer> result4 = success(4);
-//  Result<Integer> result5 = success(5);
-//
-//  Result<Integer> result = result1
-//      .flatMap(p1 -> result2
-//          .flatMap(p2 -> result3
-//              .flatMap(p3 -> result4
-//                  .flatMap(p4 -> result5
-//                      .map(p5 -> compute(p1, p2, p3, p4, p5))))));
-//
-//  private int compute(int p1, int p2, int p3, int p4, int p5) {
-//    return p1 + p2 + p3 + p4 + p5;
-//  }
 }

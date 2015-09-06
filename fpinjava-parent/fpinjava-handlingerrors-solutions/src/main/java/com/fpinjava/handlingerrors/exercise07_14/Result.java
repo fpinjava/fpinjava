@@ -7,7 +7,6 @@ import com.fpinjava.common.Supplier;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 
 public abstract class Result<T> implements Serializable {
 

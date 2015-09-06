@@ -19,4 +19,6 @@ include 'fpinjava-common',
 		'fpinjava-advancedlisthandling-exercises', 
 		'fpinjava-advancedlisthandling-solutions',
 		'fpinjava-laziness-exercises', 
-		'fpinjava-laziness-solutions'
+		'fpinjava-laziness-solutions',
+		'fpinjava-trees-exercises', 
+		'fpinjava-trees-solutions'

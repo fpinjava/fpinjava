@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
  * Count the time necessary to fold a list of 35 000 random longs between 0 and 30 by adding the result of applying a particularly slow
  * implementation of the fibonacci function.
  *
- * On a four cores Macintosh, using 4 threads, the result is 22 seconds for 10 iterations. The serial version takes 83 seconds.
+ * On a four cores Macintosh with Java 8 64 bits, using 4 threads, the result is 22 seconds for 10 iterations. The serial version takes 83 seconds.
  */
 public class ParallelFoldLeftBenchmark {
 
