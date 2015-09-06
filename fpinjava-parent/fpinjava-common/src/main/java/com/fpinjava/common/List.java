@@ -548,6 +548,10 @@ public abstract class List<A> {
     return list.foldRight(n, f);
   }
 
+  public static <T> List<T> cons(T t, List<T> list) {
+    return list.cons(t);
+  }
+
   public static <A> List<A> concat(List<A> list1, List<A> list2) {
     return foldRight(list1, list2, x -> y -> new Cons<>(x, y));
   }
