@@ -1,5 +1,6 @@
-package com.fpinjava.laziness.exercise09_03;
+package com.fpinjava.laziness.exercise09_05;
 
+import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
 import com.fpinjava.common.Result;
 import com.fpinjava.common.Supplier;
@@ -24,6 +25,20 @@ abstract class Stream<A> {
   public abstract Stream<A> take(int n);
 
   public abstract Stream<A> drop(int n);
+
+  public abstract Stream<A> takeWhile(Function<A, Boolean> f);
+
+  public Stream<A> dropWhile(Function<A, Boolean> f) {
+    return dropWhile(this, f).eval();
+  }
+
+  private TailCall<Stream<A>> dropWhile(Stream<A> acc, Function<A, Boolean> f) {
+    return acc.isEmpty()
+        ? ret(acc)
+        : f.apply(acc.head())
+            ? sus(() -> dropWhile(acc.tail(), f))
+            : ret(acc);
+  }
 
   public List<A> toList() {
     return toList(this, List.list()).eval().reverse();
@@ -66,6 +81,11 @@ abstract class Stream<A> {
 
     @Override
     public Stream<A> drop(int n) {
+      return this;
+    }
+
+    @Override
+    public Stream<A> takeWhile(Function<A, Boolean> f) {
       return this;
     }
   }
@@ -120,8 +140,15 @@ abstract class Stream<A> {
       return drop(this, n).eval();
     }
 
+    @Override
+    public Stream<A> takeWhile(Function<A, Boolean> f) {
+      return f.apply(head())
+          ? cons(head, () -> tail().takeWhile(f))
+          : empty();
+    }
+
     public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
-      return n <= 0
+      return acc.isEmpty() || n <= 0
           ? ret(acc)
           : sus(() -> drop(acc.tail(), n - 1));
     }

@@ -1,5 +1,6 @@
-package com.fpinjava.laziness.exercise09_03;
+package com.fpinjava.laziness.exercise09_14;
 
+import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
 import com.fpinjava.common.Result;
 import com.fpinjava.common.Supplier;
@@ -24,6 +25,66 @@ abstract class Stream<A> {
   public abstract Stream<A> take(int n);
 
   public abstract Stream<A> drop(int n);
+
+  public abstract Stream<A> takeWhile_(Function<A, Boolean> f);
+
+  public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
+
+  public Result<A> find(Function<A, Boolean> p) {
+    return filter(p).headOption();
+  }
+
+  public <B> Stream<B> flatMap(Function<A, Stream<B>> f) {
+    return foldRight(Stream::empty, a -> b -> f.apply(a).append(b));
+  }
+
+  public Stream<A> append(Supplier<Stream<A>> s) {
+    return foldRight(s, a -> b -> cons(() -> a, b));
+  }
+
+  public Stream<A> filter(Function<A, Boolean> p) {
+    return foldRight(Stream::empty, a -> b -> p.apply(a)
+        ? cons(() -> a, b)
+        : b.get());
+  }
+
+  public <B> Stream<B> map(Function<A, B> f) {
+    return foldRight(Stream::empty, a -> b -> cons(() -> f.apply(a), b));
+  }
+
+  public Result<A> headOptionViaFoldRight() {
+    return foldRight(Result::empty, a -> ignore -> Result.success(a));
+  }
+
+  public Stream<A> takeWhile(Function<A, Boolean> f) {
+    return foldRight(Stream::empty, a -> b -> f.apply(a)
+        ? cons(() -> a, b)
+        : empty());
+  }
+
+  public boolean exists(Function<A, Boolean> p) {
+    return exists(this, p).eval();
+  }
+
+  private TailCall<Boolean> exists(Stream<A> s, Function<A, Boolean> p) {
+    return s.isEmpty()
+        ? ret(false)
+        : p.apply(s.head())
+            ? ret(true)
+            : sus(() -> exists(s.tail(), p));
+  }
+
+  public Stream<A> dropWhile(Function<A, Boolean> f) {
+    return dropWhile(this, f).eval();
+  }
+
+  private TailCall<Stream<A>> dropWhile(Stream<A> acc, Function<A, Boolean> f) {
+    return acc.isEmpty()
+        ? ret(acc)
+        : f.apply(acc.head())
+            ? sus(() -> dropWhile(acc.tail(), f))
+            : ret(acc);
+  }
 
   public List<A> toList() {
     return toList(this, List.list()).eval().reverse();
@@ -67,6 +128,16 @@ abstract class Stream<A> {
     @Override
     public Stream<A> drop(int n) {
       return this;
+    }
+
+    @Override
+    public Stream<A> takeWhile_(Function<A, Boolean> f) {
+      return this;
+    }
+
+    @Override
+    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
+      return z.get();
     }
   }
 
@@ -120,8 +191,20 @@ abstract class Stream<A> {
       return drop(this, n).eval();
     }
 
+    @Override
+    public Stream<A> takeWhile_(Function<A, Boolean> f) {
+      return f.apply(head())
+          ? cons(head, () -> tail().takeWhile_(f))
+          : empty();
+    }
+
+    @Override
+    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
+      return f.apply(head()).apply(() -> tail().foldRight(z, f));
+    }
+
     public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
-      return n <= 0
+      return acc.isEmpty() || n <= 0
           ? ret(acc)
           : sus(() -> drop(acc.tail(), n - 1));
     }
@@ -142,5 +225,9 @@ abstract class Stream<A> {
 
   public static Stream<Integer> from(int i) {
     return cons(() -> i, () -> from(i + 1));
+  }
+
+  public static <A> Stream<A> repeat(A a) {
+    return cons(() -> a, () -> repeat(a));
   }
 }

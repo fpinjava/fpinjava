@@ -482,7 +482,7 @@ public abstract class List<A> {
     }
 
     private <B> TailCall<Tuple<B, List<A>>> foldLeft(B acc, B zero, List<A> list, Function<B, Function<A, B>> f) {
-      return list.isEmpty() || acc.equals(zero)
+      return list.isEmpty() || zero.equals(acc)
           ? ret(new Tuple<>(acc, list))
           : sus(() -> foldLeft(f.apply(acc).apply(list.head()), zero, list.tail(), f));
     }

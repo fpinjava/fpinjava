@@ -1,4 +1,4 @@
-package com.fpinjava.laziness.exercise09_01;
+package com.fpinjava.laziness.exercise09_08;
 
 import com.fpinjava.common.List;
 import org.junit.Test;
@@ -8,11 +8,6 @@ import static org.junit.Assert.*;
 
 public class StreamTest {
 
-  /**
-   * The following tests verify that no elements are evaluated by the methods.
-   * Only the elements that are in the streams when converting to list are
-   * evaluated.
-   */
   private List<Integer> evaluated = List.list();
 
   private int evaluate(int n) {
@@ -31,13 +26,20 @@ public class StreamTest {
   public void testHeadOption() throws Exception {
     evaluated = List.list();
     assertEquals("[NIL]", evaluated.toString());
-    assertEquals("Success(1)", stream.headOption().toString());
+    assertEquals("Success(1)", stream.headOptionViaFoldRight().toString());
     assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test
   public void testHeadOptionEmpty() throws Exception {
     Stream<Integer> stream = Stream.empty();
-    assertEquals("Empty()", stream.headOption().toString());
+    assertEquals("Empty()", stream.headOptionViaFoldRight().toString());
   }
+
+  @Test
+  public void testLongStreamFalse() {
+    Stream<Integer> stream = Stream.from(0).take(500_000);
+    assertEquals("Success(0)", stream.headOptionViaFoldRight().toString());
+  }
+
 }

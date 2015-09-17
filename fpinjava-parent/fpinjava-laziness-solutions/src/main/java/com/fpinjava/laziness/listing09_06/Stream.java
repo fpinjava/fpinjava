@@ -1,4 +1,4 @@
-package com.fpinjava.laziness.exercise09_16;
+package com.fpinjava.laziness.listing09_06;
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
@@ -15,13 +15,13 @@ abstract class Stream<A> {
 
   private static Stream EMPTY = new Empty();
 
-  public abstract A head();
+  public abstract Tuple<A, Stream<A>> head();
 
   public abstract Stream<A> tail();
 
   public abstract Boolean isEmpty();
 
-  public abstract Result<A> headOption();
+  public abstract Tuple<Result<A>, Stream<A>> headOption();
 
   public abstract Stream<A> take(int n);
 
@@ -32,7 +32,7 @@ abstract class Stream<A> {
   public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
 
   public Result<A> find(Function<A, Boolean> p) {
-    return filter(p).headOption();
+    return filter(p).headOption()._1;
   }
 
   public <B> Stream<B> flatMap(Function<A, Stream<B>> f) {
@@ -70,7 +70,7 @@ abstract class Stream<A> {
   private TailCall<Boolean> exists(Stream<A> s, Function<A, Boolean> p) {
     return s.isEmpty()
         ? ret(false)
-        : p.apply(s.head())
+        : p.apply(s.head()._1)
             ? ret(true)
             : sus(() -> exists(s.tail(), p));
   }
@@ -82,7 +82,7 @@ abstract class Stream<A> {
   private TailCall<Stream<A>> dropWhile(Stream<A> acc, Function<A, Boolean> f) {
     return acc.isEmpty()
         ? ret(acc)
-        : f.apply(acc.head())
+        : f.apply(acc.head()._1)
             ? sus(() -> dropWhile(acc.tail(), f))
             : ret(acc);
   }
@@ -94,7 +94,7 @@ abstract class Stream<A> {
   private TailCall<List<A>> toList(Stream<A> s, List<A> acc) {
     return s.isEmpty()
         ? ret(acc)
-        : sus(() -> toList(s.tail(), List.cons(s.head(), acc)));
+        : sus(() -> toList(s.tail(), List.cons(s.head()._1, acc)));
   }
 
   private Stream() {}
@@ -107,7 +107,7 @@ abstract class Stream<A> {
     }
 
     @Override
-    public A head() {
+    public Tuple<A, Stream<A>> head() {
       throw new IllegalStateException("head called on empty");
     }
 
@@ -117,8 +117,8 @@ abstract class Stream<A> {
     }
 
     @Override
-    public Result<A> headOption() {
-      return Result.empty();
+    public Tuple<Result<A>, Stream<A>> headOption() {
+      return new Tuple<>(Result.empty(), this);
     }
 
     @Override
@@ -145,39 +145,43 @@ abstract class Stream<A> {
   private static class Cons<A> extends Stream<A> {
 
     private final Supplier<A> head;
-    private A h;
+    private final Result<A> h;
     private final Supplier<Stream<A>> tail;
-    private Stream<A> t;
 
     private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
       head = h;
       tail = t;
+      this.h = Result.empty();
+    }
+
+    private Cons(A h, Supplier<Stream<A>> t) {
+      head = () -> h;
+      tail = t;
+      this.h = Result.success(h);
     }
 
     @Override
-    public A head() {
-      if (h == null) {
-        h = head.get();
-      }
-      return h;
+    public Tuple<Result<A>, Stream<A>> headOption() {
+      Tuple<A, Stream<A>> t = head();
+      return new Tuple<>(Result.success(t._1), t._2);
     }
 
     @Override
     public Stream<A> tail() {
-      if (t == null) {
-        t = tail.get();
-      }
-      return t;
+      return tail.get();
+    }
+
+    @Override
+    public Tuple<A, Stream<A>> head() {
+      A a = h.getOrElse(head.get());
+      return h.isEmpty()
+          ? new Tuple<>(a, new Cons<>(a, tail))
+          : new Tuple<>(a, this);
     }
 
     @Override
     public Boolean isEmpty() {
       return false;
-    }
-
-    @Override
-    public Result<A> headOption() {
-      return Result.success(head());
     }
 
     @Override
@@ -194,14 +198,14 @@ abstract class Stream<A> {
 
     @Override
     public Stream<A> takeWhile_(Function<A, Boolean> f) {
-      return f.apply(head())
+      return f.apply(head()._1)
           ? cons(head, () -> tail().takeWhile_(f))
           : empty();
     }
 
     @Override
     public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
-      return f.apply(head()).apply(() -> tail().foldRight(z, f));
+      return f.apply(head()._1).apply(() -> tail().foldRight(z, f));
     }
 
     public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
@@ -240,12 +244,23 @@ abstract class Stream<A> {
     return iterate(a, x -> x);
   }
 
-  public static Stream<Integer> from(int i) {
+  public static Stream<Integer> from__(int i) {
     return iterate(i, x -> x + 1);
   }
 
-  public static Stream<Integer> fibs() {
+  public static Stream<Integer> fibs__() {
     return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
   }
 
+  public static <A, S> Stream<A> unfold(S z, Function<S, Result<Tuple<A, S>>> f) {
+    return f.apply(z).map(x -> cons(() -> x._1, () -> unfold(x._2, f))).getOrElse(empty());
+  }
+
+  public static Stream<Integer> from(int n) {
+    return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
+  }
+
+  public static Stream<Integer> fibs() {
+    return unfold(new Tuple<>(1, 1), x -> Result.success(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
+  }
 }

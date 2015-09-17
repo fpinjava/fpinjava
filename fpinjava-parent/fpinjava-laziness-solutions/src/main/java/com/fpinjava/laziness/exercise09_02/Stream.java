@@ -1,162 +1,127 @@
 package com.fpinjava.laziness.exercise09_02;
 
-
 import com.fpinjava.common.List;
 import com.fpinjava.common.Result;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.TailCall;
 
-import static com.fpinjava.common.TailCall.*;
+import static com.fpinjava.common.TailCall.ret;
+import static com.fpinjava.common.TailCall.sus;
 
-public abstract class Stream<T> {
 
-  @SuppressWarnings("rawtypes")
+abstract class Stream<A> {
+
   private static Stream EMPTY = new Empty();
 
-  public abstract T head();
-  public abstract Supplier<Stream<T>> tail();
-  public abstract boolean isEmpty();
-  public abstract Result<T> headOption();
-  protected abstract Head<T> headS();
+  public abstract A head();
 
-  private Stream() {}
+  public abstract Stream<A> tail();
 
-  public String toString() {
-    return toList().toString();
-  }
+  public abstract Boolean isEmpty();
 
-  public List<T> toList() {
+  public abstract Result<A> headOption();
+
+  public List<A> toList() {
     return toList(this, List.list()).eval().reverse();
   }
 
-  private TailCall<List<T>> toList(Stream<T> s, List<T> acc) {
+  private TailCall<List<A>> toList(Stream<A> s, List<A> acc) {
     return s.isEmpty()
         ? ret(acc)
-        : sus(() -> toList(s.tail().get(), List.cons(s.head(), acc)));
+        : sus(() -> toList(s.tail(), List.cons(s.head(), acc)));
   }
 
-  public static class Empty<T> extends Stream<T> {
+  // This is an imperative version in order to be able to compare performance
+  public List<A> toListIterative() {
+    java.util.List<A> result = new java.util.ArrayList<>();
+    Stream<A> ws = this;
+    while (!ws.isEmpty()) {
+      result.add(ws.head());
+      final Stream<A> ws2 = ws;
+      Supplier<Stream<A>> tail = ws2::tail;
+      ws = tail.get();
+    }
+    return List.fromCollection(result);
+  }
 
-    private Empty() {
+  private Stream() {}
+
+  private static class Empty<A> extends Stream<A> {
+
+    @Override
+    public Stream<A> tail() {
+      throw new IllegalStateException("tail called on empty");
     }
 
     @Override
-    public boolean isEmpty() {
+    public A head() {
+      throw new IllegalStateException("head called on empty");
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return true;
     }
 
     @Override
-    public T head() {
-      throw new IllegalStateException("head called on Empty stream");
-    }
-
-    @Override
-    protected Head<T> headS() {
-      throw new IllegalStateException("headS called on Empty stream");
-    }
-
-    @Override
-    public Supplier<Stream<T>> tail() {
-      throw new IllegalStateException("tail called on Empty stream");
-    }
-
-    @Override
-    public Result<T> headOption() {
+    public Result<A> headOption() {
       return Result.empty();
     }
   }
 
-  public static class Cons<T> extends Stream<T> {
+  private static class Cons<A> extends Stream<A> {
 
-    private final Head<T> head;
+    private final Supplier<A> head;
+    private A h;
+    private final Supplier<Stream<A>> tail;
+    private Stream<A> t;
 
-    private final Supplier<Stream<T>> tail;
-
-    private Cons(Head<T> head, Supplier<Stream<T>> tail) {
-      this.head = head;
-      this.tail = tail;
+    private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
+      head = h;
+      tail = t;
     }
 
     @Override
-    public boolean isEmpty() {
+    public A head() {
+      if (h == null) {
+        h = head.get();
+      }
+      return h;
+    }
+
+    @Override
+    public Stream<A> tail() {
+      if (t == null) {
+        t = tail.get();
+      }
+      return t;
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return false;
     }
 
     @Override
-    public T head() {
-      return this.head.getEvaluated();
-    }
-
-    @Override
-    protected Head<T> headS() {
-      return this.head;
-    }
-
-    @Override
-    public Supplier<Stream<T>> tail() {
-      return this.tail;
-    }
-
-    @Override
-    public Result<T> headOption() {
-      return Result.success(this.head());
+    public Result<A> headOption() {
+      return Result.success(head());
     }
   }
 
-  public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<>(new Head<>(hd), () -> tl);
-  }
-
-  private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
+  static <A> Stream<A> cons(Supplier<A> hd, Supplier<Stream<A>> tl) {
     return new Cons<>(hd, tl);
   }
 
-  private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<>(new Head<>(hd), tl);
+  static <A> Stream<A> cons(Supplier<A> hd, Stream<A> tl) {
+    return new Cons<>(hd, () -> tl);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Stream<T> empty() {
+  public static <A> Stream<A> empty() {
     return EMPTY;
   }
 
-  public static <T> Stream<T> cons(List<T> list) {
-    return list.isEmpty()
-        ? empty()
-        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
+  public static Stream<Integer> from(int i) {
+    return cons(() -> i, () -> from(i + 1));
   }
-
-  @SafeVarargs
-  public static <T> Stream<T> cons(T... t) {
-    return cons(List.list(t));
-  }
-
-  private static class Head<T> {
-
-    private Supplier<T> nonEvaluated;
-    private T evaluated;
-
-    public Head(Supplier<T> nonEvaluated) {
-      super();
-      this.nonEvaluated = nonEvaluated;
-    }
-
-    public Head(Supplier<T> nonEvaluated, T evaluated) {
-      super();
-      this.nonEvaluated = nonEvaluated;
-      this.evaluated = evaluated;
-    }
-
-    public Supplier<T> getNonEvaluated() {
-      return nonEvaluated;
-    }
-
-    public T getEvaluated() {
-      if (evaluated == null) {
-        evaluated = nonEvaluated.get();
-      }
-      return evaluated;
-    }
-  }
-
 }

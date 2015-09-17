@@ -1,9 +1,10 @@
-package com.fpinjava.laziness.exercise09_04;
+package com.fpinjava.laziness.exercise09_07;
 
 import com.fpinjava.common.List;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class StreamTest {
@@ -37,18 +38,16 @@ public class StreamTest {
   }
 
   @Test
-  public void testLongTakeWhileTrue() {
+  public void testLongTakeWhileViaFoldRightTrue() {
     Stream<Integer> stream1 = Stream.from(0);
     Stream<Integer> result = stream1.takeWhile(x -> x < 500_000).drop(200_000).take(5);
     assertEquals("[200000, 200001, 200002, 200003, 200004, NIL]", result.toList().toString());
   }
 
-
   @Test
-  public void testLongTakeWhileFalse() {
+  public void testLongTakeWhileViaFoldRightFalse() {
     Stream<Integer> stream1 = Stream.from(0);
     Stream<Integer> result = stream1.takeWhile(x -> x < 0).drop(200_000).take(5);
     assertEquals("[NIL]", result.toList().toString());
   }
-
 }

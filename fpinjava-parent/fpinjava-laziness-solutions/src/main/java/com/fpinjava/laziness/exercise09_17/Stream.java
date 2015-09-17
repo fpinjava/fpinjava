@@ -1,4 +1,4 @@
-package com.fpinjava.laziness.exercise09_16;
+package com.fpinjava.laziness.exercise09_17;
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
@@ -240,12 +240,23 @@ abstract class Stream<A> {
     return iterate(a, x -> x);
   }
 
-  public static Stream<Integer> from(int i) {
+  public static Stream<Integer> from__(int i) {
     return iterate(i, x -> x + 1);
   }
 
-  public static Stream<Integer> fibs() {
+  public static Stream<Integer> fibs__() {
     return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
   }
 
+  public static <A, S> Stream<A> unfold(S z, Function<S, Result<Tuple<A, S>>> f) {
+    return f.apply(z).map(x -> cons(() -> x._1, () -> unfold(x._2, f))).getOrElse(empty());
+  }
+
+  public static Stream<Integer> from(int n) {
+    return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
+  }
+
+  public static Stream<Integer> fibs() {
+    return unfold(new Tuple<>(1, 1), x -> Result.success(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
+  }
 }

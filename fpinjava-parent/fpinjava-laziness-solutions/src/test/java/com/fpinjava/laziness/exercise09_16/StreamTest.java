@@ -1,6 +1,5 @@
 package com.fpinjava.laziness.exercise09_16;
 
-import com.fpinjava.common.List;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -9,20 +8,8 @@ import static org.junit.Assert.*;
 public class StreamTest {
 
   @Test
-  public void testTake() throws Exception {
-    List<Integer> list = Stream.from(0).take(100000).toList();
-    System.out.println(list.length());
-  }
-
-  @Test
-  public void testDrop() throws Exception {
-    List<Integer> list = Stream.from(0).take(100000).drop(99000).toList();
-    System.out.println(list.length());
-  }
-
-  @Test
-  public void testTakeWhile() throws Exception {
-    List<Integer> list = Stream.from(0).takeWhile(x -> x < 100000).toList();
-    System.out.println(list.length());
+  public void testFibs() throws Exception {
+    Stream<Integer> stream = Stream.fibs().take(25);
+    assertEquals("[0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368, NIL]", stream.toList().toString());
   }
 }

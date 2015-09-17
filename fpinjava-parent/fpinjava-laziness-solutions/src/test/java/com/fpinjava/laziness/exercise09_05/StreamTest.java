@@ -1,4 +1,4 @@
-package com.fpinjava.laziness.exercise09_04;
+package com.fpinjava.laziness.exercise09_05;
 
 import com.fpinjava.common.List;
 import org.junit.Test;
@@ -23,32 +23,31 @@ public class StreamTest {
                       Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
 
   @Test
-  public void testTakeWhile() {
+  public void testDropWhile() {
     evaluated = List.list();
     assertEquals("[NIL]", evaluated.toString());
-    Stream<Integer> result = stream.takeWhile(x -> x < 3);
-    assertEquals("[1, NIL]", evaluated.toString());
-    assertEquals("[1, 2, NIL]", result.toList().toString());
+    Stream<Integer> result = stream.dropWhile(x -> x < 3);
+    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
+    assertEquals("[3, 4, 5, NIL]", result.toList().toString());
   }
 
   @Test
-  public void testTakeWhileEmpty() {
-    assertEquals("[NIL]", Stream.<Integer>empty().takeWhile(x -> x < 4).toList().toString());
+  public void testDropWhileEmpty() {
+    assertEquals("[NIL]", Stream.<Integer>empty().dropWhile(x -> x < 4).toList().toString());
   }
 
   @Test
-  public void testLongTakeWhileTrue() {
+  public void testLongDropWhileTrue() {
     Stream<Integer> stream1 = Stream.from(0);
-    Stream<Integer> result = stream1.takeWhile(x -> x < 500_000).drop(200_000).take(5);
+    Stream<Integer> result = stream1.dropWhile(x -> x < 200_000).take(5);
     assertEquals("[200000, 200001, 200002, 200003, 200004, NIL]", result.toList().toString());
   }
 
-
   @Test
-  public void testLongTakeWhileFalse() {
+  public void testLongDropWhileFalse() {
     Stream<Integer> stream1 = Stream.from(0);
-    Stream<Integer> result = stream1.takeWhile(x -> x < 0).drop(200_000).take(5);
-    assertEquals("[NIL]", result.toList().toString());
+    Stream<Integer> result = stream1.dropWhile(x -> x < 0).take(5);
+    assertEquals("[0, 1, 2, 3, 4, NIL]", result.toList().toString());
   }
 
 }

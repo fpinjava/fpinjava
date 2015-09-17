@@ -1,4 +1,4 @@
-package com.fpinjava.trees.redblacktree.one;
+package com.fpinjava.trees.tries.redblacktree.one;
 
 import org.junit.Test;
 

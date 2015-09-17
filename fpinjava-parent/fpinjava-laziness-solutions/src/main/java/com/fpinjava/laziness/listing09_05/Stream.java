@@ -1,12 +1,7 @@
-package com.fpinjava.laziness.exercise09_03;
+package com.fpinjava.laziness.listing09_05;
 
 import com.fpinjava.common.List;
-import com.fpinjava.common.Result;
 import com.fpinjava.common.Supplier;
-import com.fpinjava.common.TailCall;
-
-import static com.fpinjava.common.TailCall.ret;
-import static com.fpinjava.common.TailCall.sus;
 
 
 abstract class Stream<A> {
@@ -19,23 +14,19 @@ abstract class Stream<A> {
 
   public abstract Boolean isEmpty();
 
-  public abstract Result<A> headOption();
-
-  public abstract Stream<A> take(int n);
-
-  public abstract Stream<A> drop(int n);
+  private Stream() {}
 
   public List<A> toList() {
-    return toList(this, List.list()).eval().reverse();
+    java.util.List<A> result = new java.util.ArrayList<>();
+    Stream<A> ws = this;
+    while (!ws.isEmpty()) {
+      result.add(ws.head());
+      final Stream<A> ws2 = ws;
+      Supplier<Stream<A>> tail = ws2::tail;
+      ws = tail.get();
+    }
+    return List.fromCollection(result);
   }
-
-  private TailCall<List<A>> toList(Stream<A> s, List<A> acc) {
-    return s.isEmpty()
-        ? ret(acc)
-        : sus(() -> toList(s.tail(), List.cons(s.head(), acc)));
-  }
-
-  private Stream() {}
 
   private static class Empty<A> extends Stream<A> {
 
@@ -52,21 +43,6 @@ abstract class Stream<A> {
     @Override
     public Boolean isEmpty() {
       return true;
-    }
-
-    @Override
-    public Result<A> headOption() {
-      return Result.empty();
-    }
-
-    @Override
-    public Stream<A> take(int n) {
-      return this;
-    }
-
-    @Override
-    public Stream<A> drop(int n) {
-      return this;
     }
   }
 
@@ -101,29 +77,6 @@ abstract class Stream<A> {
     @Override
     public Boolean isEmpty() {
       return false;
-    }
-
-    @Override
-    public Result<A> headOption() {
-      return Result.success(head());
-    }
-
-    @Override
-    public Stream<A> take(int n) {
-      return n <= 0
-          ? empty()
-          : cons(head, () -> tail().take(n - 1));
-    }
-
-    @Override
-    public Stream<A> drop(int n) {
-      return drop(this, n).eval();
-    }
-
-    public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
-      return n <= 0
-          ? ret(acc)
-          : sus(() -> drop(acc.tail(), n - 1));
     }
   }
 

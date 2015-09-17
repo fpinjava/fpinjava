@@ -2,8 +2,6 @@ package com.fpinjava.common;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -253,17 +251,17 @@ public abstract class List<A> {
   }
 
   public Result<A> first(Function<A, Boolean> p) {
-    return firstHelper(this, p).eval().mapFailure(String.format("No element satisfying function %s in list %s", p, this));
+    return first(this, p).eval().mapFailure(String.format("No element satisfying function %s in list %s", p, this));
   }
 
-  private static <A> TailCall<Result<A>> firstHelper(final List<A> list, final Function<A, Boolean> f) {
+  private static <A> TailCall<Result<A>> first(final List<A> list, final Function<A, Boolean> f) {
     if (list.isEmpty()) {
       return ret(Result.<A> failure("Empty list"));
     }
     if (f.apply(list.head())) {
       return ret(Result.success(list.head()));
     } else {
-      return sus(() -> firstHelper(list.tail(), f));
+      return sus(() -> first(list.tail(), f));
     }
   }
 
@@ -679,6 +677,30 @@ public abstract class List<A> {
       lt = lt.cons(t);
     }
     return lt.reverse();
+  }
+
+  public static Result<Integer> maxOption(List<Integer> list) {
+    return list.isEmpty()
+        ? Result.empty()
+        : Result.success(list.tail().foldRight(list.head(), x -> y -> x > y ? x : y));
+  }
+
+  public static Result<Integer> minOption(List<Integer> list) {
+    return list.isEmpty()
+        ? Result.empty()
+        : Result.success(list.tail().foldRight(list.head(), x -> y -> x < y ? x : y));
+  }
+
+  /*
+   * A special version of max, throwing an exception if the list is empty. This version
+   * is used in chapter 10.
+   */
+  public static int max(List<Integer> list) {
+    return list.tail().foldRight(list.head(), x -> y -> x > y ? x : y);
+  }
+
+  public static int min(List<Integer> list) {
+    return list.tail().foldRight(list.head(), x -> y -> x < y ? x : y);
   }
 
 }

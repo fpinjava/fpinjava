@@ -1,85 +1,75 @@
 package com.fpinjava.laziness.listing09_04;
 
+import com.fpinjava.common.*;
 
-import com.fpinjava.common.List;
-import com.fpinjava.common.Supplier;
 
-public abstract class Stream<T> {
+abstract class Stream<A> {
 
-  @SuppressWarnings("rawtypes")
-  private static Stream EMPTY = new Empty();
+  private static Stream EMPTY = new Empty(); // #A
 
-  public abstract Supplier<T> head();
-  public abstract Supplier<Stream<T>> tail();
-  public abstract boolean isEmpty();
+  public abstract A head();
 
-  private Stream() {}
+  public abstract Stream<A> tail();
 
-  public static class Empty<T> extends Stream<T> {  // #A
+  public abstract Boolean isEmpty();
 
-    private Empty() {
+  private Stream() {} // #B
+
+  private static class Empty<A> extends Stream<A> { // #C
+
+    @Override
+    public Stream<A> tail() {
+      throw new IllegalStateException("tail called on empty");
     }
 
     @Override
-    public boolean isEmpty() {
+    public A head() {
+      throw new IllegalStateException("head called on empty");
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return true;
     }
-
-    @Override
-    public Supplier<T> head() {
-      throw new IllegalStateException("head called on Empty stream");
-    }
-
-    @Override
-    public Supplier<Stream<T>> tail() {
-      throw new IllegalStateException("tail called on Empty stream");
-    }
   }
 
-  public static class Cons<T> extends Stream<T> {  // #B
+  private static class Cons<A> extends Stream<A> { // #D
 
-    protected final Supplier<T> head;  // #C
+    private final Supplier<A> head; // #E
 
-    protected final Supplier<Stream<T>> tail;  // #D
+    private final Supplier<Stream<A>> tail; // #F
 
-    private Cons(Supplier<T> head, Supplier<Stream<T>> tail) {
-      this.head = head;
-      this.tail = tail;
+    private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
+      head = h;
+      tail = t;
     }
 
     @Override
-    public boolean isEmpty() {
+    public A head() { // #G
+      return head.get();
+    }
+
+    @Override
+    public Stream<A> tail() { // #H
+      return tail.get();
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return false;
     }
-
-    @Override
-    public Supplier<T> head() {  // #E
-      return this.head;
-    }
-
-    @Override
-    public Supplier<Stream<T>> tail() {  // #F
-      return this.tail;
-    }
   }
 
-  public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) { // #G
-    return new Cons<>(hd, () -> tl);
+  static <A> Stream<A> cons(Supplier<A> hd, Supplier<Stream<A>> tl) { // #I
+    return new Cons<>(hd, tl);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Stream<T> empty() {  // #H
+  public static <A> Stream<A> empty() { // #J
     return EMPTY;
   }
 
-  public static <T> Stream<T> cons(List<T> list) {  // #I
-    return list.isEmpty()
-        ? empty()
-        : new Cons<>(list::head, () -> cons(list.tail()));
-  }
-
-  @SafeVarargs
-  public static <T> Stream<T> cons(T... t) {  // #J
-    return cons(List.list(t));
+  public static Stream<Integer> from(int i) { // #K
+    return cons(() -> i, () -> from(i + 1));
   }
 }
