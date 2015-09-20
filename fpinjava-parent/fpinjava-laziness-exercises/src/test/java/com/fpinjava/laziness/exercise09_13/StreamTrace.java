@@ -1,9 +1,8 @@
-package com.fpinjava.laziness.exercise09_12;
+package com.fpinjava.laziness.exercise09_13;
 
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

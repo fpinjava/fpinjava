@@ -223,23 +223,11 @@ abstract class Stream<A> {
     return EMPTY;
   }
 
-  public static Stream<Integer> from_(int i) {
-    return cons(() -> i, () -> from_(i + 1));
-  }
-
-  public static <A> Stream<A> repeat_(A a) {
-    return cons(() -> a, () -> repeat_(a));
-  }
-
-  public static <A> Stream<A> iterate(A seed, Function<A, A> f) {
-    return cons(() -> seed, () -> iterate(f.apply(seed), f));
+  public static Stream<Integer> from(int i) {
+    return cons(() -> i, () -> from(i + 1));
   }
 
   public static <A> Stream<A> repeat(A a) {
-    return iterate(a, x -> x);
-  }
-
-  public static Stream<Integer> from(int i) {
-    return iterate(i, x -> x + 1);
+    return cons(() -> a, () -> repeat(a));
   }
 }

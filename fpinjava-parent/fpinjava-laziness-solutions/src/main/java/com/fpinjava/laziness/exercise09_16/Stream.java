@@ -5,7 +5,6 @@ import com.fpinjava.common.List;
 import com.fpinjava.common.Result;
 import com.fpinjava.common.Supplier;
 import com.fpinjava.common.TailCall;
-import com.fpinjava.common.Tuple;
 
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
@@ -243,9 +242,4 @@ abstract class Stream<A> {
   public static Stream<Integer> from(int i) {
     return iterate(i, x -> x + 1);
   }
-
-  public static Stream<Integer> fibs() {
-    return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
-  }
-
 }

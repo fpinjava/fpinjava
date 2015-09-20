@@ -28,8 +28,6 @@ abstract class Stream<A> {
 
   public abstract Stream<A> takeWhile(Function<A, Boolean> f);
 
-  public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
-
   public boolean exists(Function<A, Boolean> p) {
     return exists(this, p).eval();
   }
@@ -102,11 +100,6 @@ abstract class Stream<A> {
     public Stream<A> takeWhile(Function<A, Boolean> f) {
       return this;
     }
-
-    @Override
-    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
-      return z.get();
-    }
   }
 
   private static class Cons<A> extends Stream<A> {
@@ -164,11 +157,6 @@ abstract class Stream<A> {
       return f.apply(head())
           ? cons(head, () -> tail().takeWhile(f))
           : empty();
-    }
-
-    @Override
-    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
-      return f.apply(head()).apply(() -> tail().foldRight(z, f));
     }
 
     public TailCall<Stream<A>> drop(Stream<A> acc, int n) {

@@ -226,8 +226,4 @@ abstract class Stream<A> {
   public static Stream<Integer> from(int i) {
     return cons(() -> i, () -> from(i + 1));
   }
-
-  public static <A> Stream<A> repeat(A a) {
-    return cons(() -> a, () -> repeat(a));
-  }
 }

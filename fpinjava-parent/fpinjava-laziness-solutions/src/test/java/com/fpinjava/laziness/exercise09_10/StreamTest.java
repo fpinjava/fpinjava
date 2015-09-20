@@ -23,40 +23,26 @@ public class StreamTest {
                       Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
 
   @Test
-  public void testFilter() {
+  public void testMap() {
     evaluated = List.list();
     assertEquals("[NIL]", evaluated.toString());
-    Stream<Integer> result = stream.filter(x -> x % 2 == 0);
-    assertEquals("[2, 1, NIL]", evaluated.toString());
-    assertEquals(Integer.valueOf(2), result.head());
-    assertEquals(Integer.valueOf(4), result.tail().head());
-    assertEquals("[4, 3, 2, 1, NIL]", evaluated.toString());
-    assertEquals("[2, 4, NIL]", result.toList().toString());
-  }
-
-  @Test
-  public void testFilter2() {
-    evaluated = List.list();
-    assertEquals("[NIL]", evaluated.toString());
-    Stream<Integer> result = stream.filter(x -> x % 2 != 0);
-    assertEquals("[1, NIL]", evaluated.toString());
-    assertEquals(Integer.valueOf(1), result.head());
-    assertEquals(Integer.valueOf(3), result.tail().head());
+    Stream<Integer> result = stream.map(x -> x * 3);
+    assertEquals(Integer.valueOf(3), result.head());
+    assertEquals(Integer.valueOf(6), result.tail().head());
+    assertEquals(Integer.valueOf(9), result.tail().tail().head());
     assertEquals("[3, 2, 1, NIL]", evaluated.toString());
-    assertEquals("[1, 3, 5, NIL]", result.toList().toString());
+    assertEquals("[3, 6, 9, 12, 15, NIL]", result.toList().toString());
   }
 
   @Test
-  public void testFilterEmpty() {
-    assertEquals("[NIL]", Stream.<Integer>empty().filter(x -> x % 2 != 0).toList().toString());
+  public void testMapEmpty() {
+    assertEquals("[NIL]", Stream.<Integer>empty().map(x -> x * 3).toList().toString());
   }
 
   @Test
-  public void testLongStreamFilter() {
-    Stream<Integer> stream = Stream.from(1).takeWhile(x -> x < 500_000);
-    Stream<Integer> result = stream.filter(x -> x % 2 == 0);
-    assertEquals(Integer.valueOf(2), result.head());
-    assertEquals(Integer.valueOf(4), result.tail().head());
-    assertEquals(Integer.valueOf(6), result.tail().tail().head());
+  public void testLongMap() {
+    Stream<Integer> stream1 = Stream.from(0);
+    Stream<Integer> result = stream1.map(x -> x * 2).drop(200_000).take(5);
+    assertEquals("[400000, 400002, 400004, 400006, 400008, NIL]", result.toList().toString());
   }
 }

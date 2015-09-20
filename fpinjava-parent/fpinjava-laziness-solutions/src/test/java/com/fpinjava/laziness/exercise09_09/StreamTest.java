@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class StreamTest {
 
-  private List<Integer> evaluated;
+  private List<Integer> evaluated = List.list();
 
   private int evaluate(int n) {
     evaluated = List.cons(n, evaluated);
@@ -20,30 +20,25 @@ public class StreamTest {
           Stream.cons(() -> evaluate(2),
               Stream.cons(() -> evaluate(3),
                   Stream.cons(() -> evaluate(4),
-                      Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
+                      Stream.cons(() -> evaluate(5), Stream::<Integer>empty)))));
 
   @Test
-  public void testMap() {
+  public void testHeadOption() throws Exception {
     evaluated = List.list();
     assertEquals("[NIL]", evaluated.toString());
-    Stream<Integer> result = stream.map(x -> x * 3);
-    assertEquals(Integer.valueOf(3), result.head());
-    assertEquals(Integer.valueOf(6), result.tail().head());
-    assertEquals(Integer.valueOf(9), result.tail().tail().head());
-    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
-    assertEquals("[3, 6, 9, 12, 15, NIL]", result.toList().toString());
+    assertEquals("Success(1)", stream.headOptionViaFoldRight().toString());
+    assertEquals("[1, NIL]", evaluated.toString());
   }
 
   @Test
-  public void testMapEmpty() {
-    assertEquals("[NIL]", Stream.<Integer>empty().map(x -> x * 3).toList().toString());
+  public void testHeadOptionEmpty() throws Exception {
+    Stream<Integer> stream = Stream.empty();
+    assertEquals("Empty()", stream.headOptionViaFoldRight().toString());
   }
 
   @Test
-  public void testLongMap() {
-    Stream<Integer> stream1 = Stream.from(0);
-    Stream<Integer> result = stream1.map(x -> x * 2).drop(200_000).take(5);
-    assertEquals("[400000, 400002, 400004, 400006, 400008, NIL]", result.toList().toString());
+  public void testLongStreamFalse() {
+    Stream<Integer> stream = Stream.from(0).take(500_000);
+    assertEquals("Success(0)", stream.headOptionViaFoldRight().toString());
   }
-
 }

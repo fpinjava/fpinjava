@@ -1,8 +1,6 @@
 package com.fpinjava.laziness.exercise09_06;
 
-import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
-import com.fpinjava.common.Supplier;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -24,15 +22,20 @@ public class StreamTest {
                   Stream.cons(() -> evaluate(4),
                       Stream.cons(() -> evaluate(5), Stream.<Integer>empty())))));
 
-  private Supplier<String> id = () -> "0";
-
-  private static String addIS(Integer i, Supplier<String> s) {
-    return "(" + i + " + " + s.get() + ")";
+  @Test
+  public void testExistsTrue() {
+    assertTrue(stream.exists(x -> x > 2));
+    assertEquals("[3, 2, 1, NIL]", evaluated.toString());
   }
 
   @Test
-  public void testFoldRight() {
-    Function<Integer, Function<Supplier<String>, String>> f = x -> y -> addIS(x, y);
-    assertEquals("(1 + (2 + (3 + (4 + (5 + 0)))))", stream.foldRight(id, f));
+  public void testExistsFalse() {
+    assertFalse(stream.exists(x -> x < 0));
+    assertEquals("[5, 4, 3, 2, 1, NIL]", evaluated.toString());
+  }
+
+  @Test
+  public void testExists£Empty() {
+    assertFalse(Stream.<Integer>empty().exists(x -> x < 0));
   }
 }

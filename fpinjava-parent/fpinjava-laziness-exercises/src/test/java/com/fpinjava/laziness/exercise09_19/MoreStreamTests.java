@@ -1,4 +1,4 @@
-package com.fpinjava.laziness.exercise09_18;
+package com.fpinjava.laziness.exercise09_19;
 
 
 import com.fpinjava.common.Function;
@@ -155,17 +155,10 @@ public class MoreStreamTests {
   }
 
   @Test
-  public void testLongScalaFilter() {
+  public void testLongFilter3() {
     Stream<Integer> stream1 = Stream.from(0);
     Stream<Integer> result = stream1.filter(x -> x > 200_000).take(5);
     assertEquals("[200001, 200002, 200003, 200004, 200005, NIL]", result.toList().toString());
-  }
-
-  @Test
-  public void testLongFilterWorking() {
-    Stream<Integer> stream1 = Stream.from(0);
-    Stream<Integer> result = stream1.filter2(x -> x > 200_000 && x < 200_004 || x > 400_000).take(5);
-    assertEquals("[200001, 200002, 200003, 400001, 400002, NIL]", result.toList().toString());
   }
 
   private List<Integer> evaluated;

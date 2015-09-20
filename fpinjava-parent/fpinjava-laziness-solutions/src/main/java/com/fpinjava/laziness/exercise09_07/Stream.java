@@ -30,12 +30,6 @@ abstract class Stream<A> {
 
   public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
 
-  public Stream<A> takeWhile(Function<A, Boolean> f) {
-    return foldRight(Stream::empty, a -> b -> f.apply(a)
-        ? cons(() -> a, b)
-        : empty());
-  }
-
   public boolean exists(Function<A, Boolean> p) {
     return exists(this, p).eval();
   }

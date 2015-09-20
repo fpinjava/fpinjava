@@ -15,13 +15,13 @@ abstract class Stream<A> {
 
   private static Stream EMPTY = new Empty();
 
-  public abstract Tuple<A, Stream<A>> head();
+  public abstract A head();
 
   public abstract Stream<A> tail();
 
   public abstract Boolean isEmpty();
 
-  public abstract Tuple<Result<A>, Stream<A>> headOption();
+  public abstract Result<A> headOption();
 
   public abstract Stream<A> take(int n);
 
@@ -31,24 +31,8 @@ abstract class Stream<A> {
 
   public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
 
-  public Stream<A> takeViaUnfold(int n) {
-    return unfold(new Tuple<>(this, n), x -> x._1.isEmpty()
-        ? Result.empty()
-        : x._2 > 0
-            ? Result.success(new Tuple<>(x._1.head()._1, new Tuple<>(x._1.tail(), x._2 - 1)))
-            : Result.empty());
-  }
-
-  public boolean forAll(Function<A, Boolean> p) {
-    return !exists(x -> !p.apply(x));
-  }
-
-  public boolean forAllViaFoldRight(Function<A, Boolean> p) {
-    return foldRight(() -> true, a -> b -> p.apply(a) && b.get());
-  }
-
   public Result<A> find(Function<A, Boolean> p) {
-    return filter(p).headOption()._1;
+    return filter(p).headOption();
   }
 
   public <B> Stream<B> flatMap(Function<A, Stream<B>> f) {
@@ -60,25 +44,13 @@ abstract class Stream<A> {
   }
 
   public Stream<A> filter(Function<A, Boolean> p) {
-    Stream<A> stream = this.dropWhile(x -> !p.apply(x));
-    return stream.headOption()._1.map(a -> cons(() -> a, () -> stream.tail().filter(p))).getOrElse(empty());
-  }
-
-  public Stream<A> filter2(Function<A, Boolean> p) {
-    Stream<A> stream = this.dropWhile(x -> !p.apply(x));
-    return stream.isEmpty()
-        ? stream
-        : cons(() -> stream.head()._1, () -> stream.tail().filter2(p));
+    return foldRight(Stream::empty, a -> b -> p.apply(a)
+        ? cons(() -> a, b)
+        : b.get());
   }
 
   public <B> Stream<B> map(Function<A, B> f) {
     return foldRight(Stream::empty, a -> b -> cons(() -> f.apply(a), b));
-  }
-
-  public <B> Stream<B> mapViaUnfold(Function<A, B> f) {
-    return unfold(this, x -> x.isEmpty()
-        ? Result.empty()
-        : Result.success(new Tuple<>(f.apply(x.head()._1), x.tail())));
   }
 
   public Result<A> headOptionViaFoldRight() {
@@ -91,18 +63,6 @@ abstract class Stream<A> {
         : empty());
   }
 
-  /**
-   * Not optimized because x._1.head() is called twice and
-   * x._1.tail() is fine because the tail does not change after calling head().
-   */
-  public Stream<A> takeWhileViaUnfold(Function<A, Boolean> f) {
-    return unfold(new Tuple<>(this, f), x -> x._1.isEmpty()
-        ? Result.empty()
-        : f.apply(x._1.head()._1)
-            ? Result.success(new Tuple<>(x._1.head()._1, new Tuple<>(x._1.tail(), f)))
-            : Result.empty());
-  }
-
   public boolean exists(Function<A, Boolean> p) {
     return exists(this, p).eval();
   }
@@ -110,7 +70,7 @@ abstract class Stream<A> {
   private TailCall<Boolean> exists(Stream<A> s, Function<A, Boolean> p) {
     return s.isEmpty()
         ? ret(false)
-        : p.apply(s.head()._1)
+        : p.apply(s.head())
             ? ret(true)
             : sus(() -> exists(s.tail(), p));
   }
@@ -122,7 +82,7 @@ abstract class Stream<A> {
   private TailCall<Stream<A>> dropWhile(Stream<A> acc, Function<A, Boolean> f) {
     return acc.isEmpty()
         ? ret(acc)
-        : f.apply(acc.head()._1)
+        : f.apply(acc.head())
             ? sus(() -> dropWhile(acc.tail(), f))
             : ret(acc);
   }
@@ -134,39 +94,7 @@ abstract class Stream<A> {
   private TailCall<List<A>> toList(Stream<A> s, List<A> acc) {
     return s.isEmpty()
         ? ret(acc)
-        : sus(() -> toList(s.tail(), List.cons(s.head()._1, acc)));
-  }
-
-  public boolean hasSubSequence(Stream<A> s) {
-    return tails().exists(x -> x.startsWith(s));
-  }
-
-  public boolean startsWith(Stream<A> s) {
-    return zipAll(s).takeWhile(x -> !x._2.isEmpty()).forAll(y -> y._1.equals(y._2));
-  }
-
-  public <B> Stream<Tuple<Result<A>, Result<B>>> zipAll(Stream<B> that) {
-    return zipAllGeneric(that, x -> y -> new Tuple<>(x, y));
-  }
-
-  public <B, C> Stream<C> zipAllGeneric(Stream<B> that, Function<Result<A>, Function<Result<B>, C>> f) {
-    Stream<Result<A>> a = infinite(this);
-    Stream<Result<B>> b = infinite(that);
-    return unfold(new Tuple<>(a, b), x -> x._1.isEmpty() && x._2.isEmpty()
-        ? Result.empty()
-        : x._1.head()._1.isEmpty() && x._2.head()._1.isEmpty()
-            ? Result.empty()
-            : Result.success(new Tuple<>(f.apply(x._1.head()._1).apply(x._2.head()._1), new Tuple<>(x._1.tail(), x._2.tail()))));
-  }
-
-  public static <A> Stream<Result<A>> infinite(Stream<A> s) {
-    return s.map(Result::success).append(() -> repeatViaIterate(Result.empty()));
-  }
-
-  public Stream<Stream<A>> tails() {
-    return cons(() -> this, () -> unfold(this, x -> x.isEmpty()
-        ? Result.empty() // Result.<Tuple<Stream<A>,Stream<A>>>
-        : Result.success(new Tuple<>(x.tail(), x.tail())))); // Result<Tuple<Stream<A>,Stream<A>>>
+        : sus(() -> toList(s.tail(), List.cons(s.head(), acc)));
   }
 
   private Stream() {}
@@ -179,7 +107,7 @@ abstract class Stream<A> {
     }
 
     @Override
-    public Tuple<A, Stream<A>> head() {
+    public A head() {
       throw new IllegalStateException("head called on empty");
     }
 
@@ -189,8 +117,8 @@ abstract class Stream<A> {
     }
 
     @Override
-    public Tuple<Result<A>, Stream<A>> headOption() {
-      return new Tuple<>(Result.empty(), this);
+    public Result<A> headOption() {
+      return Result.empty();
     }
 
     @Override
@@ -217,43 +145,39 @@ abstract class Stream<A> {
   private static class Cons<A> extends Stream<A> {
 
     private final Supplier<A> head;
-    private final Result<A> h;
+    private A h;
     private final Supplier<Stream<A>> tail;
+    private Stream<A> t;
 
     private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
       head = h;
       tail = t;
-      this.h = Result.empty();
-    }
-
-    private Cons(A h, Supplier<Stream<A>> t) {
-      head = () -> h;
-      tail = t;
-      this.h = Result.success(h);
     }
 
     @Override
-    public Tuple<Result<A>, Stream<A>> headOption() {
-      Tuple<A, Stream<A>> t = head();
-      return new Tuple<>(Result.success(t._1), t._2);
+    public A head() {
+      if (h == null) {
+        h = head.get();
+      }
+      return h;
     }
 
     @Override
     public Stream<A> tail() {
-      return tail.get();
-    }
-
-    @Override
-    public Tuple<A, Stream<A>> head() {
-      A a = h.getOrElse(head.get());
-      return h.isEmpty()
-          ? new Tuple<>(a, new Cons<>(a, tail))
-          : new Tuple<>(a, this);
+      if (t == null) {
+        t = tail.get();
+      }
+      return t;
     }
 
     @Override
     public Boolean isEmpty() {
       return false;
+    }
+
+    @Override
+    public Result<A> headOption() {
+      return Result.success(head());
     }
 
     @Override
@@ -270,14 +194,14 @@ abstract class Stream<A> {
 
     @Override
     public Stream<A> takeWhile_(Function<A, Boolean> f) {
-      return f.apply(head()._1)
+      return f.apply(head())
           ? cons(head, () -> tail().takeWhile_(f))
           : empty();
     }
 
     @Override
     public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
-      return f.apply(head()._1).apply(() -> tail().foldRight(z, f));
+      return f.apply(head()).apply(() -> tail().foldRight(z, f));
     }
 
     public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
@@ -300,55 +224,36 @@ abstract class Stream<A> {
     return EMPTY;
   }
 
-  @SafeVarargs
-  public static <A> Stream<A> stream(A... a) {
-    return stream(List.list(a));
+  public static Stream<Integer> from_(int i) {
+    return cons(() -> i, () -> from_(i + 1));
   }
 
-  public static <A> Stream<A> stream(List<A> list) {
-    return list.isEmpty()
-        ? empty()
-        : cons(list::head, () -> stream(list.tail()));
-  }
-
-  public static Stream<Integer> from(int i) {
-    return cons(() -> i, () -> from(i + 1));
-  }
-
-  public static Stream<Integer> from(Supplier<Integer> n) {
-    return cons(n, () -> from(n.get() + 1));
-  }
-
-  public static Stream<Integer> fromViaIterate(int i) {
-    return iterate(i, x -> x + 1);
-  }
-
-  public static Stream<Integer> fromViaUnfold(int n) {
-    return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
-  }
-
-  public static <A> Stream<A> repeat(A a) {
-    return cons(() -> a, () -> repeat(a));
-  }
-
-  public static <A> Stream<A> repeatViaIterate(A a) {
-    return iterate(a, x -> x);
-  }
-
-  public static <A> Stream<A> repeatViaUnfold(A a) {
-    return unfold(a, x -> Result.success(new Tuple<>(a, a)));
+  public static <A> Stream<A> repeat_(A a) {
+    return cons(() -> a, () -> repeat_(a));
   }
 
   public static <A> Stream<A> iterate(A seed, Function<A, A> f) {
     return cons(() -> seed, () -> iterate(f.apply(seed), f));
   }
 
+  public static <A> Stream<A> repeat(A a) {
+    return iterate(a, x -> x);
+  }
+
+  public static Stream<Integer> from__(int i) {
+    return iterate(i, x -> x + 1);
+  }
+
+  public static Stream<Integer> fibs__() {
+    return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
+  }
+
   public static <A, S> Stream<A> unfold(S z, Function<S, Result<Tuple<A, S>>> f) {
     return f.apply(z).map(x -> cons(() -> x._1, () -> unfold(x._2, f))).getOrElse(empty());
   }
 
-  public static Stream<Integer> fibs_() {
-    return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
+  public static Stream<Integer> from(int n) {
+    return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
   }
 
   public static Stream<Integer> fibs() {
