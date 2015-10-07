@@ -3,462 +3,356 @@ package com.fpinjava.common;
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
 
-public abstract class Stream<T> {
 
-  @SuppressWarnings("rawtypes")
+public abstract class Stream<A> {
+
   private static Stream EMPTY = new Empty();
 
-  public abstract T head();
+  public abstract Tuple<A, Stream<A>> head();
 
-  public abstract Supplier<Stream<T>> tail();
+  public abstract Stream<A> tail();
 
-  public abstract boolean isEmpty();
+  public abstract Boolean isEmpty();
 
-  public abstract Option<T> headOption();
+  public abstract Tuple<Result<A>, Stream<A>> headOption();
 
-  protected abstract Head<T> headS();
+  public abstract Stream<A> take(int n);
 
-  public abstract Boolean exists(Function<T, Boolean> p);
+  public abstract Stream<A> drop(int n);
 
-  public abstract <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f);
+  public abstract Stream<A> takeWhile_(Function<A, Boolean> f);
 
-  public abstract <U> U foldRightT(Supplier<U> z, Function<Tuple<T, Supplier<U>>, U> f);
+  public abstract <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f);
 
-  private Stream() {
+  public Stream<A> takeViaUnfold(int n) {
+    return unfold(new Tuple<>(this, n), x -> x._1.isEmpty()
+        ? Result.empty()
+        : x._2 > 0
+            ? Result.success(new Tuple<>(x._1.head()._1, new Tuple<>(x._1.tail(), x._2 - 1)))
+            : Result.empty());
   }
 
-  public String toString() {
-    return toList().toString();
+  public boolean forAll(Function<A, Boolean> p) {
+    return !exists(x -> !p.apply(x));
   }
 
-  public List<T> toList() {
-    return toListIterative();
-  }
-
-  @SuppressWarnings("unused")
-  private List<T> toListRecursive() {
-    return toListRecursive_(this, List.list()).eval();
-  }
-
-  private TailCall<List<T>> toListRecursive_(Stream<T> s, List<T> acc) {
-    return s instanceof Empty
-        ? ret(acc)
-        : sus(() -> toListRecursive_(s.tail().get(), acc.cons(s.head())));
-  }
-
-  public List<T> toListIterative() {
-    java.util.List<T> result = new java.util.ArrayList<>();
-    Stream<T> ws = this;
-    while (!ws.isEmpty()) {
-      result.add(ws.head());
-      Supplier<Stream<T>> tail = ws.tail();
-      ws = tail.get();
-    }
-    return List.fromCollection(result);
-  }
-
-  /*
-   * Create a new Stream<T> from taking the n first elements from this. We can
-   * achieve that by recursively calling take on the invoked tail of a cons
-   * cell. We make sure that the tail is not invoked unless we need to, by
-   * handling the special case where n == 1 separately. If n == 0, we can avoid
-   * looking at the stream at all.
-   */
-  public Stream<T> take(Integer n) {
-    return this.isEmpty()
-       ? Stream.empty()
-       : n > 1
-           ? Stream.cons(headS(), () -> tail().get().take(n - 1))
-           : Stream.cons(headS(), Stream::empty);
-  }
-
-  public Stream<T> drop(int n) {
-    return n <= 0
-        ? this
-        : tail().get().drop(n - 1);
-  }
-
-  public Stream<T> takeWhile(Function<T, Boolean> p) {
-    return isEmpty()
-        ? this
-        : p.apply(head())
-            ? cons(headS(), () -> tail().get().takeWhile(p))
-            : empty();
-  }
-
-  public Boolean existsViaFoldRight(Function<T, Boolean> p) {
-    return foldRight(() -> false, a -> b -> p.apply(a) || b.get());
-  }
-
-  /*
-   * Since `&&` is non-strict in its second argument, this terminates the traversal
-   * as soon as a non matching element is found.
-   */
-  public Boolean forAll(Function<T, Boolean> p) {
+  public boolean forAllViaFoldRight(Function<A, Boolean> p) {
     return foldRight(() -> true, a -> b -> p.apply(a) && b.get());
   }
 
-  public Stream<T> takeWhileViaFoldRight(Function<T, Boolean> p) {
-    return foldRight(Stream::<T> empty, t -> st -> p.apply(t)
-        ? cons(() -> t, () -> st.get())
-        : Stream.<T> empty());
+  public Result<A> find(Function<A, Boolean> p) {
+    return filter(p).headOption()._1;
   }
 
-  public Option<T> headOptionViaFoldRight() {
-    return foldRight(Option::<T>none, t -> st -> Option.some(t));
+  public <B> Stream<B> flatMap(Function<A, Stream<B>> f) {
+    return foldRight(Stream::empty, a -> b -> f.apply(a).append(b));
   }
 
-  public <U> Stream<U> map(Function<T, U> f) {
-    return foldRight(Stream::<U> empty, t -> su -> cons(() -> f.apply(t), () -> su.get()));
+  public Stream<A> append(Supplier<Stream<A>> s) {
+    return foldRight(s, a -> b -> cons(() -> a, b));
   }
 
-  public Stream<T> filter(Function<T, Boolean> p) {
-    return foldRight(Stream::<T> empty, t -> st -> (p.apply(t))
-        ? cons(() -> t, () -> st.get())
-        : st.get());
+  public Stream<A> filter(Function<A, Boolean> p) {
+    Stream<A> stream = this.dropWhile(x -> !p.apply(x));
+    return stream.isEmpty()
+        ? stream
+        : cons(() -> stream.head()._1, () -> stream.tail().filter(p));
   }
 
-  public Stream<T> append(Stream<T> s) {
-    return foldRight(() -> s, t -> st -> cons(() -> t, () -> st.get()));
+  public Stream<A> filter_(Function<A, Boolean> p) {
+    Stream<A> stream = this.dropWhile(x -> !p.apply(x));
+    return stream.headOption()._1.map(a -> cons(() -> a, () -> stream.tail().filter_(p))).getOrElse(empty());
   }
 
-  public <U> Stream<U> flatMap(Function<T, Stream<U>> f) {
-    return foldRight(Stream::<U> empty, t -> su -> f.apply(t).append(su.get()));
+  public <B> Stream<B> map(Function<A, B> f) {
+    return foldRight(Stream::empty, a -> b -> cons(() -> f.apply(a), b));
   }
 
-  public Option<T> find__(Function<T, Boolean> p) {
-    Option<T> option = headOptionViaFoldRight();
-    return option.isSome()
-        ? option
-        : tail().get().headOptionViaFoldRight();
-  }
-
-  public Option<T> find_(Function<T, Boolean> p) {
-    return this.isEmpty()
-        ? Option.none()
-        : p.apply(head())
-            ? Option.some(head())
-            : tail().get().find_(p);
-  }
-
-  public Option<T> find(Function<T, Boolean> p) {
-    return filter(p).headOptionViaFoldRight();
-  }
-
-  public <U> Stream<U> mapViaUnfold(Function<T, U> f) {
+  public <B> Stream<B> mapViaUnfold(Function<A, B> f) {
     return unfold(this, x -> x.isEmpty()
-        ? Option.none()
-        : Option.some(new Tuple<>(f.apply(x.head()), x.tail().get())));
+        ? Result.empty()
+        : Result.success(new Tuple<>(f.apply(x.head()._1), x.tail())));
   }
 
-  /*
-   * We must declare the function g first in order to write its type, so that the compiler may
-   * pick it, because it would not be able to infer it.
+  public Result<A> headOptionViaFoldRight() {
+    return foldRight(Result::empty, a -> ignore -> Result.success(a));
+  }
+
+  public Stream<A> takeWhile(Function<A, Boolean> f) {
+    return foldRight(Stream::empty, a -> b -> f.apply(a)
+        ? cons(() -> a, b)
+        : empty());
+  }
+
+  /**
+   * Not optimized because x._1.head() is called twice and
+   * x._1.tail() is fine because the tail does not change after calling head().
    */
-  public Stream<T> takeViaUnfold(Integer n) {
-    Function<Tuple<Stream<T>, Integer>, Option<Tuple<T, Tuple<Stream<T>, Integer>>>> g =
-        x -> (!x._1.isEmpty() && x._2 == 1)
-            ? Option.some(new Tuple<>(x._1.head(), new Tuple<>(empty(), 0)))
-            : (!x._1.isEmpty() && x._2 > 1)
-                ? Option.some(new Tuple<>(x._1.head(), new Tuple<>(x._1.tail().get(), x._2 - 1)))
-                : Option.none();
-    return unfold(new Tuple<>(this, n), g);
+  public Stream<A> takeWhileViaUnfold(Function<A, Boolean> f) {
+    return unfold(new Tuple<>(this, f), x -> x._1.isEmpty()
+        ? Result.empty()
+        : f.apply(x._1.head()._1)
+            ? Result.success(new Tuple<>(x._1.head()._1, new Tuple<>(x._1.tail(), f)))
+            : Result.empty());
   }
 
-  /*
-   * Another solution is to use the if..else construct instead of the ternary operator
-   */
-  public Stream<T> takeViaUnfold_(Integer n) {
-    return unfold(new Tuple<>(this, n),
-        x -> {
-          if (!x._1.isEmpty() && x._2 == 1) {
-            return Option.some(new Tuple<>(x._1.head(), new Tuple<>(empty(), 0)));
-          } else if (!x._1.isEmpty() && x._2 > 1 ) {
-            return Option.some(new Tuple<>(x._1.head(), new Tuple<>(x._1.tail().get(), x._2 - 1)));
-          } else {
-            return Option.none();
-          }
-       });
+  public boolean exists(Function<A, Boolean> p) {
+    return exists(this, p).eval();
   }
 
-  public Stream<T> takeWhileViaUnfold(Function<T, Boolean> f) {
-    return unfold(this, x -> !x.isEmpty() && f.apply(x.head())
-        ? Option.some(new Tuple<>(x.head(), x.tail().get()))
-        : Option.none());
+  private TailCall<Boolean> exists(Stream<A> s, Function<A, Boolean> p) {
+    return s.isEmpty()
+        ? ret(false)
+        : p.apply(s.head()._1)
+            ? ret(true)
+            : sus(() -> exists(s.tail(), p));
   }
 
-  public <U> Stream<Tuple<T, U>> zip(Stream<U> s2) {
-    return zipWith(s2, x -> y -> new Tuple<>(x, y));
+  public Stream<A> dropWhile(Function<A, Boolean> f) {
+    return dropWhile(this, f).eval();
   }
 
-  /*
-   * Again, we must declare the funtion g first in order to write its type, so that the compiler may
-   * pick it, because it would not be able to infer it.
-   */
-  public <U, V> Stream<V> zipWith(Stream<U> s2, Function<T, Function<U, V>> f) {
-    Function<Tuple<Stream<T>, Stream<U>>, Option<Tuple<V, Tuple<Stream<T>, Stream<U>>>>> g = x -> x._1.isEmpty() || x._2.isEmpty()
-        ? Option.none()
-        : Option.some(new Tuple<>(f.apply(x._1.head()).apply(x._2.head()), new Tuple<>(x._1.tail().get(), x._2.tail().get())));
-    return unfold(new Tuple<>(this, s2), g);
+  private TailCall<Stream<A>> dropWhile(Stream<A> acc, Function<A, Boolean> f) {
+    return acc.isEmpty()
+        ? ret(acc)
+        : f.apply(acc.head()._1)
+            ? sus(() -> dropWhile(acc.tail(), f))
+            : ret(acc);
   }
 
-  public <U> Stream<Tuple<Option<T>, Option<U>>> zipAll(Stream<U> s2) {
-    return zipWithAll(s2, tuple -> new Tuple<>(tuple._1, tuple._2));
+  public List<A> toList() {
+    return toList(this, List.list()).eval().reverse();
   }
 
-  /*
-   * Again, we must declare the function g first in order to write its type, so that the compiler may
-   * pick it, because it would not be able to infer it.
-   */
-  public <U, V> Stream<V> zipWithAll(Stream<U> s2, Function<Tuple<Option<T>, Option<U>>, V> f) {
-    Function<Tuple<Stream<T>, Stream<U>>, Option<Tuple<V, Tuple<Stream<T>, Stream<U>>>>> g = x ->
-        x._1.isEmpty() && x._2.isEmpty()
-            ? Option.none()
-            : x._2.isEmpty()
-                ? Option.some(new Tuple<>(f.apply(new Tuple<>(Option.some(x._1.head()), Option.none())), new Tuple<>(x._1.tail().get(), Stream.<U>empty())))
-                : x._1.isEmpty()
-                    ? Option.some(new Tuple<>(f.apply(new Tuple<>(Option.none(), Option.some(x._2.head()))), new Tuple<>(Stream.<T>empty(), x._2.tail().get())))
-                    : Option.some(new Tuple<>(f.apply(new Tuple<>(Option.some(x._1.head()), Option.some(x._2.head()))), new Tuple<>(x._1.tail().get(), x._2.tail().get())));
-    return unfold(new Tuple<>(this, s2), g);
+  private TailCall<List<A>> toList(Stream<A> s, List<A> acc) {
+    return s.isEmpty()
+        ? ret(acc)
+        : sus(() -> toList(s.tail(), List.cons(s.head()._1, acc)));
   }
 
-  /*
-   * `s startsWith s2` when corresponding elements of `s` and `s2` are all equal, until
-   * the point that `s2` is exhausted. If `s` is exhausted first, or we find an element
-   * that doesn't match, we terminate early. Using non-strictness, we can compose these
-   * three separate logical steps--the zipping, the termination when the second stream
-   * is exhausted, and the termination if a non matching element is found or the first
-   * stream is exhausted.
-   */
-  public boolean startsWith(Stream<T> s) {// Needs equals to be added to Option
-    return zipAll(s).takeWhile(x -> x._2.isSome()).forAll(y -> y._1.equals(y._2));
-  }
-
-  /*
-   * The last element of `tails` is always the empty `Stream`, so we handle this as a
-   * special case, by appending it to the output.
-   */
-  public Stream<Stream<T>> tails() {
-    return unfold(this, x -> x.isEmpty()
-        ? Option.none()
-        : Option.some(new Tuple<>(x, x.drop(1)))).append(empty());
-  }
-
-  public boolean hasSubsequence(Stream<T> s) {
+  public boolean hasSubSequence(Stream<A> s) {
     return tails().exists(x -> x.startsWith(s));
   }
 
-  /*
-   * The function can't be implemented using `unfold`, since `unfold` generates elements
-   * of the `Stream` from left to right. It can be implemented using `foldRight` though.
-   *
-   * The implementation is just a `foldRight` that keeps the accumulated value and the
-   * stream of intermediate results, which we `cons` onto during each iteration. When
-   * writing folds, it's common to have more state in the fold than is needed to compute
-   * the result. Here, we simply extract the accumulated list once finished.
-   */
-  public <U> Stream<U> scanRight(U z, Function<T, Function<Supplier<U>, Supplier<U>>> f) {
-    Supplier<Tuple<U, Stream<U>>> seed = () -> new Tuple<>(z, Stream.cons(z));
-    Function<T, Function<Supplier<Tuple<U,Stream<U>>>, Tuple<U,Stream<U>>>> h = a -> p0 -> {
-      // Use a local variable to prevent evaluating twice in the next two lines
-      Tuple<U, Stream<U>> p1 = p0.get();
-      U u2 = f.apply(a).apply(() -> p1._1).get();
-      return new Tuple<>(u2, cons(() -> u2, () -> p1._2));
-    };
-    return foldRight(seed, h)._2;
+  public boolean startsWith(Stream<A> s) {
+    return zipAll(s).takeWhile(x -> !x._2.isEmpty()).forAll(y -> y._1.equals(y._2));
   }
 
-  public static class Empty<T> extends Stream<T> {
+  public <B> Stream<Tuple<Result<A>, Result<B>>> zipAll(Stream<B> that) {
+    return zipAllGeneric(that, x -> y -> new Tuple<>(x, y));
+  }
 
-    private Empty() {
+  public <B, C> Stream<C> zipAllGeneric(Stream<B> that, Function<Result<A>, Function<Result<B>, C>> f) {
+    Stream<Result<A>> a = infinite(this);
+    Stream<Result<B>> b = infinite(that);
+    return unfold(new Tuple<>(a, b), x -> x._1.isEmpty() && x._2.isEmpty()
+        ? Result.empty()
+        : x._1.head()._1.isEmpty() && x._2.head()._1.isEmpty()
+            ? Result.empty()
+            : Result.success(new Tuple<>(f.apply(x._1.head()._1).apply(x._2.head()._1), new Tuple<>(x._1.tail(), x._2.tail()))));
+  }
+
+  public static <A> Stream<Result<A>> infinite(Stream<A> s) {
+    return s.map(Result::success).append(() -> repeatViaIterate(Result.empty()));
+  }
+
+  public Stream<Stream<A>> tails() {
+    return cons(() -> this, () -> unfold(this, x -> x.isEmpty()
+        ? Result.empty() // Result.<Tuple<Stream<A>,Stream<A>>>
+        : Result.success(new Tuple<>(x.tail(), x.tail())))); // Result<Tuple<Stream<A>,Stream<A>>>
+  }
+
+  private Stream() {}
+
+  private static class Empty<A> extends Stream<A> {
+
+    @Override
+    public Stream<A> tail() {
+      throw new IllegalStateException("tail called on empty");
     }
 
     @Override
-    public boolean isEmpty() {
+    public Tuple<A, Stream<A>> head() {
+      throw new IllegalStateException("head called on empty");
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return true;
     }
 
     @Override
-    public T head() {
-      throw new IllegalStateException("head called on Empty stream");
+    public Tuple<Result<A>, Stream<A>> headOption() {
+      return new Tuple<>(Result.empty(), this);
     }
 
     @Override
-    protected Head<T> headS() {
-      throw new IllegalStateException("headS called on Empty stream");
+    public Stream<A> take(int n) {
+      return this;
     }
 
     @Override
-    public Supplier<Stream<T>> tail() {
-      throw new IllegalStateException("tail called on Empty stream");
+    public Stream<A> drop(int n) {
+      return this;
     }
 
     @Override
-    public Option<T> headOption() {
-      return Option.none();
+    public Stream<A> takeWhile_(Function<A, Boolean> f) {
+      return this;
     }
 
     @Override
-    public Boolean exists(Function<T, Boolean> p) {
-      return false;
-    }
-
-    @Override
-    public <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return z.get();
-    }
-
-    @Override
-    public <U> U foldRightT(Supplier<U> z, Function<Tuple<T, Supplier<U>>, U> f) {
+    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
       return z.get();
     }
   }
 
-  public static class Cons<T> extends Stream<T> {
+  private static class Cons<A> extends Stream<A> {
 
-    private final Head<T> head;
+    private final Supplier<A> head;
+    private final Result<A> h;
+    private final Supplier<Stream<A>> tail;
 
-    private final Supplier<Stream<T>> tail;
+    private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
+      head = h;
+      tail = t;
+      this.h = Result.empty();
+    }
 
-    private Cons(Head<T> head, Supplier<Stream<T>> tail) {
-      this.head = head;
-      this.tail = tail;
+    private Cons(A h, Supplier<Stream<A>> t) {
+      head = () -> h;
+      tail = t;
+      this.h = Result.success(h);
     }
 
     @Override
-    public boolean isEmpty() {
+    public Tuple<Result<A>, Stream<A>> headOption() {
+      Tuple<A, Stream<A>> t = head();
+      return new Tuple<>(Result.success(t._1), t._2);
+    }
+
+    @Override
+    public Stream<A> tail() {
+      return tail.get();
+    }
+
+    @Override
+    public Tuple<A, Stream<A>> head() {
+      A a = h.getOrElse(head.get());
+      return h.isEmpty()
+          ? new Tuple<>(a, new Cons<>(a, tail))
+          : new Tuple<>(a, this);
+    }
+
+    @Override
+    public Boolean isEmpty() {
       return false;
     }
 
     @Override
-    public T head() {
-      return this.head.getEvaluated();
+    public Stream<A> take(int n) {
+      return n <= 0
+          ? empty()
+          : cons(head, () -> tail().take(n - 1));
     }
 
     @Override
-    protected Head<T> headS() {
-      return this.head;
+    public Stream<A> drop(int n) {
+      return drop(this, n).eval();
     }
 
     @Override
-    public Supplier<Stream<T>> tail() {
-      return this.tail;
+    public Stream<A> takeWhile_(Function<A, Boolean> f) {
+      return f.apply(head()._1)
+          ? cons(head, () -> tail().takeWhile_(f))
+          : empty();
     }
 
     @Override
-    public Option<T> headOption() {
-      return Option.some(this.head());
+    public <B> B foldRight(Supplier<B> z, Function<A, Function<Supplier<B>, B>> f) {
+      return f.apply(head()._1).apply(() -> tail().foldRight(z, f));
     }
 
-    @Override
-    public Boolean exists(Function<T, Boolean> p) {
-      return p.apply(head()) || tail().get().exists(p);
-    }
-
-    public <U> U foldRight(Supplier<U> z, Function<T, Function<Supplier<U>, U>> f) {
-      return f.apply(head()).apply(() -> tail().get().foldRight(z, f));
-    }
-
-    @Override
-    public <U> U foldRightT(Supplier<U> z, Function<Tuple<T, Supplier<U>>, U> f) {
-      return f.apply(new Tuple<>(head(), () -> tail().get().foldRightT(z, f)));
+    public TailCall<Stream<A>> drop(Stream<A> acc, int n) {
+      return acc.isEmpty() || n <= 0
+          ? ret(acc)
+          : sus(() -> drop(acc.tail(), n - 1));
     }
   }
 
-  private static <T> Stream<T> cons(Head<T> hd, Supplier<Stream<T>> tl) {
+  static <A> Stream<A> cons(Supplier<A> hd, Supplier<Stream<A>> tl) {
     return new Cons<>(hd, tl);
   }
 
-  private static <T> Stream<T> cons(Supplier<T> hd, Supplier<Stream<T>> tl) {
-    return new Cons<>(new Head<>(hd), tl);
-  }
-
-  public static <T> Stream<T> cons(Supplier<T> hd, Stream<T> tl) {
-    return new Cons<>(new Head<>(hd), () -> tl);
+  static <A> Stream<A> cons(Supplier<A> hd, Stream<A> tl) {
+    return new Cons<>(hd, () -> tl);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Stream<T> empty() {
+  public static <A> Stream<A> empty() {
     return EMPTY;
   }
 
-  public static <T> Stream<T> cons(List<T> list) {
+  @SafeVarargs
+  public static <A> Stream<A> stream(A... a) {
+    return stream(List.list(a));
+  }
+
+  public static <A> Stream<A> stream(List<A> list) {
     return list.isEmpty()
         ? empty()
-        : new Cons<>(new Head<>(list::head, list.head()), () -> cons(list.tail()));
+        : cons(list::head, () -> stream(list.tail()));
   }
 
-  public static Stream<Integer> ones = cons(() -> 1, () -> Stream.ones);
-
-  public static <T> Stream<T> constant(T t) {
-    return cons(() -> t, () -> constant(t));
+  public static Stream<Integer> from(int i) {
+    return cons(() -> i, () -> from(i + 1));
   }
 
-  public static Stream<Integer> from(int n) {
-    return cons(() -> n, () -> from(n + 1));
+  public static Stream<Integer> from(Supplier<Integer> n) {
+    return cons(n, () -> from(n.get() + 1));
   }
 
-  public static Stream<Integer> fibs() {
-    return fibs_(new Tuple<>(0, 1)).map(x -> x._1);
-  }
-
-  private static Stream<Tuple<Integer, Integer>> fibs_(Tuple<Integer, Integer> tuple) {
-    return cons(() -> tuple, () -> fibs_(new Tuple<>(tuple._2, tuple._1 + tuple._2)));
-  }
-
-  public static <T, S> Stream<T> unfold(S z, Function<S, Option<Tuple<T, S>>> f) {
-    Option<Tuple<T, S>> x = f.apply(z);
-    System.out.println(x);
-    return x.isSome()
-        ? cons(() -> x.getOrThrow()._1, () -> unfold(x.getOrThrow()._2, f))
-        : empty();
-  }
-
-  public static Stream<Integer> onesViaUnfold = unfold(1, x -> Option.some(new Tuple<>(1, 1)));
-
-  public static <T> Stream<T> constantViaUnfold(T t) {
-    return unfold(t, x -> Option.some(new Tuple<>(t, t)));
+  public static Stream<Integer> fromViaIterate(int i) {
+    return iterate(i, x -> x + 1);
   }
 
   public static Stream<Integer> fromViaUnfold(int n) {
-    return unfold(n, x -> Option.some(new Tuple<>(x, x + 1)));
+    return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
   }
 
-  public static Stream<Integer> fibsViaUnfold() {
-    return unfold(new Tuple<>(0, 1), x -> Option.some(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
+  public static <A> Stream<A> repeat(A a) {
+    return cons(() -> a, () -> repeat(a));
   }
 
-  @SafeVarargs
-  public static <T> Stream<T> cons(T... t) {
-    return cons(List.list(t));
+  public static <A> Stream<A> repeatViaIterate(A a) {
+    return iterate(a, x -> x);
   }
 
-  public static class Head<T> {
-
-    private Supplier<T> nonEvaluated;
-    private T evaluated;
-
-    public Head(Supplier<T> nonEvaluated) {
-      super();
-      this.nonEvaluated = nonEvaluated;
-    }
-
-    public Head(Supplier<T> nonEvaluated, T evaluated) {
-      super();
-      this.nonEvaluated = nonEvaluated;
-      this.evaluated = evaluated;
-    }
-
-    public Supplier<T> getNonEvaluated() {
-      return nonEvaluated;
-    }
-
-    public T getEvaluated() {
-      if (evaluated == null) {
-        evaluated = nonEvaluated.get();
-      }
-      return evaluated;
-    }
+  public static <A> Stream<A> repeatViaUnfold(A a) {
+    return unfold(a, x -> Result.success(new Tuple<>(a, a)));
   }
 
+  public static <A> Stream<A> iterate(Supplier<A> seed, Function<A, A> f) {
+    return cons(seed, () -> iterate(f.apply(seed.get()), f));
+  }
+
+  public static <A> Stream<A> iterate(A seed, Function<A, A> f) {
+    return cons(() -> seed, () -> iterate(f.apply(seed), f));
+  }
+
+  public static <A, S> Stream<A> unfold(S z, Function<S, Result<Tuple<A, S>>> f) {
+    return f.apply(z).map(x -> cons(() -> x._1, () -> unfold(x._2, f))).getOrElse(empty());
+  }
+
+  public static <A> Stream<A> unfold_(A z, Function<A, Result<A>> f) {
+    return f.apply(z).map(x -> cons(() -> x, () -> unfold_(x, f))).getOrElse(empty());
+  }
+
+  public static Stream<Integer> fibs_() {
+    return iterate(new Tuple<>(0, 1), x -> new Tuple<>(x._2, x._1 + x._2)).map(x -> x._1);
+  }
+
+  public static Stream<Integer> fibs() {
+    return unfold(new Tuple<>(1, 1), x -> Result.success(new Tuple<>(x._1, new Tuple<>(x._2, x._1 + x._2))));
+  }
 }

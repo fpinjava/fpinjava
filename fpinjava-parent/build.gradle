@@ -7,7 +7,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
-    
+
 	repositories {
 	    mavenCentral()
 	}
@@ -164,6 +164,70 @@ project(':fpinjava-trees-exercises') {
 }
 
 project(':fpinjava-trees-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-state-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-state-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-io-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-io-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-actors-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-actors-solutions') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-applications-exercises') {
+
+  dependencies {
+    compile project(':fpinjava-common')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+  }
+}
+
+project(':fpinjava-applications-solutions') {
 
   dependencies {
     compile project(':fpinjava-common')

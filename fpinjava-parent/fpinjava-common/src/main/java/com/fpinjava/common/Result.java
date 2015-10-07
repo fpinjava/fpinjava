@@ -19,6 +19,10 @@ public abstract class Result<T> implements Serializable {
 
   public abstract T getOrElse(final Supplier<T> defaultValue);
 
+  public abstract <V> V foldLeft(final V identity, Function<V, Function<T, V>> f);
+
+  public abstract <V> V foldRight(final V identity, Function<T, Function<V, V>> f);
+
   public abstract T getOrThrow();
 
   public abstract T successValue();
@@ -45,9 +49,15 @@ public abstract class Result<T> implements Serializable {
 
   public abstract Result<T> mapFailure(Result<T> v);
 
+  public abstract Result<Nothing> mapEmpty();
+
   public abstract <U> Result<U> flatMap(Function<T, Result<U>> f);
 
   public abstract Boolean exists(Function<T, Boolean> f);
+
+  public Result<T> orElse(Supplier<Result<T>> defaultValue) {
+    return map(x -> this).getOrElse(defaultValue);
+  }
 
   public static <T, U> Result<T> failure(Failure<U> failure) {
     return new Failure<>(failure.exception);
@@ -168,6 +178,11 @@ public abstract class Result<T> implements Serializable {
     }
 
     @Override
+    public Result<Nothing> mapEmpty() {
+      return failure(this);
+    }
+
+    @Override
     public <U> Result<U> flatMap(Function<T, Result<U>> f) {
       return failure(exception.getMessage(), exception);
     }
@@ -280,6 +295,11 @@ public abstract class Result<T> implements Serializable {
     }
 
     @Override
+    public Result<Nothing> mapEmpty() {
+      return success(Nothing.instance);
+    }
+
+    @Override
     public <U> Result<U> flatMap(Function<T, Result<U>> f) {
       return empty();
     }
@@ -297,6 +317,16 @@ public abstract class Result<T> implements Serializable {
     @Override
     public T getOrElse(Supplier<T> defaultValue) {
       return defaultValue.get();
+    }
+
+    @Override
+    public <V> V foldLeft(V identity, Function<V, Function<T, V>> f) {
+      return identity;
+    }
+
+    @Override
+    public <V> V foldRight(V identity, Function<T, Function<V, V>> f) {
+      return identity;
     }
   }
 
@@ -406,6 +436,11 @@ public abstract class Result<T> implements Serializable {
     }
 
     @Override
+    public Result<Nothing> mapEmpty() {
+      return failure("Not empty");
+    }
+
+    @Override
     public <U> Result<U> flatMap(Function<T, Result<U>> f) {
       try {
         return f.apply(successValue());
@@ -427,6 +462,16 @@ public abstract class Result<T> implements Serializable {
     @Override
     public T getOrElse(Supplier<T> defaultValue) {
       return successValue();
+    }
+
+    @Override
+    public <V> V foldLeft(V identity, Function<V, Function<T, V>> f) {
+      return f.apply(identity).apply(successValue());
+    }
+
+    @Override
+    public <V> V foldRight(V identity, Function<T, Function<V, V>> f) {
+      return f.apply(successValue()).apply(identity);
     }
   }
 
@@ -498,5 +543,17 @@ public abstract class Result<T> implements Serializable {
                                          final Result<B> b,
                                          final Function<A, Function<B, C>> f) {
     return lift2(f).apply(a).apply(b);
+  }
+
+  public static <A> Result<A> unfold(A a, Function<A, Result<A>> f) {
+    Result<A> ra = Result.success(a);
+    return unfold(new Tuple<>(ra, ra), f).eval()._2;
+  }
+
+  public static <A> TailCall<Tuple<Result<A>, Result<A>>> unfold(Tuple<Result<A>, Result<A>> a, Function<A, Result<A>> f) {
+    Result<A> x = a._2.flatMap(f::apply);
+    return x.isSuccess()
+        ? TailCall.sus(() -> unfold(new Tuple<>(a._2, x), f))
+        : TailCall.ret(a);
   }
 }

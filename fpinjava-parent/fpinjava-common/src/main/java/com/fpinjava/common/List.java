@@ -29,6 +29,39 @@ public abstract class List<A> {
   public abstract A reduce(Function<A, Function<A, A>> f);
   public abstract Result<A> headOption();
 
+  public List<Tuple<A, Integer>> zipWithPosition() {
+    return zip(iterate(0, x -> x + 1, length())).getOrThrow();
+  }
+
+  public static <B> List<B> iterate(B seed, Function<B, B> f, int n) {
+    List<B> result = list();
+    B temp = seed;
+    for (int i = 0; i < n; i++) {
+      result = List.cons(temp, result);
+      temp = f.apply(temp);
+    }
+    return result.reverse();
+  }
+
+  public <B> Result<List<Tuple<A, B>>> zip(List<B> listB) {
+    return zip(this, listB);
+  }
+
+  public static <A, B> Result<List<Tuple<A, B>>> zip(List<A> listA, List<B> listB) {
+    if (listA.length() != listB.length()) {
+      return Result.failure("Can't zip lists of different lengths. Use zipAsPossible().");
+    }
+    List<Tuple<A, B>> list = list();
+    List<A> workListT = listA;
+    List<B> workListU = listB;
+    while (!workListT.isEmpty()) {
+      list = new Cons<>(new Tuple<>(workListT.head(), workListU.head()), list);
+      workListT = workListT.tail();
+      workListU = workListU.tail();
+    }
+    return Result.success(list.reverse());
+  }
+
   public Result<A> lastOption() {
     return foldLeft(Result.empty(), x -> Result::success);
   }
@@ -294,6 +327,10 @@ public abstract class List<A> {
     } catch (Exception e) {
       return Result.failure(e.getMessage(), e);
     }
+  }
+
+  public List<A> concat(List<A> list) {
+    return concat(this, list);
   }
 
   public void forEach(Consumer<A> effect) {

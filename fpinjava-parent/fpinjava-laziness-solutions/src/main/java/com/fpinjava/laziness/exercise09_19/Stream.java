@@ -11,7 +11,7 @@ import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
 
 
-abstract class Stream<A> {
+public abstract class Stream<A> {
 
   private static Stream EMPTY = new Empty();
 

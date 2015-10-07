@@ -1,5 +1,6 @@
 package com.fpinjava.functions.listing02_01;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionalMethods {
@@ -39,5 +40,12 @@ public class FunctionalMethods {
   public List<Integer> append(int i, List<Integer> list) {
     list.add(i);
     return list;
+  }
+
+  public List<Integer> append2(int i, List<Integer> list) {
+    List<Integer> result = new ArrayList<>();
+    result.add(i);
+    percent2++;
+    return result;
   }
 }
