@@ -71,3 +71,17 @@ final Function<Integer, Integer> factorial = x -> x == 1
 
 By adding `this.` in front of the function name, we can both declare it as `final` and initialize it at the same time. If you prefer a `static` function, just replace `this` with the name of the class:
 
+[source,java]
+----
+static final Function<Integer, Integer> factorial = x -> x == 1
+      ? x
+      : x * MyClass.factorial.apply(x - 1);
+----
+
+== Beware of stack based recursion
+
+This function uses stack base recursion, which means that every recursive call will push the current state on the stack, which has a very limited size. (The actual size is implementation dependant.) As a result, this program will blow the stack (resulting in a `StackOverflowError`) if you call the function with a value higher than somewhere between 2_000 an 3_000. So you should not use this kind of recursion in production code unless you are sure that the number of nested calls remains low. By the way, this function will result in an arithmetic overflow for f(18).
+
+== What's next
+
+In a next post, we will see how to handle heap based recursion in order to be able to use recursion in production code.
