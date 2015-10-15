@@ -14,3 +14,12 @@ Lambdas are most often used to define anonymous functions. A recursive function 
 == Named lambda based functions
 
 It is of course perfectly possible to name a lambda based function, so we may be tempted to write a recursive factorial function as:
+
+[source,java]
+----
+Function<Integer, Integer> factorial = x -> x == 1
+    ? x
+    : x * factorial.apply(x - 1);
+----
+
+However, this will not work and will produce a compiler error:
