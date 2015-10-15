@@ -47,3 +47,27 @@ Function<Integer, Integer> factorial;
       : x * factorial.apply(x - 1);
 }
 ----
+
+If you need a static function, you may use a `static` initializer:
+
+[source,java]
+----
+static Function<Integer, Integer> factorial;
+static {
+  factorial = x -> x == 1
+      ? x
+      : x * factorial.apply(x - 1);
+}
+----
+
+The problem with this approach is that we can't declare the `factorial` field `final`. FP programmers love to make everything immutable. Can we do this? Yes, we can! Just use the trick in the following example:
+
+[source,java]
+----
+final Function<Integer, Integer> factorial = x -> x == 1
+      ? x
+      : x * this.factorial.apply(x - 1);
+----
+
+By adding `this.` in front of the function name, we can both declare it as `final` and initialize it at the same time. If you prefer a `static` function, just replace `this` with the name of the class:
+
