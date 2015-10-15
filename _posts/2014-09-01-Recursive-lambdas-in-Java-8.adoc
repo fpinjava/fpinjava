@@ -23,3 +23,27 @@ Function<Integer, Integer> factorial = x -> x == 1
 ----
 
 However, this will not work and will produce a compiler error:
+
+[source,java]
+----
+Error:(14, 18) java: self-reference in initializer
+----
+
+This is exactly the same as writing:
+
+[source,java]
+----
+int x = x + 10;
+----
+
+The problem here is that we are referencing a variable while initializing it. So it is not yet initialized. There is a solution to this problem. We just have to first declare the variable and later assign a value to it. The variable will be initialized with the default value (0 for an int, null for the factorial function). We can do this in a constructor, or at the moment we first need it (lazy initialization), but the simplest way is to use an initializer:
+
+[source,java]
+----
+Function<Integer, Integer> factorial;
+{
+  factorial = x -> x == 1
+      ? x
+      : x * factorial.apply(x - 1);
+}
+----
