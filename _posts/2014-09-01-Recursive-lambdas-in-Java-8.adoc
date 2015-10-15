@@ -1,5 +1,6 @@
 = Recursive lambdas in Java 8
 :published_at: 2014-09-01
+:hp-tags: Functional Programming, Java, Lambdas, Recursion
 
 Many Java programmers believe that is is not possible to create recursive lambdas. This is simply not true.
 
