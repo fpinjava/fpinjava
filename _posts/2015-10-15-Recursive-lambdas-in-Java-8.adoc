@@ -1,3 +1,15 @@
 = Recursive lambdas in Java 8
 
-Some text.
+Many Java programmers believe that is is not possible to create recursive lambdas. This is simply not true.
+
+One question that comes back often about Java 8 lambdas is "Can they be recursive?". The most current answer is simply no, although one may find answers stating that lambdas were once made recursive while Java 8 was in development, but this feature has been removed before the final release.
+
+Some may argue that since Java uses stack based recursion, we don't need recursive lambdas, since we should not be using recursion at all. However, even without heap based recursion, we can still make efficient use of recursion, as long as the number of recursive steps remains low (typically under 2000). So it could be useful to be able to define recursive lambdas. And anyway, it's fun!
+
+== The problem with anonymous lambda based functions
+
+Lambdas are most often used to define anonymous functions. A recursive function must call itself. An anonymous lambda can't call itself since it has no name, so it can't be recursive. However, not all lambdas are anonymous.
+
+== Named lambda based functions
+
+It is of course perfectly possible to name a lambda based function, so we may be tempted to write a recursive factorial function as:
