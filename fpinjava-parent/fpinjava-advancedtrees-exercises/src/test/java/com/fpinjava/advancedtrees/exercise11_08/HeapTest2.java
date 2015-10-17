@@ -1,7 +1,7 @@
 package com.fpinjava.advancedtrees.exercise11_08;
 
+/*
 import com.fpinjava.common.List;
-import com.fpinjava.common.Result;
 import com.fpinjava.common.Tuple;
 import com.fpinjava.state.SimpleRNG;
 import org.junit.Test;
@@ -10,10 +10,11 @@ import java.util.Comparator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
+//*/
 
 public class HeapTest2 {
 
+  /*- Uncomment when needed
   static int testLimit = 20_000;
 
   static Comparator<Number> comparator = (n1, n2) -> n1.value < n2.value ? -1 : n1.value > n2.value ? 1 : 0;
@@ -154,5 +155,5 @@ public class HeapTest2 {
       return Integer.toString(value);
     }
   }
-
+  //*/
 }
