@@ -17,7 +17,7 @@ public class Tuple<T, U> {
   public String toString() {
     return String.format("(%s,%s)", _1,  _2);
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (!(o.getClass() == this.getClass()))
@@ -28,7 +28,7 @@ public class Tuple<T, U> {
       return _1.equals(that._1) && _2.equals(that._2);
     }
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -38,4 +38,11 @@ public class Tuple<T, U> {
     return result;
   }
 
+  public Tuple<U, T> swap() {
+    return new Tuple<>(_2, _1);
+  }
+
+  public static <T> Tuple<T, T> swapIf(Tuple<T, T> t, Function<T, Function<T, Boolean>> p) {
+    return p.apply(t._1).apply(t._2) ? t.swap() : t;
+  }
 }

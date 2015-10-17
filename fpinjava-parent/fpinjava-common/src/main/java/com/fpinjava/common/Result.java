@@ -71,6 +71,10 @@ public abstract class Result<T> implements Serializable {
     return new Failure<>(new IllegalStateException(message, e));
   }
 
+  public static <V> Result<V> failure(Exception e) {
+    return new Failure<>(e);
+  }
+
   public static <T> Result<T> success(T value) {
     return new Success<>(value);
   }

@@ -28,6 +28,7 @@ public abstract class List<A> {
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract A reduce(Function<A, Function<A, A>> f);
   public abstract Result<A> headOption();
+  public abstract String mkStr(String sep);
 
   public List<Tuple<A, Integer>> zipWithPosition() {
     return zip(iterate(0, x -> x + 1, length())).getOrThrow();
@@ -438,6 +439,11 @@ public abstract class List<A> {
     }
 
     @Override
+    public String mkStr(String sep) {
+      return "";
+    }
+
+    @Override
     public boolean equals(Object o) {
       return o instanceof Nil;
     }
@@ -582,6 +588,11 @@ public abstract class List<A> {
     }
 
     @Override
+    public String mkStr(String sep) {
+      return head.toString() + foldLeft("", s -> e -> s + "\n" + e.toString());
+    }
+
+    @Override
     public boolean equals(Object o) {
       return o instanceof Cons && isEquals((Cons<?>) o);
     }
@@ -691,7 +702,7 @@ public abstract class List<A> {
     return unfold(list(), z, f).eval().reverse();
   }
 
-  public static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
+  private static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
     Result<Tuple<A, S>> r = f.apply(z);
     return r.isSuccess()
         ? sus(() -> unfold(acc.cons(r.getOrThrow()._1), r.getOrThrow()._2, f))

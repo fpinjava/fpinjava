@@ -6,11 +6,10 @@ public abstract class Tree<A extends Comparable<A>> {
   @SuppressWarnings("rawtypes")
   private static Tree EMPTY = new Empty();
 
-  public abstract A value();
-
   abstract Tree<A> left();
-
   abstract Tree<A> right();
+
+  public abstract A value();
 
   public abstract Tree<A> insert(A a);
 
@@ -75,7 +74,7 @@ public abstract class Tree<A extends Comparable<A>> {
           ? new T<>(left.insert(value), this.value, right)
           : value.compareTo(this.value) > 0
               ? new T<>(left, this.value, right.insert(value))
-              : this;
+              : new T<>(this.left, value, this.right);
     }
 
     @Override

@@ -6,11 +6,10 @@ public abstract class Tree<A extends Comparable<A>> {
   @SuppressWarnings("rawtypes")
   private static Tree EMPTY = new Empty();
 
-  public abstract A value();
-
   abstract Tree<A> left();
-
   abstract Tree<A> right();
+
+  public abstract A value();
 
   public abstract Tree<A> insert(A a);
 
