@@ -30,6 +30,18 @@ public abstract class Either<E, A> {
   public static <E, A, B> Either<E, List<B>> traverse(List<A> as, Function<A, Either<E, B>> f) {
     return as.foldRight(right(List.list()), a -> b -> f.apply(a).map2(b, x -> y -> y.cons(x)));
   }
+//
+// Below are equivalent versions with explicit typing.
+//
+//  public static <E, A, B> Either<E, List<B>> traverse(List<A> as, Function<A, Either<E, B>> f) {
+//    return as.foldRight(right(List.list()), (A a) -> (Either<E, List<B>> b) -> f.apply(a).map2(b, x -> y -> y.cons(x)));
+//  }
+
+//  public static <E, A, B> Either<E, List<B>> traverse(List<A> as, Function<A, Either<E, B>> f) {
+//	  Either<E, List<B>> id = right(List.list());
+//	  Function<A, Function<Either<E, List<B>>, Either<E, List<B>>>> f_ = a -> b -> f.apply(a).map2(b, x -> y -> y.cons(x));
+//	   return as.foldRight(id, f_ );
+//	 }
 
   public static <E, A> Either<E, List<A>> sequenceViaTraverseRecursive(List<Either<E, A>> es) {
     return traverseRecursive(es, x -> x);
