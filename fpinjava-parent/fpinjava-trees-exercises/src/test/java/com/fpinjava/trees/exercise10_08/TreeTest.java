@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class TreeTest {
 
   /**
-   * Methods references are not used here to make the difference more visible.
+   * Methods references is not used here to make the difference more visible.
    */
 
   @Test
