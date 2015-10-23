@@ -36,15 +36,6 @@ public class ListTest {
     assertEquals(Integer.valueOf(175), map.get("Donald").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
     assertEquals(Integer.valueOf(0), map.get("Goofy").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
   }
-//
-//  @Test
-//  public void testGroupBy__() throws Exception {
-//    Map<String, List<Payment>> map = list.groupBy__(x -> x.name);
-//    assertEquals(Integer.valueOf(361), map.get("Mickey").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
-//    assertEquals(Integer.valueOf(601), map.get("Minnie").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
-//    assertEquals(Integer.valueOf(175), map.get("Donald").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
-//    assertEquals(Integer.valueOf(0), map.get("Goofy").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
-//  }
 
   public class Payment {
     public final String name;

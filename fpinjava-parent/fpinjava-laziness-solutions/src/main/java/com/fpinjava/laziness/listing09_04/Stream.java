@@ -5,7 +5,7 @@ import com.fpinjava.common.*;
 
 abstract class Stream<A> {
 
-  private static Stream EMPTY = new Empty(); // #A
+  private static Stream EMPTY = new Empty();
 
   public abstract A head();
 
@@ -13,9 +13,9 @@ abstract class Stream<A> {
 
   public abstract Boolean isEmpty();
 
-  private Stream() {} // #B
+  private Stream() {}
 
-  private static class Empty<A> extends Stream<A> { // #C
+  private static class Empty<A> extends Stream<A> {
 
     @Override
     public Stream<A> tail() {
@@ -33,11 +33,11 @@ abstract class Stream<A> {
     }
   }
 
-  private static class Cons<A> extends Stream<A> { // #D
+  private static class Cons<A> extends Stream<A> {
 
-    private final Supplier<A> head; // #E
+    private final Supplier<A> head;
 
-    private final Supplier<Stream<A>> tail; // #F
+    private final Supplier<Stream<A>> tail;
 
     private Cons(Supplier<A> h, Supplier<Stream<A>> t) {
       head = h;
@@ -45,12 +45,12 @@ abstract class Stream<A> {
     }
 
     @Override
-    public A head() { // #G
+    public A head() {
       return head.get();
     }
 
     @Override
-    public Stream<A> tail() { // #H
+    public Stream<A> tail() {
       return tail.get();
     }
 
@@ -60,16 +60,16 @@ abstract class Stream<A> {
     }
   }
 
-  static <A> Stream<A> cons(Supplier<A> hd, Supplier<Stream<A>> tl) { // #I
+  static <A> Stream<A> cons(Supplier<A> hd, Supplier<Stream<A>> tl) {
     return new Cons<>(hd, tl);
   }
 
   @SuppressWarnings("unchecked")
-  public static <A> Stream<A> empty() { // #J
+  public static <A> Stream<A> empty() {
     return EMPTY;
   }
 
-  public static Stream<Integer> from(int i) { // #K
+  public static Stream<Integer> from(int i) {
     return cons(() -> i, () -> from(i + 1));
   }
 }

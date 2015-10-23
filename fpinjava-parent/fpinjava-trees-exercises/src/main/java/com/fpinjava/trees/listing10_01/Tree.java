@@ -1,18 +1,18 @@
 package com.fpinjava.trees.listing10_01;
 
 
-public abstract class Tree<A extends Comparable<A>> { // #A
+public abstract class Tree<A extends Comparable<A>> {
 
   @SuppressWarnings("rawtypes")
-  private static Tree EMPTY = new Empty(); // #B
+  private static Tree EMPTY = new Empty();
 
-  public abstract A value(); // #C
+  public abstract A value();
 
-  abstract Tree<A> left(); // #D
+  abstract Tree<A> left();
 
   abstract Tree<A> right();
 
-  private static class Empty<A extends Comparable<A>> extends Tree<A> { // #E
+  private static class Empty<A extends Comparable<A>> extends Tree<A> {
 
     @Override
     public A value() {
@@ -35,7 +35,7 @@ public abstract class Tree<A extends Comparable<A>> { // #A
     }
   }
 
-  private static class T<A extends Comparable<A>> extends Tree<A> { // #F
+  private static class T<A extends Comparable<A>> extends Tree<A> {
 
     private final Tree<A> left;
     private final Tree<A> right;
@@ -69,7 +69,7 @@ public abstract class Tree<A extends Comparable<A>> { // #A
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Comparable<A>> Tree<A> empty() { // #G
+  public static <A extends Comparable<A>> Tree<A> empty() {
     return EMPTY;
   }
 }

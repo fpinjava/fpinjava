@@ -49,7 +49,6 @@ public class NumbersToEnglishTest {
     assertEquals("[101, NIL]", decompose.apply(101).toString());
     assertEquals("[118, NIL]", decompose.apply(118).toString());
     assertEquals("[315, NIL]", decompose.apply(315).toString());
-//    assertEquals("[0, 1, NIL]", decompose.apply(1000).toString());
     assertEquals("[1, 1, NIL]", decompose.apply(1001).toString());
     assertEquals("[10, 1, NIL]", decompose.apply(1010).toString());
     assertEquals("[101, 1, NIL]", decompose.apply(1101).toString());

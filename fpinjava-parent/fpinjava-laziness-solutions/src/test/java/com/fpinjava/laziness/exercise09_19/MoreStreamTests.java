@@ -137,7 +137,7 @@ public class MoreStreamTests {
   @Test
   public void testLongFilter() {
     Stream<Integer> stream1 = Stream.from(0).take(200_000);
-    Stream<Integer> result = stream1.map(x -> x * 2).filter(x -> x % 3 == 0).drop(1000).take(5);//.drop(200_000).take(5);
+    Stream<Integer> result = stream1.map(x -> x * 2).filter(x -> x % 3 == 0).drop(1000).take(5);
     assertEquals("[6000, 6006, 6012, 6018, 6024, NIL]", result.toList().toString());
   }
 

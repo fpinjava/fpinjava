@@ -205,10 +205,6 @@ public abstract class List<A> {
     });
   }
 
-//  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
-//    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
-//  }
-
   public boolean exists(Function<A, Boolean> p) {
     return foldLeft(false, true, x -> y -> x || p.apply(y))._1;
   }

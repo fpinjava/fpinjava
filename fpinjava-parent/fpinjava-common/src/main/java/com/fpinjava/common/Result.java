@@ -238,12 +238,12 @@ public abstract class Result<T> implements Serializable {
 
     @Override
     public void forEach(Effect<T> c) {
-      // Empty. Do nothing.
+      /* Empty. Do nothing. */
     }
 
     @Override
     public void forEachOrThrow(Effect<T> c) {
-      // Do nothing
+      /* Do nothing */
     }
 
     @Override

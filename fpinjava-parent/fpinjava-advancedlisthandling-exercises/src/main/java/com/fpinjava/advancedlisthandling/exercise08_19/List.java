@@ -202,10 +202,6 @@ public abstract class List<A> {
     });
   }
 
-//  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
-//    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
-//  }
-
   @SuppressWarnings("rawtypes")
   public static final List NIL = new Nil();
 
@@ -524,12 +520,6 @@ public abstract class List<A> {
     return unfold(list(), z, f).eval().reverse();
   }
 
-//  private static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
-//    Result<Tuple<A, S>> r = f.apply(z);
-//    return r.isSuccess()
-//        ? sus(() -> unfold(acc.cons(r.getOrThrow()._1), r.getOrThrow()._2, f))
-//        : ret(acc);
-//  }
   private static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
     Result<Tuple<A, S>> r = f.apply(z);
     Result<TailCall<List<A>>> result = r.map(rt -> sus(() -> unfold(acc.cons(rt._1), rt._2, f)));

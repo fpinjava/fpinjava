@@ -165,8 +165,8 @@ public abstract class Stream<A> {
 
   public Stream<Stream<A>> tails() {
     return cons(() -> this, () -> unfold(this, x -> x.isEmpty()
-        ? Result.empty() // Result.<Tuple<Stream<A>,Stream<A>>>
-        : Result.success(new Tuple<>(x.tail(), x.tail())))); // Result<Tuple<Stream<A>,Stream<A>>>
+        ? Result.empty()
+        : Result.success(new Tuple<>(x.tail(), x.tail()))));
   }
 
   private Stream() {}
@@ -305,14 +305,7 @@ public abstract class Stream<A> {
     return stream(List.list(a));
   }
 
-//  public static <A> Stream<A> stream_(List<A> list) {
-//    return list.isEmpty()
-//        ? empty()
-//        : cons(list::head, () -> stream_(list.tail()));
-//  }
-
   public static <A> Stream<A> stream(List<A> list) {
-    //Function<Stream<A>, Function<A, Stream<A>>> f = sa -> a -> cons(() -> a, () -> sa);
     return list.foldLeft(empty(), sa -> a -> cons(() -> a, () -> sa));
   }
 
