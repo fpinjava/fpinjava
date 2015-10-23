@@ -270,10 +270,10 @@ public abstract class Tree<A extends Comparable<A>> {
     @Override
     public Tree<A> merge(A a, Tree<A> right) {
       return right.isEmpty()
-          ? max().getOrThrow().compareTo(a) > 0
-              ? insert(a)
-              : new T<>(this, a, right)
-          : max().flatMap(lmax -> right.min().map(rmin -> a.compareTo(lmax) > 0 && a.compareTo(rmin) < 0 ? new T<>(this, a, right) : merge(right).insert(a))).getOrThrow();
+          ? max().map(max -> max.compareTo(a) > 0 // Default value can never be used, but is necessary
+          ? insert(a)
+          : new T<>(this, a, right)).getOrElse(this)
+          : max().flatMap(lmax -> right.min().map(rmin -> a.compareTo(lmax) > 0 && a.compareTo(rmin) < 0 ? new T<>(this, a, right) : merge(right).insert(a))).getOrElse(right);
     }
 
     protected Tree<A> removeMerge(Tree<A> ta) {

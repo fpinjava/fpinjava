@@ -21,7 +21,7 @@ public class ListTest {
     ExecutorService es = Executors.newFixedThreadPool(numberOfThreads);
 
     Result<BigInteger> result2 = testList.parFoldLeft(es, BigInteger.ZERO, a-> b -> a.add(BigInteger.valueOf(fibo(b))), a -> a::add);
-    assertEquals(1552643551L, result2.getOrThrow().longValue());
+    assertTrue(result2.map(r -> r.longValue() == 1552643551L).getOrElse(false));
     es.shutdown();
   }
 

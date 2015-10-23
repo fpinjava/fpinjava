@@ -28,12 +28,12 @@ public class ParallelMapBenchmark {
 
     for (int i = 0; i < 5; i ++) {
       Result<List<Long>> result = testList.parMap(es, f);
-      System.out.println("Result:   " + result.getOrThrow().foldLeft(BigInteger.ZERO, g));
+      result.forEachOrThrow(r -> System.out.println("Result:   " + r.foldLeft(BigInteger.ZERO, g)));
     }
     long start = System.currentTimeMillis();
     for (int i = 0; i < 10; i ++) {
       Result<List<Long>> result = testList.parMap(es, f);
-      System.out.println("Result:   " + result.getOrThrow().foldLeft(BigInteger.ZERO, g));
+      result.forEachOrThrow(r -> System.out.println("Result:   " + r.foldLeft(BigInteger.ZERO, g)));
     }
     System.out.println(System.currentTimeMillis() - start);
 

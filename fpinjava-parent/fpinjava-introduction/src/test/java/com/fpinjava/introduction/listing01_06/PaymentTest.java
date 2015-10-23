@@ -21,10 +21,9 @@ public class PaymentTest {
     Tuple<List<Donut>, Payment> purchase5 = DonutShop.buyDonuts(4, creditCard2);
     List<Payment> paymentList = Payment.groupByCard(List.list(purchase1._2, purchase2._2, purchase3._2, purchase4._2, purchase5._2));
     assertEquals(2, paymentList.length());
-    Payment payment1 = paymentList.head();
-    Payment payment2 = paymentList.tail().head();
-    Map<CreditCard, Integer> payments = new Map<CreditCard, Integer>().put(payment1.creditCard, payment1.amount).put(payment2.creditCard, payment2.amount);
-    assertEquals(16, payments.get(creditCard1).getOrThrow().intValue());
-    assertEquals(14, payments.get(creditCard2).getOrThrow().intValue());
+    Map<CreditCard, Integer> payments = new Map<>();
+    paymentList.foldLeft(payments, ps -> p -> ps.put(p.creditCard, p.amount));
+    assertTrue(payments.get(creditCard1).map(v -> v.equals(16)).getOrElse(false));
+    assertTrue(payments.get(creditCard2).map(v -> v.equals(14)).getOrElse(false));
   }
 }

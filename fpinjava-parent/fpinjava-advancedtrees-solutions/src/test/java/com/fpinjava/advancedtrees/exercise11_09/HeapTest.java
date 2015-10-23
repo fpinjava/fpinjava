@@ -185,13 +185,14 @@ public class HeapTest {
   @Test
   public void testInsertRandomPoint() {
     int limit = 20_000;
-    List<Tuple<Integer, Integer>> points = SimpleRNG.doubles(limit, new SimpleRNG.Simple(3))._1.map(x -> (int) (x * limit * 3)).zipWithPosition();
-    Heap<Point> heap = points.foldLeft(Heap.empty(), h -> t -> h.insert(new Point(t._1, t._2)));
-    assertEquals(limit, heap.length());
-    assertTrue(isBalanced(heap));
-    assertTrue(isValueOrdered(heap));
-    Heap<Point> heap2 = List.range(0, points.length()).foldLeft(heap, t -> e -> t.tail().getOrElse(t));
-    assertTrue(heap2.isEmpty());
+    SimpleRNG.doubles(limit, new SimpleRNG.Simple(3))._1.map(x -> (int) (x * limit * 3)).zipWithPosition().forEachOrThrow(points -> {
+      Heap<Point> heap = points.foldLeft(Heap.empty(), h -> t -> h.insert(new Point(t._1, t._2)));
+      assertEquals(limit, heap.length());
+      assertTrue(isBalanced(heap));
+      assertTrue(isValueOrdered(heap));
+      Heap<Point> heap2 = List.range(0, points.length()).foldLeft(heap, t -> e -> t.tail().getOrElse(t));
+      assertTrue(heap2.isEmpty());
+    });
   }
 
   public static int log2nlz(int n) {

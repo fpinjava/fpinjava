@@ -27,7 +27,8 @@ public class TreeTest {
 
   private static boolean arePathsOk(Tree<?> tree) {
     List<List<Tree.Color>> keepBlacks = tree.pathColors().map(list -> list.filter(Tree.Color::isB));
-    return tree.pathColors().forAll(TreeTest::isPathOk) && keepBlacks.forAll(lst -> lst.length() == keepBlacks.head().length());
+    int blackLength = keepBlacks.headOption().map(List::length).getOrElse(0);
+    return tree.pathColors().forAll(TreeTest::isPathOk) && keepBlacks.forAll(lst -> lst.length() == blackLength);
   }
 
   private static boolean arePathsBalanced(Tree<?> tree) {
@@ -36,7 +37,8 @@ public class TreeTest {
 
   private static boolean arePathsEqual(Tree<?> tree) {
     List<List<Tree.Color>> keepBlacks = tree.pathColors().map(list -> list.filter(Tree.Color::isB));
-    return keepBlacks.forAll(lst -> lst.length() == keepBlacks.head().length());
+    int blackLength = keepBlacks.headOption().map(List::length).getOrElse(0);
+    return keepBlacks.forAll(lst -> lst.length() == blackLength);
   }
 
   private static boolean isPathOk(List<Tree.Color> colorList) {

@@ -23,8 +23,6 @@ public abstract class Result<T> implements Serializable {
 
   public abstract <V> V foldRight(final V identity, Function<T, Function<V, V>> f);
 
-  public abstract T getOrThrow();
-
   public abstract T successValue();
 
   public abstract Exception failureValue();
@@ -119,11 +117,6 @@ public abstract class Result<T> implements Serializable {
     @Override
     public T getOrElse(final T defaultValue) {
       return defaultValue;
-    }
-
-    @Override
-    public T getOrThrow() {
-      throw exception;
     }
 
     @Override
@@ -231,11 +224,6 @@ public abstract class Result<T> implements Serializable {
     @Override
     public T getOrElse(final T defaultValue) {
       return defaultValue;
-    }
-
-    @Override
-    public T getOrThrow() {
-      throw new IllegalStateException("Empty result");
     }
 
     @Override
@@ -360,11 +348,6 @@ public abstract class Result<T> implements Serializable {
 
     @Override
     public T getOrElse(final T defaultValue) {
-      return successValue();
-    }
-
-    @Override
-    public T getOrThrow() {
       return successValue();
     }
 

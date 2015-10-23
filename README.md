@@ -6,7 +6,7 @@ closest you'll get to having your own private functional programming tutor witho
 The code is available as a Gradle project that may be used  by:
 
 - Running Gradle commands in a terminal
-- Importing in Eclipse
+- Importing in Eclipse (with limitations)
 - Importing in IntelliJ
 - Importing in NetBeans
 
@@ -23,6 +23,8 @@ of your choice
 you will need to have Git installed on your PC and use the URL available on this page in the **SSH clone URL** area.
 
 ## Importing into Eclipse
+
+Note: Eclipse is not fully compatible with Java. Eclipse does not use the Oracle compiler. The compiler used by Eclipse is supposed to be better and smarter than the Oracle compiler. Unfortunately, it is much less efficient at type inference. This might change in the future, but at this time, not all chapter examples will run under Eclipse. You can use Eclipse Luna to edit and run the code up to chapter 8. You can't use Eclipse Mars. We have no information about if and when this will be fixed.
 
 To import the project into Eclipse, you must first install the Gradle plug-in. To do this:
 

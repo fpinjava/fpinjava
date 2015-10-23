@@ -27,7 +27,7 @@ public class ListTest {
     Function<BigInteger, Function<Long, BigInteger>> g = x -> y -> x.add(BigInteger.valueOf(y));
 
     Result<List<Long>> result = testList.parMap(es, f);
-    assertEquals(1552643551L, result.getOrThrow().foldLeft(BigInteger.ZERO, g).longValue());
+    assertTrue(result.map(r -> r.foldLeft(BigInteger.ZERO, g).longValue() == 1552643551L).getOrElse(false));
 
     es.shutdown();
   }

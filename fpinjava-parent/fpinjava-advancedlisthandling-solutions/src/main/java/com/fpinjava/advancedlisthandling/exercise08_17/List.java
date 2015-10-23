@@ -202,9 +202,9 @@ public abstract class List<A> {
     });
   }
 
-  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
-    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
-  }
+//  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
+//    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
+//  }
 
   @SuppressWarnings("rawtypes")
   public static final List NIL = new Nil();

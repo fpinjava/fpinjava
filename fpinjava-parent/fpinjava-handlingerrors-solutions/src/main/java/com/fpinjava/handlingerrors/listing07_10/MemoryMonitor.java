@@ -20,9 +20,8 @@ public class MemoryMonitor {
 
 
   public static void monitorMemory(double threshold) {
-    MemoryPoolMXBean poolMxBean  = findPSOldGenPool().getOrThrow();
-    poolMxBean.setCollectionUsageThreshold((int) Math.floor(poolMxBean
-                                           .getUsage().getMax() * threshold));
+    findPSOldGenPool().forEachOrThrow(poolMxBean -> poolMxBean.setCollectionUsageThreshold((int) Math.floor(poolMxBean
+        .getUsage().getMax() * threshold)));
 
     NotificationEmitter emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
     emitter.addNotificationListener(notificationListener, null, null);
@@ -36,7 +35,7 @@ public class MemoryMonitor {
 
   private static Result<MemoryPoolMXBean> findPSOldGenPool() {
     return List.fromCollection(ManagementFactory.getMemoryPoolMXBeans())
-               .first(x -> x.getName().equals("PS Old Gene"))
+               .first(x -> x.getName().equals("PS Old Gen"))
         .mapFailure("Could not find PS Old Gen memory pool");
   }
 }

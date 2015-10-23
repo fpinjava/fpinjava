@@ -20,8 +20,8 @@ public class ListTest {
     List<Long> testList = SimpleRNG.doubles(testLimit, new SimpleRNG.Simple(1))._1.map(x -> (long) (x * 30));
     ExecutorService es = Executors.newFixedThreadPool(numberOfThreads);
 
-    Result<BigInteger> result2 = testList.parFoldLeft(es, BigInteger.ZERO, a-> b -> a.add(BigInteger.valueOf(fibo(b))), a -> a::add);
-    assertEquals(1552643551L, result2.getOrThrow().longValue());
+    Result<BigInteger> result = testList.parFoldLeft(es, BigInteger.ZERO, a-> b -> a.add(BigInteger.valueOf(fibo(b))), a -> a::add);
+    assertTrue(result.map(r -> r.longValue() == 1552643551L).getOrElse(false));
     es.shutdown();
   }
 

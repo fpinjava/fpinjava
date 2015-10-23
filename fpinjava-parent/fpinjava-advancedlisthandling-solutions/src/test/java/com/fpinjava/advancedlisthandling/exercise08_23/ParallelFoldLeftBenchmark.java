@@ -35,7 +35,7 @@ public class ParallelFoldLeftBenchmark {
                            final ExecutorService es) {
     for (int i = 0; i < n; i++) {
       Result<BigInteger> result = list.parFoldLeft(es, BigInteger.ZERO, a -> b -> a.add(BigInteger.valueOf(fibo(b))), a -> a::add);
-      System.out.println("Result:   " + result.getOrThrow());
+      result.forEachOrThrow(r -> System.out.println("Result:   " + r));
     }
   }
 

@@ -305,10 +305,15 @@ public abstract class Stream<A> {
     return stream(List.list(a));
   }
 
+//  public static <A> Stream<A> stream_(List<A> list) {
+//    return list.isEmpty()
+//        ? empty()
+//        : cons(list::head, () -> stream_(list.tail()));
+//  }
+
   public static <A> Stream<A> stream(List<A> list) {
-    return list.isEmpty()
-        ? empty()
-        : cons(list::head, () -> stream(list.tail()));
+    //Function<Stream<A>, Function<A, Stream<A>>> f = sa -> a -> cons(() -> a, () -> sa);
+    return list.foldLeft(empty(), sa -> a -> cons(() -> a, () -> sa));
   }
 
   public static Stream<Integer> from(int i) {

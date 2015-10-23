@@ -32,8 +32,8 @@ public class RealistNameGenerator implements Generator<String> {
             : next();
       }
     };
-    this.consonantGenerator = Generator.chooserGenerator_(seed, consonantList);
-    this.vowelGenerator = Generator.chooserGenerator_(seed, vowelList);
+    this.consonantGenerator = Generator.chooserGenerator_(seed, consonantList, "Error: empty list");
+    this.vowelGenerator = Generator.chooserGenerator_(seed, vowelList, "Error: empty list");
   }
 
   protected RealistNameGenerator() {
@@ -48,8 +48,8 @@ public class RealistNameGenerator implements Generator<String> {
             : next();
       }
     };
-    this.consonantGenerator = Generator.chooserGenerator_(consonantList);
-    this.vowelGenerator = Generator.chooserGenerator_(vowelList);
+    this.consonantGenerator = Generator.chooserGenerator_(consonantList, "Error: empty list");
+    this.vowelGenerator = Generator.chooserGenerator_(vowelList, "Error: empty list");
   }
 
   @Override

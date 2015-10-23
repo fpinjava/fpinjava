@@ -205,9 +205,9 @@ public abstract class List<A> {
     });
   }
 
-  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
-    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
-  }
+//  public <B> Map<B, List<A>> groupBy__(Function<A, B> f) {
+//    return foldRight(Map.empty(), t -> mt -> Result.success(f.apply(t)).map(k -> mt.put(k, mt.get(k).getOrElse(list()).cons(t))).getOrThrow());
+//  }
 
   public boolean exists(Function<A, Boolean> p) {
     return foldLeft(false, true, x -> y -> x || p.apply(y))._1;
@@ -520,10 +520,9 @@ public abstract class List<A> {
     }
 
     private boolean isEquals(Cons<?> o) {
-      Function<Result<A>, Function<Result<?>, Boolean>> equals = x -> y -> x.isSuccess() && y.map(a -> a.equals(x.getOrThrow())).getOrElse(() -> false);
+      Function<Result<A>, Function<Result<?>, Boolean>> equals = x -> y -> x.flatMap(a -> y.map(a::equals)).getOrElse(() -> false);
       return zipAll(o).foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
     }
-
   }
 
   @SuppressWarnings("unchecked")
@@ -621,11 +620,10 @@ public abstract class List<A> {
     return unfold(list(), z, f).eval().reverse();
   }
 
-  public static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
+  private static <A, S> TailCall<List<A>> unfold(List<A> acc, S z, Function<S, Result<Tuple<A, S>>> f) {
     Result<Tuple<A, S>> r = f.apply(z);
-    return r.isSuccess()
-        ? sus(() -> unfold(acc.cons(r.getOrThrow()._1), r.getOrThrow()._2, f))
-        : ret(acc);
+    Result<TailCall<List<A>>> result = r.map(rt -> sus(() -> unfold(acc.cons(rt._1), rt._2, f)));
+    return result.getOrElse(ret(acc));
   }
 
   public static List<Integer> range(int start, int end) {

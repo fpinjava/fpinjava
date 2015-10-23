@@ -10,24 +10,24 @@ public class TreeTest {
   @Test
   public void testMax() throws Exception {
     Tree<Integer> tree = Tree.tree(4, 2, 6, 1, 3, 7, 5);
-    assertEquals(Integer.valueOf(7), tree.max().getOrThrow());
+    assertTrue(tree.max().map(i -> i.equals(7)).getOrElse(false));
   }
 
   @Test
   public void testMin() throws Exception {
     Tree<Integer> tree = Tree.tree(4, 2, 6, 1, 3, 7, 5);
-    assertEquals(Integer.valueOf(1), tree.min().getOrThrow());
+    assertTrue(tree.max().map(i -> i.equals(1)).getOrElse(false));
   }
 
   @Test
   public void testMax2() throws Exception {
     Tree<Integer> tree = Tree.tree(1, 2, 3, 4, 5, 6, 7);
-    assertEquals(Integer.valueOf(7), tree.max().getOrThrow());
+    assertTrue(tree.max().map(i -> i.equals(7)).getOrElse(false));
   }
 
   @Test
   public void testMin2() throws Exception {
     Tree<Integer> tree = Tree.tree(1, 2, 3, 4, 5, 6, 7);
-    assertEquals(Integer.valueOf(1), tree.min().getOrThrow());
+    assertTrue(tree.max().map(i -> i.equals(1)).getOrElse(false));
   }
 }

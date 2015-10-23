@@ -44,12 +44,13 @@ public class StringGenerator implements Generator<String> {
     this.filter = stringFilter;
   }
 
+  // Broken after removing getOrThrow from Result
   @Override
   public String next() {
     List<Character> list = generator.next();
     char[] chars = new char[list.length()];
     Function<char[], Function<Tuple<Character, Integer>, char[]>> f = b -> tci -> insert(b, tci);
-    String string = String.valueOf(list.zipWithPosition().foldLeft(chars, f));
+    String string = "";//String.valueOf(list.zipWithPosition().foldLeft(chars, f));
     return filter.apply(string)
         ? string
         : next(); // Careful: possible stack overflow if infinite recursion. Check the depth and return Result.success or Result.failure if more than 1000 consecutive failure to satisfy predicate.

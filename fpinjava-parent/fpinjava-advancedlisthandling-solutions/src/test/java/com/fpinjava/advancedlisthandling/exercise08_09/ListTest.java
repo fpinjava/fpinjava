@@ -23,7 +23,7 @@ public class ListTest {
 
   @Test
   public void testProductTuple() throws Exception {
-    System.out.println(List.product(List.list(1, 2, 3), List.list(4, 5, 6), x -> y -> new Tuple<>(x, y)));
-    System.out.println(List.zipWith(List.list(1, 2, 3), List.list(4, 5, 6), x -> y -> new Tuple<>(x, y)));
+    assertEquals("[(1,4), (1,5), (1,6), (2,4), (2,5), (2,6), (3,4), (3,5), (3,6), NIL]", List.product(List.list(1, 2, 3), List.list(4, 5, 6), x -> y -> new Tuple<>(x, y)).toString());
+    assertEquals("[(1,4), (2,5), (3,6), NIL]", List.zipWith(List.list(1, 2, 3), List.list(4, 5, 6), x -> y -> new Tuple<>(x, y)).toString());
   }
 }

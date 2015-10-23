@@ -73,8 +73,12 @@ public class Main {
     return integers.map(x -> low + x % (high - low));
   }
 
-  public static <T> Generator<T> oneOf(List<T> list) {
-    return choose(0, list.length()).map(index -> list.getAt(index).getOrThrow());
+
+  /**
+   * Should return Result<Generator>
+   */
+  public static <T> Generator<T> oneOf(List<T> list, T defaultValue) {
+    return choose(0, list.length()).map(index -> list.getAt(index).getOrElse(defaultValue));
   }
 
   public static <T> Generator<T> unit(T t) {
@@ -199,7 +203,7 @@ public class Main {
 
   @Test
   public void testChooserGenerator() {
-    Generator generator = Generator.chooserGenerator(0L, List.list("Doc", "Dopey", "Bashful", "Grumpy", "Sneezy", "Sleepy", "Happy"));
+    Generator generator = Generator.chooserGenerator(0L, List.list("Doc", "Dopey", "Bashful", "Grumpy", "Sneezy", "Sleepy", "Happy"), "Snow White");
     List.range(0, 100).forEach(i -> System.out.println(generator.next()));
     List.range(0, 100000).map(i -> generator.next()).groupBy(x -> x).values().map(List::length).forEach(System.out::println);
   }

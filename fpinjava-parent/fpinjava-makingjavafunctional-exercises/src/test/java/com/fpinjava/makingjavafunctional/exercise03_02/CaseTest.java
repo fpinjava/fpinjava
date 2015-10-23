@@ -20,29 +20,29 @@ public class CaseTest {
   @Test
   public void testMcaseSupplierOfBooleanSupplierOfResultOfT() {
     Case<Integer> c1 = Case.mcase(() -> true, () -> Result.success(4));
-    assertTrue(c1._1.getOrThrow());
+    assertTrue(c1._1.get());
     Wrapper<Integer> success1 = new Wrapper<>();
     Wrapper<String> failure1 = new Wrapper<>();
-    c1._2.getOrThrow().bind(x -> success1.value = x, y -> failure1.value = y);
+    c1._2.get().bind(x -> success1.value = x, y -> failure1.value = y);
     assertEquals(Integer.valueOf(4), success1.value);
     Case<Integer> c2 = Case.mcase(() -> false, () -> Result.failure("failure"));
-    assertFalse(c2._1.getOrThrow());
+    assertFalse(c2._1.get());
     Wrapper<Integer> success2 = new Wrapper<>();
     Wrapper<String> failure2 = new Wrapper<>();
-    c2._2.getOrThrow().bind(x -> success2.value = x, y -> failure2.value = y);
+    c2._2.get().bind(x -> success2.value = x, y -> failure2.value = y);
     assertEquals("failure", failure2.value);
   }
 
   @Test
   public void testMcaseSupplierOfResultOfT() {
     Case<Integer> c1 = Case.mcase(() -> Result.success(4));
-    assertTrue(c1._1.getOrThrow());
+    assertTrue(c1._1.get());
     Wrapper<Integer> success1 = new Wrapper<>();
     Wrapper<String> failure1 = new Wrapper<>();
-    c1._2.getOrThrow().bind(x -> success1.value = x, y -> failure1.value = y);
+    c1._2.get().bind(x -> success1.value = x, y -> failure1.value = y);
     assertEquals(Integer.valueOf(4), success1.value);
   }
-*/
+//*/
   @Test
   public void testMatch() {
     Pattern emailPattern =

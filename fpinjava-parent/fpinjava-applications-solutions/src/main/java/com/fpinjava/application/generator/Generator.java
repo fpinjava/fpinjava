@@ -251,6 +251,7 @@ public interface Generator<T> {
     return getStringGenerator(stringFilter, Generator.listGenerator(charGenerator(charFilter), 2));
   }
 
+  // Broken after removing getOrThrow from Result
   /**
    * Careful: possible stack overflow if infinite recursion. Check the depth and return Result.success
    * or Result.failure if more than 1000 consecutive failure to satisfy predicate.
@@ -260,7 +261,7 @@ public interface Generator<T> {
       Generator<String> generator = listGenerator.map(list -> {
         char[] chars = new char[list.length()];
         Function<char[], Function<Tuple<Character, Integer>, char[]>> f = b -> tci -> insert(b, tci);
-        String string = String.valueOf(list.zipWithPosition().foldLeft(chars, f));
+        String string = "";//String.valueOf(list.zipWithPosition().foldLeft(chars, f));
         return stringFilter.apply(string)
             ? string
             : this.generator.next();
@@ -339,8 +340,8 @@ public interface Generator<T> {
       List<String> consonantList = List.list("b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "w", "x", "z", "bl", "br", "ch", "ck", "cl", "cr", "dr", "fl", "fr", "gh", "gl", "gr", "ng", "ph", "pl", "pr", "qu", "sc", "sh", "sk", "sl", "sm", "sn", "sp", "st", "sw", "th", "tr", "tw", "wh", "wr", "nth", "sch", "scr", "shr", "spl", "spr", "squ", "str", "thr");
       List<String> vowelList = List.list("a", "e", "i", "o", "u", "ai", "au", "aw", "ay", "ea", "ee", "ei", "eu", "ew", "ey", "ie", "oi", "oo", "ou", "ow", "oy");
 
-      Generator<String> consonantGenerator = Generator.chooserGenerator_(consonantList);
-      Generator<String> vowelGenerator = Generator.chooserGenerator_(vowelList);
+      Generator<String> consonantGenerator = Generator.chooserGenerator_(consonantList, "Error: empty list");
+      Generator<String> vowelGenerator = Generator.chooserGenerator_(vowelList, "Error: empty list");
       Generator<String> generator = intGenerator.map(i -> {
         String string = listGenerator.next().map(x -> consonantGenerator.next() + vowelGenerator.next()).foldLeft("", x -> y -> x + y);
         return filter.apply(string) ? string : this.generator.next();
@@ -349,12 +350,12 @@ public interface Generator<T> {
     return new WordGenerator().generator;
   }
 
-  static <A> ChooserGenerator<A> chooserGenerator_(long seed, List<A> list) {
-    return new ChooserGenerator<>(seed, list);
+  static <A> ChooserGenerator<A> chooserGenerator_(long seed, List<A> list, A defaultValue) {
+    return new ChooserGenerator<A>(seed, list, defaultValue);
   }
 
-  static <A> ChooserGenerator<A> chooserGenerator_(List<A> list) {
-    return new ChooserGenerator<>(list);
+  static <A> ChooserGenerator<A> chooserGenerator_(List<A> list, A defaultValue) {
+    return new ChooserGenerator<A>(list, defaultValue);
   }
 
   static RealistNameGenerator realistNameGenerator(long seed) {
@@ -396,34 +397,40 @@ public interface Generator<T> {
   }
 
   static Generator<Person> personGenerator(long seed) {
-    return getPersonGenerator(chooserGenerator(seed, EnglishNames.firstNames), chooserGenerator(seed, EnglishNames.lastNames), dateGenerator(seed));
+    return getPersonGenerator(chooserGenerator(seed, EnglishNames.firstNames, "Error: empty list"), chooserGenerator(seed, EnglishNames.lastNames, "Error: empty list"), dateGenerator(seed));
   }
 
   static Generator<Person> personGenerator() {
-    return getPersonGenerator(chooserGenerator(EnglishNames.firstNames), chooserGenerator(EnglishNames.lastNames), dateGenerator());
+    return getPersonGenerator(chooserGenerator(EnglishNames.firstNames, "Error: empty list"), chooserGenerator(EnglishNames.lastNames, "Error: empty list"), dateGenerator());
   }
 
-  static Generator<Person> getPersonGenerator(
-      Generator<String> firstNameGenerator,
-      Generator<String> lastNameGenerator,
-      Generator<LocalDate> dateGenerator) {
+  static Generator<Person> getPersonGenerator(Generator<String> firstNameGenerator,
+                                              Generator<String> lastNameGenerator,
+                                              Generator<LocalDate> dateGenerator) {
     return firstNameGenerator.flatMap(firstName -> lastNameGenerator
         .flatMap(lastName -> dateGenerator
             .map(birthDate -> new Person(firstName, lastName, birthDate))));
   }
 
   static <T> Generator<T> chooserGenerator(long seed,
-                                           List<T> list) {
-    return getGenerator(list, intGenerator(seed));
+                                           List<T> list, T defaultValue) {
+    return getGenerator(list, intGenerator(seed), defaultValue);
   }
 
-  static <T> Generator<T> chooserGenerator(List<T> list) {
-    return getGenerator(list, intGenerator());
+  static <T> Generator<T> chooserGenerator(List<T> list, T defaultValue) {
+    return getGenerator(list, intGenerator(), defaultValue);
   }
 
-  static <T> Generator<T> getGenerator(List<T> list,
-                                       Generator<Integer> intGenerator) {
+//  static <T> Generator<T> getGenerator(List<T> list, Generator<Integer> intGenerator) {
+//    return intGenerator.map(x -> Math.abs(x) % list.length())
+//        .map(index -> list.getAt(index).getOrThrow());
+//  }
+
+  /**
+   * Should return Result<Generator>
+   */
+  static <T> Generator<T> getGenerator(List<T> list, Generator<Integer> intGenerator, T defaultValue) {
     return intGenerator.map(x -> Math.abs(x) % list.length())
-        .map(index -> list.getAt(index).getOrThrow());
+        .map(index -> list.getAt(index).getOrElse(defaultValue));
   }
 }
