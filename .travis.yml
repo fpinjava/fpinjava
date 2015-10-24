@@ -1,6 +1,14 @@
 language: java
+ 
+sudo: required
 
 jdk:
-  - oraclejdk8
-  
-script: ./fpinjava-parent/gradlew
+   - oraclejdk8
+
+install: true
+
+script:
+  - sudo apt-get update && sudo apt-get install oracle-java8-installer
+  - java -version
+  ./fpinjava-parent/gradlew
+
