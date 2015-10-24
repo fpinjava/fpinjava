@@ -12,3 +12,7 @@ script:
   - java -version
   - ./fpinjava-parent/gradlew
 
+notifications:
+  email:
+    on_success: always
+    on_failure: always
