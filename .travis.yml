@@ -14,6 +14,7 @@ script:
 
 notifications:
   email:
-    - build@fpinjava.com
-    on_success: always
-    on_failure: always
+    recipients:
+      - build@fpinjava.com
+    on_success: always # default: change [always|never|change]
+    on_failure: always # default: always [always|never|change]
