@@ -7,18 +7,6 @@ import org.junit.Test;
 public class EitherTest {
 
   @Test
-  public void testGetOrThrowRight() {
-    Either<String, Integer> either = Either.right(2);
-    assertEquals(Integer.valueOf(2), either.getOrThrow());
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testGetOrThrowLeft() {
-    Either<String, Integer> either = Either.left("error");
-    assertEquals(Integer.valueOf(0), either.getOrThrow());
-  }
-
-  @Test
   public void testGetOrElseRight() {
     Either<String, Integer> either = Either.right(2);
     assertEquals(Integer.valueOf(2), either.getOrElse(EitherTest::getDefault));

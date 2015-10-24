@@ -18,9 +18,4 @@ public class ResultTest {
   public void testLiftEmpty() {
     assertEquals(Result.empty(), parseIntResult.apply(Result.empty()));
   }
-
-  @Test(expected = IllegalStateException.class)
-  public void testLiftFailure() {
-    parseIntResult.apply(Result.failure("error")).getOrThrow();
-  }
 }

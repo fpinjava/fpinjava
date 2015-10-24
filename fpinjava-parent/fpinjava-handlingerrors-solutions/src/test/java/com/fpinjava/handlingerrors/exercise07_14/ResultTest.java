@@ -19,24 +19,28 @@ public class ResultTest {
   @Test(expected = IllegalStateException.class)
   public void testMap2SuccessFailure() {
     int radix = 16;
-    Result.map2(Result.success(radix), Result.failure("error"), parseWithRadix).getOrThrow();
+    Result.map2(Result.success(radix), Result.failure("error"), parseWithRadix).forEachOrThrow(ResultTest::failTest);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testMap2FailureSuccess() {
     String string = "AEF15DB";
-    Result.map2(Result.failure("error"), Result.success(string), parseWithRadix).getOrThrow();
+    Result.map2(Result.failure("error"), Result.success(string), parseWithRadix).forEachOrThrow(ResultTest::failTest);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testMap2EmptySuccess() {
     String string = "AEF15DB";
-    Result.map2(Result.empty(), Result.success(string), parseWithRadix).getOrThrow();
+    Result.map2(Result.empty(), Result.success(string), parseWithRadix).forEachOrThrow(ResultTest::failTest);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testMap2SuccessEmpty() {
     int radix = 16;
-    Result.map2(Result.success(radix), Result.empty(), parseWithRadix).getOrThrow();
+    Result.map2(Result.success(radix), Result.empty(), parseWithRadix).forEachOrThrow(ResultTest::failTest);
+  }
+
+  private static void failTest(Object o) {
+    fail();
   }
 }

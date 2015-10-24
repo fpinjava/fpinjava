@@ -5,7 +5,6 @@ import com.fpinjava.common.Function;
 import com.fpinjava.common.Supplier;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public abstract class Result<V> implements Serializable {
 
@@ -18,8 +17,6 @@ public abstract class Result<V> implements Serializable {
   public abstract V getOrElse(final V defaultValue);
 
   public abstract V getOrElse(final Supplier<V> defaultValue);
-
-  public abstract V getOrThrow();
 
   public abstract <U> Result<U> map(Function<V, U> f);
 
@@ -38,11 +35,6 @@ public abstract class Result<V> implements Serializable {
     @Override
     public V getOrElse(final V defaultValue) {
       return defaultValue;
-    }
-
-    @Override
-    public V getOrThrow() {
-      throw new IllegalStateException("Empty result");
     }
 
     @Override
@@ -91,11 +83,6 @@ public abstract class Result<V> implements Serializable {
     }
 
     @Override
-    public V getOrThrow() {
-      throw exception;
-    }
-
-    @Override
     public <U> Result<U> map(Function<V, U> f) {
       return failure(exception);
     }
@@ -127,11 +114,6 @@ public abstract class Result<V> implements Serializable {
 
     @Override
     public V getOrElse(Supplier<V> defaultValue) {
-      return value;
-    }
-
-    @Override
-    public V getOrThrow() {
       return value;
     }
 

@@ -54,15 +54,6 @@ public class ResultTest {
   }
 
   @Test
-  public void testMapFailureStringExceptionFailureThrow() {
-    try {
-      failure.mapFailure("no data", testException).getOrThrow();
-    } catch (IllegalStateException e) {
-      assertEquals("test exception message", e.getCause().getMessage());
-    }
-  }
-
-  @Test
   public void testMapFailureStringExceptionSuccess() {
     assertEquals("Success(4)", success.mapFailure("no data", testException).toString());
   }
@@ -80,7 +71,7 @@ public class ResultTest {
   @Test
   public void testMapFailureExceptionFailureThrow() {
     try {
-      failure.mapFailure(testException).getOrThrow();
+      failure.mapFailure(testException).failIfEmpty("");
     } catch (IllegalStateException e) {
       assertEquals("test exception message", e.getMessage());
     }

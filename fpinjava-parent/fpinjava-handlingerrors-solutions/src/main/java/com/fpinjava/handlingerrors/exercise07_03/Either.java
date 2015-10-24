@@ -10,8 +10,6 @@ public abstract class Either<E, A> {
 
   public abstract <B> Either<E, B> flatMap(Function<A, Either<E, B>> f);
 
-  public abstract A getOrThrow();
-
   public abstract A getOrElse(Supplier<A> defaultValue);
 
   public Either<E, A> orElse(Supplier<Either<E, A>> defaultValue) {
@@ -32,11 +30,6 @@ public abstract class Either<E, A> {
 
     public <B> Either<E, B> flatMap(Function<A, Either<E, B>> f) {
       return new Left<>(value);
-    }
-
-    @Override
-    public A getOrThrow() {
-      throw new IllegalStateException(value.toString());
     }
 
     @Override
@@ -64,11 +57,6 @@ public abstract class Either<E, A> {
 
     public <B> Either<E, B> flatMap(Function<A, Either<E, B>> f) {
       return f.apply(value);
-    }
-
-    @Override
-    public A getOrThrow() {
-      return value;
     }
 
     @Override

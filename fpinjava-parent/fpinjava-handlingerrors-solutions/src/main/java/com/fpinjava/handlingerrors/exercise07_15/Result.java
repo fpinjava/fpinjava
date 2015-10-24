@@ -24,8 +24,6 @@ public abstract class Result<T> implements Serializable {
 
   public abstract <U> U foldRight(U identity, Function<T, Function<U, U>> f);
 
-  public abstract T getOrThrow();
-
   public abstract <U> Result<U> map(Function<T, U> f);
 
   public abstract <U> Result<U> flatMap(Function<T, Result<U>> f);
@@ -73,11 +71,6 @@ public abstract class Result<T> implements Serializable {
     @Override
     public T getOrElse(final T defaultValue) {
       return defaultValue;
-    }
-
-    @Override
-    public T getOrThrow() {
-      throw new IllegalStateException("Empty result");
     }
 
     @Override
@@ -184,11 +177,6 @@ public abstract class Result<T> implements Serializable {
     }
 
     @Override
-    public T getOrThrow() {
-      throw exception;
-    }
-
-    @Override
     public <U> Result<U> map(Function<T, U> f) {
       return failure(exception);
     }
@@ -268,11 +256,6 @@ public abstract class Result<T> implements Serializable {
 
     @Override
     public T getOrElse(Supplier<T> defaultValue) {
-      return value;
-    }
-
-    @Override
-    public T getOrThrow() {
       return value;
     }
 

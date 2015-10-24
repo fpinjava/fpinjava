@@ -15,8 +15,6 @@ public abstract class Result<V> implements Serializable {
 
   public abstract V getOrElse(final Supplier<V> defaultValue);
 
-  public abstract V getOrThrow();
-
   public abstract <U> Result<U> map(Function<V, U> f);
 
   public abstract <U> Result<U> flatMap(Function<V, Result<U>> f);
@@ -60,11 +58,6 @@ public abstract class Result<V> implements Serializable {
     }
 
     @Override
-    public V getOrThrow() {
-      throw exception;
-    }
-
-    @Override
     public <U> Result<U> map(Function<V, U> f) {
       return failure(exception);
     }
@@ -96,11 +89,6 @@ public abstract class Result<V> implements Serializable {
 
     @Override
     public V getOrElse(Supplier<V> defaultValue) {
-      return value;
-    }
-
-    @Override
-    public V getOrThrow() {
       return value;
     }
 

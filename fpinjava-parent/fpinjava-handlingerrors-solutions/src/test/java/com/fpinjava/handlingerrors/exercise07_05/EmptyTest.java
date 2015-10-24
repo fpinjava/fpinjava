@@ -7,24 +7,6 @@ import static org.junit.Assert.assertEquals;
 public class EmptyTest {
 
   @Test
-  public void testGetOrThrowSuccess() {
-    Result<Integer> result = Result.success(2);
-    assertEquals(Integer.valueOf(2), result.getOrThrow());
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testGetOrThrowEmpty() {
-    Result<Integer> result = Result.empty();
-    result.getOrThrow();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testGetOrThrowFailure() {
-    Result<Integer> result = Result.failure("error");
-    result.getOrThrow();
-  }
-
-  @Test
   public void testGetOrElseSuccess() {
     Result<Integer> result = Result.success(2);
     assertEquals(Integer.valueOf(2), result.getOrElse(EmptyTest::getDefault));
