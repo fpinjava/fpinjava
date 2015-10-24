@@ -15,3 +15,5 @@ script:
 notifications:
   email:
     - build@fpinjava.com
+    on_success: always
+    on_failure: always
