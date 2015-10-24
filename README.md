@@ -1,6 +1,11 @@
 This repository contains code, exercises and solutions from the book "Functional Programming in Java". Along with the book itself, it's the
 closest you'll get to having your own private functional programming tutor without actually having one.
 
+[![Build Status][badge-travis]][travis]
+
+[badge-travis]: https://travis-ci.org/fpinjava/fpinjava.png?branch=master
+[travis]: https://travis-ci.org/fpinjava/fpinjava
+
 ## How to use the project
 
 The code is available as a Gradle project that may be used  by:
