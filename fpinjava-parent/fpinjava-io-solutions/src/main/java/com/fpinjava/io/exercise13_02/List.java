@@ -1,18 +1,25 @@
-package com.fpinjava.common;
+package com.fpinjava.io.exercise13_02;
 
-import java.util.Collection;
+import com.fpinjava.common.Function;
+import com.fpinjava.common.Map;
+import com.fpinjava.common.Result;
+import com.fpinjava.common.Supplier;
+import com.fpinjava.common.TailCall;
+import com.fpinjava.common.Tuple;
+import com.fpinjava.common.Tuple3;
+
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 import static com.fpinjava.common.TailCall.ret;
 import static com.fpinjava.common.TailCall.sus;
 
+
 public abstract class List<A> {
 
-  protected abstract A head();
-  protected abstract List<A> tail();
+  public abstract A head();
+  public abstract List<A> tail();
   public abstract boolean isEmpty();
   public abstract List<A> setHead(A h);
   public abstract List<A> drop(int n);
@@ -26,42 +33,7 @@ public abstract class List<A> {
   public abstract <B> List<B> map(Function<A, B> f);
   public abstract List<A> filter(Function<A, Boolean> f);
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
-  public abstract A reduce(Function<A, Function<A, A>> f);
   public abstract Result<A> headOption();
-  public abstract String mkStr(String sep);
-
-  public Result<List<Tuple<A, Integer>>> zipWithPosition() {
-    return zip(iterate(0, x -> x + 1, length()));
-  }
-
-  public static <B> List<B> iterate(B seed, Function<B, B> f, int n) {
-    List<B> result = list();
-    B temp = seed;
-    for (int i = 0; i < n; i++) {
-      result = List.cons(temp, result);
-      temp = f.apply(temp);
-    }
-    return result.reverse();
-  }
-
-  public <B> Result<List<Tuple<A, B>>> zip(List<B> listB) {
-    return zip(this, listB);
-  }
-
-  public static <A, B> Result<List<Tuple<A, B>>> zip(List<A> listA, List<B> listB) {
-    if (listA.length() != listB.length()) {
-      return Result.failure("Can't zip lists of different lengths. Use zipAsPossible().");
-    }
-    List<Tuple<A, B>> list = list();
-    List<A> workListT = listA;
-    List<B> workListU = listB;
-    while (!workListT.isEmpty()) {
-      list = new Cons<>(new Tuple<>(workListT.head(), workListU.head()), list);
-      workListT = workListT.tail();
-      workListU = workListU.tail();
-    }
-    return Result.success(list.reverse());
-  }
 
   public Result<A> lastOption() {
     return foldLeft(Result.empty(), x -> Result::success);
@@ -85,9 +57,9 @@ public abstract class List<A> {
   }
 
   private static <A> TailCall<Result<A>> getAt(List<A> list, int index) {
-    return index == 0
-        ? TailCall.ret(Result.success(list.head()))
-        : TailCall.sus(() -> getAt(list.tail(), index - 1));
+      return index == 0
+                ? TailCall.ret(Result.success(list.head()))
+                : TailCall.sus(() -> getAt(list.tail(), index - 1));
   }
 
   public Result<A> getAt(int index) {
@@ -233,14 +205,12 @@ public abstract class List<A> {
     });
   }
 
-  public boolean forAll(Function<A, Boolean> p) {
-    Function<Boolean, Function<A, Boolean>> f = x -> y -> x && p.apply(y);
-    return foldLeft(true, false, f)._1;
+  public boolean exists(Function<A, Boolean> p) {
+    return foldLeft(false, true, x -> y -> x || p.apply(y))._1;
   }
 
-  public boolean exists(Function<A, Boolean> p) {
-    Function<Boolean, Function<A, Boolean>> f = x -> y -> x || p.apply(y);
-    return foldLeft(false, true, f)._1;
+  public boolean forAll(Function<A, Boolean> p) {
+    return foldLeft(true, false, x -> y -> x && p.apply(y))._1;
   }
 
   public List<List<A>> splitListAt(int i) {
@@ -280,21 +250,6 @@ public abstract class List<A> {
     return unfold(new Tuple<>(this, s2), g);
   }
 
-  public Result<A> first(Function<A, Boolean> p) {
-    return first(this, p).eval().mapFailure(String.format("No element satisfying function %s in list %s", p, this));
-  }
-
-  private static <A> TailCall<Result<A>> first(final List<A> list, final Function<A, Boolean> f) {
-    if (list.isEmpty()) {
-      return ret(Result.<A> failure("Empty list"));
-    }
-    if (f.apply(list.head())) {
-      return ret(Result.success(list.head()));
-    } else {
-      return sus(() -> first(list.tail(), f));
-    }
-  }
-
   public<B> Result<B> parFoldLeft(ExecutorService es, B identity, Function<B, Function<A, B>> f, Function<B, Function<B, B>> m) {
     final int chunks = 1024;
     final List<List<A>> dList = divide(chunks);
@@ -323,18 +278,6 @@ public abstract class List<A> {
       }));
     } catch (Exception e) {
       return Result.failure(e.getMessage(), e);
-    }
-  }
-
-  public List<A> concat(List<A> list) {
-    return concat(this, list);
-  }
-
-  public void forEach(Consumer<A> effect) {
-    List<A> workList = this;
-    while (!workList.isEmpty()) {
-      effect.accept(workList.head());
-      workList = workList.tail();
     }
   }
 
@@ -424,19 +367,8 @@ public abstract class List<A> {
     }
 
     @Override
-    public A reduce(Function<A, Function<A, A>> f) {
-      throw new IllegalStateException(
-          "Can't reduce and empty list without a zero");
-    }
-
-    @Override
     public Result<A> headOption() {
       return Result.empty();
-    }
-
-    @Override
-    public String mkStr(String sep) {
-      return "";
     }
 
     @Override
@@ -546,7 +478,7 @@ public abstract class List<A> {
     }
 
     private <B> TailCall<Tuple<B, List<A>>> foldLeft(B acc, B zero, List<A> list, Function<B, Function<A, B>> f) {
-      return list.isEmpty() || acc.equals(zero)
+      return list.isEmpty() || zero.equals(acc)
           ? ret(new Tuple<>(acc, list))
           : sus(() -> foldLeft(f.apply(acc).apply(list.head()), zero, list.tail(), f));
     }
@@ -574,18 +506,8 @@ public abstract class List<A> {
     }
 
     @Override
-    public A reduce(Function<A, Function<A, A>> f) {
-      return this.tail().foldLeft(this.head(), f);
-    }
-
-    @Override
     public Result<A> headOption() {
       return Result.success(head);
-    }
-
-    @Override
-    public String mkStr(String sep) {
-      return head.toString() + foldLeft("", s -> e -> s + sep + e.toString());
     }
 
     @Override
@@ -615,10 +537,6 @@ public abstract class List<A> {
 
   public static <A, B> B foldRight(List<A> list, B n, Function<A, Function<B, B>> f ) {
     return list.foldRight(n, f);
-  }
-
-  public static <T> List<T> cons(T t, List<T> list) {
-    return list.cons(t);
   }
 
   public static <A> List<A> concat(List<A> list1, List<A> list2) {
@@ -712,38 +630,6 @@ public abstract class List<A> {
 
   public static <A> List<A> fill(int n, Supplier<A> s) {
     return range(0, n).map(ignore -> s.get());
-  }
-
-  public static <T> List<T> fromCollection(Collection<T> ct) {
-    List<T> lt = list();
-    for (T t : ct) {
-      lt = lt.cons(t);
-    }
-    return lt.reverse();
-  }
-
-  public static Result<Integer> maxOption(List<Integer> list) {
-    return list.isEmpty()
-        ? Result.empty()
-        : Result.success(list.tail().foldRight(list.head(), x -> y -> x > y ? x : y));
-  }
-
-  public static Result<Integer> minOption(List<Integer> list) {
-    return list.isEmpty()
-        ? Result.empty()
-        : Result.success(list.tail().foldRight(list.head(), x -> y -> x < y ? x : y));
-  }
-
-  /*
-   * A special version of max, throwing an exception if the list is empty. This version
-   * is used in chapter 10.
-   */
-  public static int max(List<Integer> list) {
-    return list.tail().foldRight(list.head(), x -> y -> x > y ? x : y);
-  }
-
-  public static int min(List<Integer> list) {
-    return list.tail().foldRight(list.head(), x -> y -> x < y ? x : y);
   }
 
 }

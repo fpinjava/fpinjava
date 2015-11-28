@@ -20,7 +20,7 @@ public class StateMachine<A, S> {
 
   public State<S, S> process(List<A> inputs) {
     List<State<S, Nothing>> a = inputs.map(function);
-    State<S, List<Nothing>> b = State.compose(a);
+    State<S, List<Nothing>> b = State.sequence(a);
     return b.flatMap(x -> State.get());
   }
 }

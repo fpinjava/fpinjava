@@ -33,7 +33,7 @@ public class State<S, A> {
     return new State<>(s -> new StateTuple<>(value, f.apply(s)));
   }
 
-  public static <S, A> State<S, List<A>> compose(List<State<S, A>> fs) {
+  public static <S, A> State<S, List<A>> sequence(List<State<S, A>> fs) {
     return fs.foldRight(State.unit(List.<A>list()), f -> acc -> f.map2(acc, a -> b -> b.cons(a)));
   }
 
@@ -42,6 +42,10 @@ public class State<S, A> {
       StateTuple<A, S> temp = run.apply(s);
       return f.apply(temp.value).run.apply(temp.state);
     });
+  }
+
+  public static <S> State<S, Nothing> set(S s) {
+    return new State<>(x -> new StateTuple<>(Nothing.instance, s));
   }
 
   public <B> State<S, B> map(Function<A, B> f) {
