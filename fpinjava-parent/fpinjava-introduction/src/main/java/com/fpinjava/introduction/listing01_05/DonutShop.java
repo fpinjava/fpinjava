@@ -10,9 +10,9 @@ public class DonutShop {
     return new Tuple<>(new Donut(), new Payment(creditCard, Donut.price));
   }
 
-  public static Tuple<List<Donut>, Payment> buyDonuts(final int n,
+  public static Tuple<List<Donut>, Payment> buyDonuts(final int quantity,
                                                final CreditCard creditCard) {
-    return new Tuple<>(fill(n, Donut::new),
-                               new Payment(creditCard, Donut.price * n));
+    return new Tuple<>(fill(quantity, Donut::new),
+                               new Payment(creditCard, Donut.price * quantity));
   }
 }

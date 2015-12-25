@@ -29,7 +29,7 @@ you will need to have Git installed on your PC and use the URL available on this
 
 ## Importing into Eclipse
 
-Note: Eclipse is not fully compatible with Java. Eclipse does not use the Oracle compiler. The compiler used by Eclipse is supposed to be better and smarter than the Oracle compiler. Unfortunately, it is much less efficient at type inference. This might change in the future, but at this time, not all chapter examples will run under Eclipse. You can use Eclipse Luna to edit and run the code up to chapter 8. You can't use Eclipse Mars. We have no information about if and when this will be fixed.
+Note: Eclipse is not fully compatible with Java. Eclipse does not use the Oracle compiler. The compiler used by Eclipse is not fully compatible with the Oracle Java 8 compiler. This might change in the future, but at this time, not all chapter examples will run under Eclipse. You can use Eclipse Luna to edit and run the code through chapter 8. You can't use Eclipse Mars. We have no information about if and when this will be fixed.
 
 To import the project into Eclipse, you must first install the Gradle plug-in. To do this:
 
@@ -112,6 +112,44 @@ test to verify that the solution is working.
 
 Lots of code is duplicated. This is done so that all exercises are made as independent as possible. However, code reused from previous chapters
 is copied to the `fpinjava-common` module and should be used from there.
+
+## Module names
+
+Code modules are generally named after the chapter titles, and not the chapter numbers, which sometimes make them difficult to find. Here is the list of the modules:
+
+* Chapter 1: fpinjava-introduction
+
+* Chapter 2: fpinjava-usingfunctions
+
+* Chapter 3: fpinjava-makingjavafunctional
+
+* Chapter 4: fpinjava-recursion
+
+* Chapter 5: fpinjava-lists
+
+* Chapter 6: fpinjava-optionaldata
+
+* Chapter 7: fpinjava-handlingerrors
+
+* Chapter 8: fpinjava-advancedlisthandling
+
+* Chapter 9: fpinjava-laziness
+
+* Chapter 10: fpinjava-trees
+
+* Chapter 11: fpinjava-advancedtrees
+
+* Chapter 12: fpinjava-state
+
+* Chapter 13: fpinjava-io
+
+* Chapter 14: fpinjava-actors
+
+* Chapter 15: fpinjava-applications
+
+Most modules exist in two versions: exercises and solutions. However, chapters 1 (fpinjava-introduction), 14 (fpinjava-actors) and 15 (fpinjava-applications) have no exercises.
+
+Most modules have unit tests that may be run to verify that your solutions to exercises are correct. However, chapter 13 has not unit tests. Instead, all packages in this chapter have executable programs that may be run to verify that the output corresponds to what is expected.
 
 
 
