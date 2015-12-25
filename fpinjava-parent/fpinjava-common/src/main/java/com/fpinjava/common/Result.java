@@ -10,47 +10,27 @@ public abstract class Result<T> implements Serializable {
   }
 
   public abstract Boolean isSuccess();
-
   public abstract Boolean isFailure();
-
   public abstract Boolean isEmpty();
-
   public abstract T getOrElse(final T defaultValue);
-
   public abstract T getOrElse(final Supplier<T> defaultValue);
-
   public abstract <V> V foldLeft(final V identity, Function<V, Function<T, V>> f);
-
   public abstract <V> V foldRight(final V identity, Function<T, Function<V, V>> f);
-
   public abstract T successValue();
-
   public abstract Exception failureValue();
-
   public abstract void forEach(Effect<T> c);
-
   public abstract void forEachOrThrow(Effect<T> c);
-
-  public abstract Result<RuntimeException> forEachOrException(Effect<T> c);
-
+  public abstract Result<String> forEachOrFail(Effect<T> e);
+  public abstract Result<RuntimeException> forEachOrException(Effect<T> e);
   public abstract Result<T> filter(Function<T, Boolean> f);
-
   public abstract Result<T> filter(Function<T, Boolean> p, String message);
-
   public abstract <U> Result<U> map(Function<T, U> f);
-
   public abstract Result<T> mapFailure(String s, Exception e);
-
   public abstract Result<T> mapFailure(String s);
-
   public abstract Result<T> mapFailure(Exception e);
-
   public abstract Result<T> mapFailure(Result<T> v);
-
   public abstract Result<Nothing> mapEmpty();
-
   public abstract <U> Result<U> flatMap(Function<T, Result<U>> f);
-
   public abstract Boolean exists(Function<T, Boolean> f);
 
   public Result<T> orElse(Supplier<Result<T>> defaultValue) {
@@ -137,6 +117,11 @@ public abstract class Result<T> implements Serializable {
     @Override
     public Result<RuntimeException> forEachOrException(Effect<T> c) {
       return success(exception);
+    }
+
+    @Override
+    public Result<String> forEachOrFail(Effect<T> c) {
+      return success(exception.getMessage());
     }
 
     @Override
@@ -244,6 +229,11 @@ public abstract class Result<T> implements Serializable {
     @Override
     public void forEachOrThrow(Effect<T> c) {
       /* Do nothing */
+    }
+
+    @Override
+    public Result<String> forEachOrFail(Effect<T> c) {
+      return empty();
     }
 
     @Override
@@ -363,17 +353,23 @@ public abstract class Result<T> implements Serializable {
 
     @Override
     public void forEach(Effect<T> e) {
-      e.apply(successValue());
+      e.apply(this.value);
     }
 
     @Override
     public void forEachOrThrow(Effect<T> e) {
-      e.apply(successValue());
+      e.apply(this.value);
+    }
+
+    @Override
+    public Result<String> forEachOrFail(Effect<T> e) {
+      e.apply(this.value);
+      return empty();
     }
 
     @Override
     public Result<RuntimeException> forEachOrException(Effect<T> e) {
-      e.apply(successValue());
+      e.apply(this.value);
       return empty();
     }
 

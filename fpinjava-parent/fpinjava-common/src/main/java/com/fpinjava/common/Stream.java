@@ -298,6 +298,17 @@ public abstract class Stream<A> {
     return stream(List.list(a));
   }
 
+  public static<T> Stream<T> of(List<T> list) {
+    return list.isEmpty()
+        ? Stream.empty()
+        : cons(list::head, () -> of(list.tail()));
+  }
+
+  @SafeVarargs
+  public static<A> Stream<A> of(A... array) {
+    return of(List.list(array));
+  }
+
   public static <A> Stream<A> stream(List<A> list) {
     return list.isEmpty()
         ? empty()
@@ -318,6 +329,12 @@ public abstract class Stream<A> {
 
   public static Stream<Integer> fromViaUnfold(int n) {
     return unfold(n, x -> Result.success(new Tuple<>(x, x + 1)));
+  }
+
+  public static Stream<Integer> range(int start, int end) {
+    return start > end
+        ? Stream.empty()
+        : cons(() -> start, () -> range(start + 1, end));
   }
 
   public static <A> Stream<A> repeat(A a) {
@@ -346,6 +363,16 @@ public abstract class Stream<A> {
 
   public static <A> Stream<A> unfold_(A z, Function<A, Result<A>> f) {
     return f.apply(z).map(x -> cons(() -> x, () -> unfold_(x, f))).getOrElse(empty());
+  }
+
+  public static <T> Stream<T> fill(int n, Supplier<T> elem) {
+    return fill(empty(), n, elem).eval();
+  }
+
+  public static<T> TailCall<Stream<T>> fill(Stream<T> acc, int n, Supplier<T> elem) {
+    return n <= 0
+        ? ret(acc)
+        : sus(() -> fill(new Cons<T>(elem, () -> acc), n - 1, elem));
   }
 
   public static Stream<Integer> fibs_() {

@@ -1,5 +1,6 @@
 package com.fpinjava.io.exercise13_02;
 
+import com.fpinjava.common.Effect;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.Map;
 import com.fpinjava.common.Result;
@@ -34,6 +35,7 @@ public abstract class List<A> {
   public abstract List<A> filter(Function<A, Boolean> f);
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract Result<A> headOption();
+  public abstract void forEach(Effect<A> ef);
 
   public Result<A> lastOption() {
     return foldLeft(Result.empty(), x -> Result::success);
@@ -372,6 +374,11 @@ public abstract class List<A> {
     }
 
     @Override
+    public void forEach(Effect<A> ef) {
+      // Do nothing
+    }
+
+    @Override
     public boolean equals(Object o) {
       return o instanceof Nil;
     }
@@ -508,6 +515,20 @@ public abstract class List<A> {
     @Override
     public Result<A> headOption() {
       return Result.success(head);
+    }
+
+    @Override
+    public void forEach(Effect<A> ef) {
+      forEach(this, ef).eval();
+    }
+
+    private static <A> TailCall<List<A>> forEach(List<A> list, Effect<A> ef) {
+      return list.isEmpty()
+          ? TailCall.ret(list)
+          : TailCall.sus(() -> {
+            ef.apply(list.head());
+            return forEach(list.tail(), ef);
+          });
     }
 
     @Override

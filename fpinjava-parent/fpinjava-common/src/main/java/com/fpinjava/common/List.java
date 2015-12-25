@@ -1,5 +1,7 @@
 package com.fpinjava.common;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -744,6 +746,20 @@ public abstract class List<A> {
 
   public static int min(List<Integer> list) {
     return list.tail().foldRight(list.head(), x -> y -> x < y ? x : y);
+  }
+
+  public static List<String> fromSeparatedString(String string, char separator) {
+    return List.fromCollection(Arrays.asList(string.split("\\s*" + separator + "\\s*")));
+  }
+
+  public java.util.List<A> toJavaList() {
+    java.util.List<A> s = new ArrayList<>();
+    List<A> workList = this;
+    while (!workList.isEmpty()) {
+      s.add(workList.head());
+      workList = workList.tail();
+    }
+    return s;
   }
 
 }

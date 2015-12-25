@@ -17,32 +17,19 @@ public abstract class Result<T> implements Serializable {
   }
 
   public abstract T getOrElse(final Supplier<T> defaultValue);
-
   public abstract <U> U foldLeft(U identity, Function<U, Function<T, U>> f);
-
   public abstract <U> U foldRight(U identity, Function<T, Function<U, U>> f);
-
   public abstract <U> Result<U> map(Function<T, U> f);
-
   public abstract <U> Result<U> flatMap(Function<T, Result<U>> f);
-
   public abstract Result<T> mapFailure(String s);
-
   public abstract Result<T> mapFailure(String s, Exception e);
-
   public abstract Result<T> mapFailure(Exception e);
-
   public abstract Result<T> failIfEmpty(String message);
-
   public abstract void forEach(Effect<T> ef);
 
-  public abstract void forEachOrThrow(Effect<T> ef);
-
-  public abstract Result<RuntimeException> forEachOrException(Effect<T> ef);
 
   public T getOrElse(final T defaultValue) {
     return getOrElseViaFoldLeft(defaultValue);
-    //return getOrElseViaFoldRight(defaultValue);
   }
 
   public T getOrElseViaFoldLeft(final T defaultValue) {
@@ -112,16 +99,6 @@ public abstract class Result<T> implements Serializable {
     @Override
     public void forEach(Effect<T> ef) {
       // Do nothing
-    }
-
-    @Override
-    public void forEachOrThrow(Effect<T> ef) {
-      // Do nothing
-    }
-
-    @Override
-    public Result<RuntimeException> forEachOrException(Effect<T> ef) {
-      return empty();
     }
 
     @Override
@@ -212,16 +189,6 @@ public abstract class Result<T> implements Serializable {
       return failure(message);
     }
 
-    @Override
-    public void forEachOrThrow(Effect<T> ef) {
-      throw exception;
-    }
-
-    @Override
-    public Result<RuntimeException> forEachOrException(Effect<T> ef) {
-      return success(exception);
-    }
-
     /**
      * Failures are equals only if they are the same object.
      */
@@ -293,17 +260,6 @@ public abstract class Result<T> implements Serializable {
     @Override
     public void forEach(Effect<T> ef) {
       ef.apply(value);
-    }
-
-    @Override
-    public void forEachOrThrow(Effect<T> ef) {
-      ef.apply(value);
-    }
-
-    @Override
-    public Result<RuntimeException> forEachOrException(Effect<T> ef) {
-      ef.apply(value);
-      return empty();
     }
 
     @Override

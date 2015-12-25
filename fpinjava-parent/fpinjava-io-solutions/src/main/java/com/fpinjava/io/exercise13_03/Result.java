@@ -26,7 +26,7 @@ public abstract class Result<T> implements Serializable {
   public abstract Result<T> mapFailure(Exception e);
   public abstract Result<T> failIfEmpty(String message);
   public abstract void forEach(Effect<T> ef);
-
+  public abstract void forEachOrThrow(Effect<T> c);
 
   public T getOrElse(final T defaultValue) {
     return getOrElseViaFoldLeft(defaultValue);
@@ -98,6 +98,11 @@ public abstract class Result<T> implements Serializable {
 
     @Override
     public void forEach(Effect<T> ef) {
+      // Do nothing
+    }
+
+    @Override
+    public void forEachOrThrow(Effect<T> c) {
       // Do nothing
     }
 
@@ -189,6 +194,11 @@ public abstract class Result<T> implements Serializable {
       return failure(message);
     }
 
+    @Override
+    public void forEachOrThrow(Effect<T> c) {
+      throw this.exception;
+    }
+
     /**
      * Failures are equals only if they are the same object.
      */
@@ -260,6 +270,11 @@ public abstract class Result<T> implements Serializable {
     @Override
     public void forEach(Effect<T> ef) {
       ef.apply(value);
+    }
+
+    @Override
+    public void forEachOrThrow(Effect<T> e) {
+      e.apply(this.value);
     }
 
     @Override
