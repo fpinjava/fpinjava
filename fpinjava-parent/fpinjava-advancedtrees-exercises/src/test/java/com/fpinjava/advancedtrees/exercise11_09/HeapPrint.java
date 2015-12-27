@@ -37,7 +37,7 @@ public class HeapPrint {
         .insert(1);
     System.out.println(toString(heap3));
 
-    List.list(1, 2, 2, 2, 6, 7, 5, 0, 5, 1).zipWithPosition().forEachOrThrow(points -> {
+    List.list(1, 2, 2, 2, 6, 7, 5, 0, 5, 1).zipWithPositionResult().forEachOrThrow(points -> {
       Heap<Point> heap = points.foldLeft(Heap.empty(), h -> t -> h.insert(new Point(t._1, t._2)));
       List<Point> lp = List.unfold(heap, hp -> hp.head().flatMap(h -> hp.tail().map(t -> new Tuple<>(h, t))));
       System.out.println(points);

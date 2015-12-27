@@ -185,7 +185,7 @@ public class HeapTest {
   @Test
   public void testInsertRandomPoint() {
     int limit = 20_000;
-    SimpleRNG.doubles(limit, new SimpleRNG.Simple(3))._1.map(x -> (int) (x * limit * 3)).zipWithPosition().forEachOrThrow(points -> {
+    SimpleRNG.doubles(limit, new SimpleRNG.Simple(3))._1.map(x -> (int) (x * limit * 3)).zipWithPositionResult().forEachOrThrow(points -> {
       Heap<Point> heap = points.foldLeft(Heap.empty(), h -> t -> h.insert(new Point(t._1, t._2)));
       assertEquals(limit, heap.length());
       assertTrue(isBalanced(heap));
