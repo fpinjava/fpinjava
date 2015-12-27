@@ -1,4 +1,4 @@
-package com.fpinjava.application.assertions;
+package com.fpinjava.application.listing15_01;
 
 import com.fpinjava.common.Function;
 import com.fpinjava.common.Result;

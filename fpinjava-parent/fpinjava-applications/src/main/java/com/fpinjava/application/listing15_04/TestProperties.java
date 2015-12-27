@@ -1,4 +1,4 @@
-package com.fpinjava.application.properties;
+package com.fpinjava.application.listing15_04;
 
 
 import com.fpinjava.common.List;
@@ -7,16 +7,20 @@ import com.fpinjava.common.Result;
 public class TestProperties {
 
   public static void main(String... args) {
-    PropertyReader propertyReader = PropertyReader.filePropertyReader("com/fpinjava/properties/config.properties");
+    PropertyReader propertyReader = PropertyReader.filePropertyReader("config.properties");
+
     propertyReader.getAsString("host")
                   .forEachOrFail(System.out::println)
                   .forEach(System.out::println);
+
     propertyReader.getAsString("name")
                   .forEachOrFail(System.out::println)
                   .forEach(System.out::println);
+
     propertyReader.getAsString("year")
                   .forEachOrFail(System.out::println)
                   .forEach(System.out::println);
+
     Result<Person> person1 =
         propertyReader.getAsInteger("id")
               .flatMap(id -> propertyReader.getAsString("firstName")

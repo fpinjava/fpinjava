@@ -1,11 +1,11 @@
-package com.fpinjava.application.properties;
+package com.fpinjava.application.listing15_04;
 
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
 
-public class Test {
+public class TestPropertyString {
 
   public static void main(String... args) throws IOException {
     Properties properties = new Properties();

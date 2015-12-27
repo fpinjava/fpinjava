@@ -1,4 +1,4 @@
-package com.fpinjava.application.properties;
+package com.fpinjava.application.listing15_03;
 
 
 import com.fpinjava.common.Function;
@@ -23,11 +23,11 @@ public class PropertyReader {
   }
 
   public Result<String> getAsString(String name) {
-    return properties.flatMap(props ->getProperty(props, name));
+    return properties.flatMap(props -> getProperty(props, name));
   }
 
   public Result<Integer> getAsInteger(String name) {
-    Result<String> rString = properties.flatMap(props ->getProperty(props, name));
+    Result<String> rString = properties.flatMap(props -> getProperty(props, name));
     return rString.flatMap(x -> {
       try {
         return Result.success(Integer.parseInt(x));
@@ -38,7 +38,7 @@ public class PropertyReader {
   }
 
   public <T> Result<List<T>> getAsList(String name, Function<String, T> f) {
-    Result<String> rString = properties.flatMap(props ->getProperty(props, name));
+    Result<String> rString = properties.flatMap(props -> getProperty(props, name));
     return rString.flatMap(s -> {
       try {
         return Result.success(List.fromSeparatedString(s, ',').map(f));

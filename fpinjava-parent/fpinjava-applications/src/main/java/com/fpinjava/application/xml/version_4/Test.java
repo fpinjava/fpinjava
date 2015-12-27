@@ -9,10 +9,10 @@ public class Test {
 
   private final static String format = "First Name : %s\n" +
       "\tLast Name : %s\n" +
-      "\tNick Name : %s\n" +
+      "\tEmail : %s\n" +
       "\tSalary : %s";
 
-  private final static List<String> elementNames = List.list("firstname", "lastname", "nickname", "salary");
+  private final static List<String> elementNames = List.list("firstname", "lastname", "email", "salary");
 
   public static void main(String... args) {
     Executable program = ReadXmlFile.readXmlFile(Test::getXmlFilePath, Test::getRootElementName, Test::processElement, Test::processList);
@@ -24,7 +24,7 @@ public class Test {
   }
 
   private static FilePath getXmlFilePath() {
-    return FilePath.apply("/media/SANSTITRE/fpinjava/fpinjava-parent/fpinjava-common/src/main/java/com/fpinjava/xml/file.xml");
+    return FilePath.apply("file.xml"); // <- adjust path
   }
 
   private static ElementName getRootElementName() {

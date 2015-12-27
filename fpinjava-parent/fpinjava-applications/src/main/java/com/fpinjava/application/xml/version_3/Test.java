@@ -10,8 +10,8 @@ public class Test {
 
   private final static Tuple<String, List<String>> format = new Tuple<>("First Name : %s\n" +
       "\tLast Name : %s\n" +
-      "\tNick Name : %s\n" +
-      "\tSalary : %s", List.list("firstname", "lastname", "nickname", "salary"));
+      "\tEmail : %s\n" +
+      "\tSalary : %s", List.list("firstname", "lastname", "email", "salary"));
 
   public static void main(String... args) {
     Executable program = ReadXmlFile.readXmlFile(Test::getXmlFilePath, Test::getRootElementName, format, Test::processList);
@@ -19,7 +19,7 @@ public class Test {
   }
 
   private static Result<String> getXmlFilePath() {
-    return Result.of("/media/SANSTITRE/fpinjava/fpinjava-parent/fpinjava-common/src/main/java/com/fpinjava/xml/file.xml");
+    return Result.of("file.xml"); // <- adjust path
   }
 
   private static Result<String> getRootElementName() {

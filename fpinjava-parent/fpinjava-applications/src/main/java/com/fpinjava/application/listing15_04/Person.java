@@ -1,4 +1,4 @@
-package com.fpinjava.application.properties;
+package com.fpinjava.application.listing15_04;
 
 
 import com.fpinjava.common.List;

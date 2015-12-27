@@ -1,4 +1,4 @@
-package com.fpinjava.application.xml.version_2;
+package com.fpinjava.application.listing15_07;
 
 import com.fpinjava.common.List;
 import com.fpinjava.common.Result;
@@ -12,35 +12,26 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import com.fpinjava.common.*;
+
 public class ReadXmlFile {
 
-  private final static String format = "First Name : %s\n" +
-      "\tLast Name : %s\n" +
-      "\tEmail : %s\n" +
-      "\tSalary : %s";
-
-  public static void main(String[] args) {
-    final Result<String> path = getXmlFilePath();
+  public static Executable readXmlFile(Supplier<Result<String>> sPath,
+                                       Supplier<Result<String>> sRootName,
+                                       Tuple<String, List<String>> format,
+                                       Effect<List<String>> e) {
+    final Result<String> path = sPath.get();
     final Result<String> rDoc = path.flatMap(ReadXmlFile::readFile2String);
-    final Result<String> rRoot = getRootElementName();
+    final Result<String> rRoot =sRootName.get();
     final Result<List<String>> result = rDoc.flatMap(doc -> rRoot
         .flatMap(rootElementName -> readDocument(rootElementName, doc))
         .map(list -> toStringList(list, format)));
-    result.forEachOrException(ReadXmlFile::processList)
-          .forEach(Throwable::printStackTrace);
-  }
-
-  private static Result<String> getXmlFilePath() {
-    return Result.of("file.xml"); // <- adjust path
-  }
-
-  private static Result<String> getRootElementName() {
-    return Result.of("staff"); // Simulating a computation that may fail.
+    return () -> result.forEachOrThrow(e);
   }
 
   public static Result<String> readFile2String(String path) {
     try {
-      return Result.success(new String(Files.readAllBytes(Paths.get(path)))); // <- throws SecurityException
+      return Result.success(new String(Files.readAllBytes(Paths.get(path))));
     } catch (IOException e) {
       return Result.failure(String.format("IO error while reading file %s", path), e);
     } catch (Exception e) {
@@ -48,7 +39,8 @@ public class ReadXmlFile {
     }
   }
 
-  private static Result<List<Element>> readDocument(String rootElementName, String stringDoc) {
+  private static Result<List<Element>> readDocument(String rootElementName,
+                                                    String stringDoc) {
     final SAXBuilder builder = new SAXBuilder();
     try {
       final Document document = builder.build(new StringReader(stringDoc));
@@ -61,18 +53,13 @@ public class ReadXmlFile {
     }
   }
 
-  private static List<String> toStringList(List<Element> list, String format) {
+  private static List<String> toStringList(List<Element> list, Tuple<String, List<String>> format) {
     return list.map(e -> processElement(e, format));
   }
 
-  private static String processElement(Element element, String format) {
-    return String.format(format, element.getChildText("firstname"),
-        element.getChildText("lastname"),
-        element.getChildText("email"),
-        element.getChildText("salary"));
-  }
-
-  private static <T> void processList(List<T> list) {
-    list.forEach(System.out::println);
+  private static String processElement(Element element, Tuple<String, List<String>> format) {
+    String formatString = format._1;
+    List<String> parameters = format._2.map(element::getChildText);
+    return String.format(formatString, parameters.toJavaList().toArray());
   }
 }
