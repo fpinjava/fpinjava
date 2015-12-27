@@ -28,7 +28,5 @@ include 'fpinjava-common',
         'fpinjava-state-solutions',
         'fpinjava-io-exercises',
         'fpinjava-io-solutions',
-        'fpinjava-actors-exercises',
-        'fpinjava-actors-solutions',
-        'fpinjava-applications-exercises',
-        'fpinjava-applications-solutions'
+        'fpinjava-actors',
+        'fpinjava-applications'

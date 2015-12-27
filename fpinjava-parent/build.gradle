@@ -225,7 +225,7 @@ project(':fpinjava-io-solutions') {
   }
 }
 
-project(':fpinjava-actors-exercises') {
+project(':fpinjava-actors') {
 
   dependencies {
     compile project(':fpinjava-common')
@@ -233,23 +233,7 @@ project(':fpinjava-actors-exercises') {
   }
 }
 
-project(':fpinjava-actors-solutions') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-applications-exercises') {
-
-  dependencies {
-    compile project(':fpinjava-common')
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-  }
-}
-
-project(':fpinjava-applications-solutions') {
+project(':fpinjava-applications') {
 
   dependencies {
     compile project(':fpinjava-common')

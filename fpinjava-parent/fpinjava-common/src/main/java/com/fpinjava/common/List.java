@@ -15,6 +15,7 @@ public abstract class List<A> {
 
   protected abstract A head();
   protected abstract List<A> tail();
+  protected abstract List<A> take(int n);
   public abstract boolean isEmpty();
   public abstract List<A> setHead(A h);
   public abstract List<A> drop(int n);
@@ -30,10 +31,18 @@ public abstract class List<A> {
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract A reduce(Function<A, Function<A, A>> f);
   public abstract Result<A> headOption();
+  public abstract Result<List<A>> tailOption();
   public abstract String mkStr(String sep);
+  public abstract <B> Result<List<B>> sequence(Function<A, Result<B>> f);
+  public abstract List<A> takeAtMost(int n);
+  public abstract List<A> takeWhile(Function<A, Boolean> p);
 
-  public Result<List<Tuple<A, Integer>>> zipWithPosition() {
+  public Result<List<Tuple<A, Integer>>> zipWithPositionResult() {
     return zip(iterate(0, x -> x + 1, length()));
+  }
+
+  public List<Tuple<A, Integer>> zipWithPosition() {
+    return zipWithPositionResult().getOrElse(List.list());
   }
 
   public static <B> List<B> iterate(B seed, Function<B, B> f, int n) {
@@ -437,6 +446,11 @@ public abstract class List<A> {
     }
 
     @Override
+    public Result<List<A>> tailOption() {
+      return Result.empty();
+    }
+
+    @Override
     public String mkStr(String sep) {
       return "";
     }
@@ -444,6 +458,26 @@ public abstract class List<A> {
     @Override
     public boolean equals(Object o) {
       return o instanceof Nil;
+    }
+
+    @Override
+    public <B> Result<List<B>> sequence(Function<A, Result<B>> f) {
+      return Result.empty();
+    }
+
+    @Override
+    protected List<A> take(int n) {
+      throw new IllegalStateException("take called on an empty list");
+    }
+
+    @Override
+    public List<A> takeAtMost(int n) {
+      return this;
+    }
+
+    @Override
+    public List<A> takeWhile(Function<A, Boolean> p) {
+      return this;
     }
   }
 
@@ -586,6 +620,11 @@ public abstract class List<A> {
     }
 
     @Override
+    public Result<List<A>> tailOption() {
+      return Result.success(tail);
+    }
+
+    @Override
     public String mkStr(String sep) {
       return head.toString() + foldLeft("", s -> e -> s + sep + e.toString());
     }
@@ -598,6 +637,35 @@ public abstract class List<A> {
     private boolean isEquals(Cons<?> o) {
       Function<Result<A>, Function<Result<?>, Boolean>> equals = x -> y -> x.flatMap(a -> y.map(a::equals)).getOrElse(() -> false);
       return zipAll(o).foldRight(true, x -> y -> equals.apply(x._1).apply(x._2));
+    }
+
+    public <B> Result<List<B>> sequence(Function<A, Result<B>> f) {
+      return sequence(this, f);
+    }
+
+    @Override
+    protected List<A> take(int n) {
+      return this.isEmpty()
+          ? this
+          : n > 1
+              ? new Cons<>(head(), tail().take(n - 1))
+              : new Cons<>(head(), list());
+    }
+
+    @Override
+    public List<A> takeAtMost(int n) {
+      return n <= length
+          ? take(n)
+          : this;
+    }
+
+    @Override
+    public List<A> takeWhile(Function<A, Boolean> p) {
+      return isEmpty()
+          ? this
+          : p.apply(head())
+              ? new Cons<>(head(), tail().takeWhile(p))
+              : list();
     }
   }
 
@@ -641,6 +709,25 @@ public abstract class List<A> {
 
   public static <A> Result<List<A>> sequence(List<Result<A>> list) {
     return traverse(list, x -> x);
+  }
+
+  public static <U> Supplier<List<U>> lazySequence(final List<Supplier<U>> list) {
+    return () -> list.map(Supplier::get);
+  }
+
+  public static <T, U> Result<List<U>> sequence(List<T> list, Function<T, Result<U>> f) {
+    List<U> result = NIL;
+    List<T> workList = list.reverse();
+    while (!workList.isEmpty()) {
+      Result<U> ru = f.apply(workList.head());
+      if (ru.isSuccess()) {
+        result = new Cons<U>(ru.successValue(), result);
+      } else {
+        return Result.failure(ru.failureValue());
+      }
+      workList = workList.tail();
+    }
+    return Result.success(result);
   }
 
   public static <A, B, C> List<C> zipWith(List<A> list1, List<B> list2, Function<A, Function<B, C>> f) {
