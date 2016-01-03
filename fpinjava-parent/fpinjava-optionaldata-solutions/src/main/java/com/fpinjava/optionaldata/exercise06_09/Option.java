@@ -9,7 +9,7 @@ public abstract class Option<A> {
   @SuppressWarnings("rawtypes")
   private static Option none = new None();
 
-  public abstract A getOrThrow();
+  protected abstract A getOrThrow();
 
   public abstract A getOrElse(Supplier<A> defaultValue);
 
@@ -34,7 +34,7 @@ public abstract class Option<A> {
     private None() {}
 
     @Override
-    public A getOrThrow() {
+    protected A getOrThrow() {
       throw new IllegalStateException("getOrThrow called on None");
     }
 
@@ -63,7 +63,7 @@ public abstract class Option<A> {
     }
 
     @Override
-    public A getOrThrow() {
+    protected A getOrThrow() {
       return this.value;
     }
 

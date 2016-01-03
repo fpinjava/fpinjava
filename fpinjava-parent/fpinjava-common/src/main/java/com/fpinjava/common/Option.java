@@ -6,7 +6,7 @@ public abstract class Option<A> {
 
   public abstract <B> Option<B> map(Function<A, B> f);
 
-  public abstract A getOrThrow();
+  protected abstract A getOrThrow();
 
   public abstract A getOrElse(Supplier<A> defaultValue);
 
@@ -51,7 +51,7 @@ public abstract class Option<A> {
     }
 
     @Override
-    public A getOrThrow() {
+    protected A getOrThrow() {
       throw new IllegalStateException("None has no value");
     }
 
@@ -100,7 +100,7 @@ public abstract class Option<A> {
     }
 
     @Override
-    public A getOrThrow() {
+    protected A getOrThrow() {
       return this.value;
     }
 

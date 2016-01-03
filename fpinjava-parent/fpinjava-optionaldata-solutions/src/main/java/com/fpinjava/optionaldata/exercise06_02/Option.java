@@ -8,7 +8,7 @@ public abstract class Option<A> {
   @SuppressWarnings("rawtypes")
   private static Option none = new None();
 
-  public abstract A getOrThrow();
+  protected abstract A getOrThrow();
   public abstract A getOrElse(Supplier<A> defaultValue);
 
   private static class None<A> extends Option<A> {
