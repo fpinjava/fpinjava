@@ -36,6 +36,20 @@ public abstract class List<A> {
   public abstract <B> Result<List<B>> sequence(Function<A, Result<B>> f);
   public abstract List<A> takeAtMost(int n);
   public abstract List<A> takeWhile(Function<A, Boolean> p);
+  public abstract List<List<A>> subLists();
+  public abstract List<List<A>> interleave(A a);
+  public abstract List<List<A>> perms();
+  public abstract List<Tuple<List<A>, List<A>>> split();
+  public abstract Result<Tuple<A, List<A>>> headAndTail();
+  public abstract Stream<A> toStream();
+
+  public List<List<A>> choices() {
+    return subLists().flatMap(List::perms);
+  }
+
+  public boolean elem(A a) {
+    return exists(x -> x.equals(a));
+  }
 
   public Result<List<Tuple<A, Integer>>> zipWithPositionResult() {
     return zip(iterate(0, x -> x + 1, length()));
@@ -479,6 +493,36 @@ public abstract class List<A> {
     public List<A> takeWhile(Function<A, Boolean> p) {
       return this;
     }
+
+    @Override
+    public List<List<A>> subLists() {
+      return list(list());
+    }
+
+    @Override
+    public List<List<A>> interleave(A a) {
+      return list(list(a));
+    }
+
+    @Override
+    public List<List<A>> perms() {
+      return list(list());
+    }
+
+    @Override
+    public List<Tuple<List<A>, List<A>>> split() {
+      return list();
+    }
+
+    @Override
+    public Result<Tuple<A, List<A>>> headAndTail() {
+      return Result.failure("Empty list");
+    }
+
+    @Override
+    public Stream<A> toStream() {
+      return Stream.empty();
+    }
   }
 
   private static class Cons<A> extends List<A> {
@@ -667,6 +711,45 @@ public abstract class List<A> {
               ? new Cons<>(head(), tail().takeWhile(p))
               : list();
     }
+
+    @Override
+    public List<List<A>> subLists() {
+      List<List<A>> yss = tail.subLists();
+      return yss.concat(yss.map(subList -> subList.cons(head)));
+    }
+
+    @Override
+    public List<List<A>> interleave(A a) {
+      List<List<A>> yss = tail.interleave(a);
+      return yss.map(lst -> lst.cons(head)).cons(this.cons(a));
+    }
+
+    @Override
+    public List<List<A>> perms() {
+      return tail.perms().flatMap(lst -> lst.interleave(head));
+    }
+
+    @Override
+    public List<Tuple<List<A>, List<A>>> split() {
+      return tail.isEmpty()
+          ? list()
+          : split_(tail);
+    }
+
+    @Override
+    public Result<Tuple<A, List<A>>> headAndTail() {
+      return Result.success(new Tuple<>(head, tail));
+    }
+
+    @Override
+    public Stream<A> toStream() {
+      return Stream.cons(() -> head, tail::toStream);
+    }
+
+    private List<Tuple<List<A>, List<A>>> split_(List<A> list) {
+      List<Tuple<List<A>, List<A>>> yss = list.tail().split();
+      return yss.map(t -> new Tuple<>(t._1.cons(head), t._2)).cons(new Tuple<>(list(head), tail));
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -716,12 +799,12 @@ public abstract class List<A> {
   }
 
   public static <T, U> Result<List<U>> sequence(List<T> list, Function<T, Result<U>> f) {
-    List<U> result = NIL;
+    List<U> result = list();
     List<T> workList = list.reverse();
     while (!workList.isEmpty()) {
       Result<U> ru = f.apply(workList.head());
       if (ru.isSuccess()) {
-        result = new Cons<U>(ru.successValue(), result);
+        result = new Cons<>(ru.successValue(), result);
       } else {
         return Result.failure(ru.failureValue());
       }
@@ -849,4 +932,19 @@ public abstract class List<A> {
     return s;
   }
 
+  public static List<String> words(String s) {
+    byte[] bytes = s.getBytes();
+    StringBuffer sb = new StringBuffer();
+    java.util.List<String> result = new ArrayList<>();
+    for (byte aByte : bytes) {
+      if (aByte == 32 && sb.length() != 0) {
+        result.add(sb.toString());
+        sb = new StringBuffer();
+      } else {
+        sb.append((char) aByte);
+      }
+    }
+    result.add(sb.toString());
+    return fromCollection(result);
+  }
 }

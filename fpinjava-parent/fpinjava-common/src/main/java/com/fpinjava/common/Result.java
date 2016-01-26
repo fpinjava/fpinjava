@@ -1,5 +1,7 @@
 package com.fpinjava.common;
 
+import com.fpinjava.io.IO;
+
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
@@ -32,6 +34,7 @@ public abstract class Result<T> implements Serializable {
   public abstract Result<Nothing> mapEmpty();
   public abstract <U> Result<U> flatMap(Function<T, Result<U>> f);
   public abstract Boolean exists(Function<T, Boolean> f);
+  public abstract IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure);
 
   public Result<T> orElse(Supplier<Result<T>> defaultValue) {
     return map(x -> this).getOrElse(defaultValue);
@@ -183,6 +186,11 @@ public abstract class Result<T> implements Serializable {
     public T getOrElse(Supplier<T> defaultValue) {
       return defaultValue.get();
     }
+
+    @Override
+    public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
+      return failure.apply(exception.getMessage());
+    }
   }
 
   private static class Empty<T> extends Result<T> {
@@ -309,6 +317,11 @@ public abstract class Result<T> implements Serializable {
     @Override
     public <V> V foldRight(V identity, Function<T, Function<V, V>> f) {
       return identity;
+    }
+
+    @Override
+    public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
+      return failure.apply("Empty Result");
     }
   }
 
@@ -455,6 +468,11 @@ public abstract class Result<T> implements Serializable {
     @Override
     public <V> V foldRight(V identity, Function<T, Function<V, V>> f) {
       return f.apply(successValue()).apply(identity);
+    }
+
+    @Override
+    public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
+      return success.apply(this.value);
     }
   }
 

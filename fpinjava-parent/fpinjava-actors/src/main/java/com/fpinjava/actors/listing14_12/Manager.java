@@ -33,7 +33,7 @@ public class Manager extends AbstractActor<Tuple<Integer, Integer>> {
     managerFunction = manager -> behavior -> t -> {
       Tuple3<Heap<Tuple<Integer, Integer>>, Integer, List<Integer>> result =
           streamResult(behavior.resultHeap.insert(t),
-              behavior.expected, List.list()); // <1>
+              behavior.expected, List.list());
       result._3.reverse().forEach(this.client::tell);
       if (result._2 > limit) {
         this.client.tell(-1);
