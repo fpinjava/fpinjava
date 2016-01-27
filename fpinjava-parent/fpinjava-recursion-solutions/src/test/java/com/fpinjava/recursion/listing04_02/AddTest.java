@@ -11,7 +11,7 @@ public class AddTest {
   @Test
   public void test() {
     TailCall<Integer> tailCall = Add.add(3, 100000000);
-    while(tailCall .isSuspend()) {
+    while(tailCall.isSuspend()) {
       tailCall = tailCall.resume();
     }
     assertEquals(Integer.valueOf(100000003), tailCall.eval());

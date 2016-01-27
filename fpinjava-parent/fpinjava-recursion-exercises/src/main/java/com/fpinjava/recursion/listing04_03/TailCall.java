@@ -10,7 +10,7 @@ public abstract class TailCall<T> {
 
   public abstract boolean isSuspend();
 
-  public static class Return<T> extends TailCall<T> {
+  private static class Return<T> extends TailCall<T> {
 
     private final T t;
 
@@ -34,7 +34,7 @@ public abstract class TailCall<T> {
     }
   }
 
-  public static class Suspend<T> extends TailCall<T> {
+  private static class Suspend<T> extends TailCall<T> {
 
     private final Supplier<TailCall<T>> resume;
 
