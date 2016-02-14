@@ -31,8 +31,8 @@ public abstract class Tree<A extends Comparable<A>> {
     }
 
     @Override
-    public Tree<A> insert(A value) {
-      return new T<>(empty(), value, empty());
+    public Tree<A> insert(A insertedValue) {
+      return new T<>(empty(), insertedValue, empty());
     }
 
     @Override
@@ -69,12 +69,12 @@ public abstract class Tree<A extends Comparable<A>> {
     }
 
     @Override
-    public Tree<A> insert(A value) {
-      return value.compareTo(this.value) < 0
-          ? new T<>(left.insert(value), this.value, right)
-          : value.compareTo(this.value) > 0
-              ? new T<>(left, this.value, right.insert(value))
-              : new T<>(this.left, value, this.right);
+    public Tree<A> insert(A insertedValue) {
+      return insertedValue.compareTo(this.value) < 0
+          ? new T<>(left.insert(insertedValue), this.value, right)
+          : insertedValue.compareTo(this.value) > 0
+              ? new T<>(left, this.value, right.insert(insertedValue))
+              : new T<>(this.left, insertedValue, this.right);
     }
 
     @Override

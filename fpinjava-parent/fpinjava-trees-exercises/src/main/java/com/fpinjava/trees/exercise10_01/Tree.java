@@ -31,7 +31,7 @@ public abstract class Tree<A extends Comparable<A>> {
     }
 
     @Override
-    public Tree<A> insert(A value) {
+    public Tree<A> insert(A insertedValue) {
       throw new IllegalStateException("To be implemented");
     }
 
@@ -69,7 +69,7 @@ public abstract class Tree<A extends Comparable<A>> {
     }
 
     @Override
-    public Tree<A> insert(A value) {
+    public Tree<A> insert(A insertedValue) {
       throw new IllegalStateException("To be implemented");
     }
 
