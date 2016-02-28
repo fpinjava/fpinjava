@@ -12,7 +12,7 @@ public class SumProductLength {
     return list.foldLeft(1.0,  x -> y -> x * y);
   }
 
-  public static <A> Integer lengthVaFoldLeft(List<A> list) {
+  public static <A> Integer lengthViaFoldLeft(List<A> list) {
     return list.foldLeft(0, x -> ignore -> x + 1);
   }
 }

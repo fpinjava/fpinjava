@@ -21,4 +21,12 @@ public class ListTest {
     assertEquals("(1 + (2 + (3 + (4 + (5 + 0)))))", list.foldRight(identity, f));
   }
 
+  @Test
+  public void testFoldRightEmpty() {
+    List<Integer> list = list();
+    String identity = "0";
+    Function<Integer, Function<String, String>> f = x -> y -> addIS(x, y);
+    assertEquals("0", list.foldRight(identity, f));
+  }
+
 }

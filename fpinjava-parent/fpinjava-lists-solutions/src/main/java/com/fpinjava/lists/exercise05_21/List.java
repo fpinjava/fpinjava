@@ -3,6 +3,8 @@ package com.fpinjava.lists.exercise05_21;
 import com.fpinjava.common.Function;
 import com.fpinjava.common.TailCall;
 
+import java.util.Arrays;
+
 import static com.fpinjava.common.TailCall.*;
 
 
@@ -18,11 +20,14 @@ public abstract class List<A> {
   public abstract List<A> init();
   public abstract int length();
   public abstract <B> B foldLeft(B identity, Function<B, Function<A, B>> f);
-  public abstract <B> B foldRight(B identity, Function<A, Function<B, B>> f);
   public abstract <B> List<B> map(Function<A, B> f);
   public abstract List<A> filter(Function<A, Boolean> f);
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract List<A> concat(List<A> list2);
+
+  public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
+    return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
+  }
 
   public List<A> cons(A a) {
     return new Cons<>(a, this);
@@ -85,11 +90,6 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldLeft(B identity, Function<B, Function<A, B>> f) {
-      return identity;
-    }
-
-    @Override
-    public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
       return identity;
     }
 
@@ -208,11 +208,6 @@ public abstract class List<A> {
     }
 
     @Override
-    public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
-    }
-
-    @Override
     public <B> List<B> map(Function<A, B> f) {
       return foldRight(list(), h -> t -> new Cons<>(f.apply(h),t));
     }
@@ -262,4 +257,34 @@ public abstract class List<A> {
   public static <A> List<A> flatten(List<List<A>> list) {
     return foldRight(list, List.<A>list(), x -> y -> concat(x, y));
   }
+
+  @SafeVarargs
+  public static <A> List<A> list_(A... as) {
+    return list_(list(), as).eval();
+  }
+
+  public static <A> TailCall<List<A>> list_(List<A> acc, A[] as) {
+    return as.length == 0
+        ? ret(acc)
+        : sus(() -> list_(new Cons<>(as[0], acc),
+            Arrays.copyOfRange(as, 1, as.length)));
+  }
+
+  @SafeVarargs
+  public static <A> List<A> list2(A... as) {
+    return list2(list(), as).eval();
+  }
+
+  public static <A> TailCall<List<A>> list2(List<A> acc, A[] as) {
+    return as.length == 0
+        ? ret(acc)
+        : sus(() -> list2(new Cons<>(as[as.length -1], acc),
+            Arrays.copyOfRange(as, 0, as.length - 1)));
+  }
+
+    public static void main(String[] args) {
+      System.out.println(list2(1, 2, 3, 4));
+    }
+
+
 }

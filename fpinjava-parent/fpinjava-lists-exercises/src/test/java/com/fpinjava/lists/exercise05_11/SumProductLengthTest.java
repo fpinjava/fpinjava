@@ -23,8 +23,8 @@ public class SumProductLengthTest {
 
   @Test
   public void testLengthVaFoldLeft() {
-    assertEquals(Integer.valueOf(0), lengthVaFoldLeft(list()));
-    assertEquals(Integer.valueOf(4), lengthVaFoldLeft(list(1.0, 2.0, 3.0, 4.0)));
+    assertEquals(Integer.valueOf(0), lengthViaFoldLeft(list()));
+    assertEquals(Integer.valueOf(4), lengthViaFoldLeft(list(1.0, 2.0, 3.0, 4.0)));
   }
 
 }

@@ -12,7 +12,7 @@ public class SumProductLength {
     throw new RuntimeException("To be implemented");
   }
 
-  public static <A> Integer lengthVaFoldLeft(List<A> list) {
+  public static <A> Integer lengthViaFoldLeft(List<A> list) {
     throw new RuntimeException("To be implemented");
   }
 }

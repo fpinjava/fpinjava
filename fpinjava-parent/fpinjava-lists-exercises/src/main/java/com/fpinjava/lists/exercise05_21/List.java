@@ -18,10 +18,13 @@ public abstract class List<A> {
   public abstract List<A> init();
   public abstract int length();
   public abstract <B> B foldLeft(B identity, Function<B, Function<A, B>> f);
-  public abstract <B> B foldRight(B identity, Function<A, Function<B, B>> f);
   public abstract <B> List<B> map(Function<A, B> f);
   public abstract List<A> filter(Function<A, Boolean> f);
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
+
+  public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
+    return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
+  }
 
   public List<A> cons(A a) {
     return new Cons<>(a, this);
@@ -84,11 +87,6 @@ public abstract class List<A> {
 
     @Override
     public <B> B foldLeft(B identity, Function<B, Function<A, B>> f) {
-      return identity;
-    }
-
-    @Override
-    public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
       return identity;
     }
 
@@ -199,11 +197,6 @@ public abstract class List<A> {
       return list.isEmpty()
           ? ret(acc)
           : sus(() -> foldLeft_(f.apply(acc).apply(list.head()), list.tail(), f));
-    }
-
-    @Override
-    public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
-      return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
     }
 
     @Override
