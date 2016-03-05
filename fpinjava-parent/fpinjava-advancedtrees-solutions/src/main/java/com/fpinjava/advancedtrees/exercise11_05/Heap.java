@@ -20,8 +20,6 @@ public abstract class Heap<A extends Comparable<A>> {
 
   public abstract Result<A> head();
 
-  public abstract Result<Heap<A>> tail();
-
   public abstract int length();
 
   public abstract boolean isEmpty();
@@ -47,11 +45,6 @@ public abstract class Heap<A extends Comparable<A>> {
     @Override
     public Result<A> head() {
       return Result.failure(new NoSuchElementException("head() called on empty heap"));
-    }
-
-    @Override
-    public Result<Heap<A>> tail() {
-      throw new IllegalStateException("To be implemented");
     }
 
     @Override
@@ -107,11 +100,6 @@ public abstract class Heap<A extends Comparable<A>> {
     }
 
     @Override
-    public Result<Heap<A>> tail() {
-      throw new IllegalStateException("To be implemented");
-    }
-
-    @Override
     public int length() {
       return this.length;
     }
@@ -141,7 +129,7 @@ public abstract class Heap<A extends Comparable<A>> {
     return new H<>(1, 1, empty(), element, empty());
   }
 
-  public static <A extends Comparable<A>> Heap<A> heap(A head, Heap<A> first, Heap<A> second) {
+  protected static <A extends Comparable<A>> Heap<A> heap(A head, Heap<A> first, Heap<A> second) {
     return first.rank() >= second.rank()
         ? new H<>(first.length() + second.length() + 1, second.rank() + 1, first, head, second)
         : new H<>(first.length() + second.length() + 1, first.rank() + 1, second, head, first);

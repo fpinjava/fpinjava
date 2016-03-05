@@ -11,17 +11,13 @@ public abstract class Tree<A extends Comparable<A>> {
   private static Tree E = new E();
   private static Color R = new Red();
   private static Color B = new Black();
-
   protected abstract boolean isE();
-
   protected abstract boolean isT();
   protected abstract boolean isB();
   protected abstract boolean isR();
   protected abstract boolean isTB();
   protected abstract boolean isTR();
-
   public abstract boolean isEmpty();
-
   protected abstract Tree<A> right();
   protected abstract Tree<A> left();
   protected abstract A value();
@@ -47,12 +43,12 @@ public abstract class Tree<A extends Comparable<A>> {
 
     @Override
     public Tree<A> right() {
-      return empty();
+      return E;
     }
 
     @Override
     public Tree<A> left() {
-      return empty();
+      return E;
     }
 
     @Override
@@ -61,7 +57,7 @@ public abstract class Tree<A extends Comparable<A>> {
     }
 
     @Override
-    public boolean isR() {
+    protected boolean isR() {
       return false;
     }
 
@@ -97,6 +93,7 @@ public abstract class Tree<A extends Comparable<A>> {
   }
 
   private static class T<A extends Comparable<A>> extends Tree<A> {
+
     private final Tree<A> left;
     private final Tree<A> right;
     private final A value;
@@ -183,6 +180,7 @@ public abstract class Tree<A extends Comparable<A>> {
   }
 
   private static class Red extends Color {
+
     @Override
     boolean isR() {
       return true;
@@ -200,6 +198,7 @@ public abstract class Tree<A extends Comparable<A>> {
   }
 
   private static class Black extends Color {
+
     @Override
     boolean isR() {
       return false;
@@ -216,7 +215,6 @@ public abstract class Tree<A extends Comparable<A>> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public static <A extends Comparable<A>> Tree<A> empty() {
     return E;
   }

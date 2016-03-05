@@ -1,11 +1,7 @@
-package com.fpinjava.advancedtrees.listing11_04;
+package com.fpinjava.advancedtrees.listing11_03;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 

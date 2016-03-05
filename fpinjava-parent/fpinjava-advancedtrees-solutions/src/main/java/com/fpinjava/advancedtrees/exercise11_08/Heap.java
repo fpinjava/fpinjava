@@ -210,7 +210,7 @@ public abstract class Heap<A> {
     return new H<>(1, 1, element, empty, empty, Result.success(comparator));
   }
 
-  public static <A> Heap<A> heap(A head, Heap<A> first, Heap<A> second) {
+  protected static <A> Heap<A> heap(A head, Heap<A> first, Heap<A> second) {
     Result<Comparator<A>> comparator = first.comparator().orElse(second::comparator);
     return first.rank() >= second.rank()
         ? new H<>(first.length() + second.length() + 1, second.rank() + 1, head, first, second, comparator)

@@ -1,4 +1,4 @@
-package com.fpinjava.advancedtrees.listing11_04;
+package com.fpinjava.advancedtrees.listing11_03;
 
 
 
@@ -16,7 +16,6 @@ public abstract class Heap<A extends Comparable<A>> {
   protected abstract int rank();
 
   public abstract Result<A> head();
-  public abstract Result<Heap<A>> tail();
   public abstract int length();
   public abstract boolean isEmpty();
 
@@ -32,11 +31,6 @@ public abstract class Heap<A extends Comparable<A>> {
     @Override
     public Result<A> head() {
       return Result.failure(new NoSuchElementException("head() called on empty heap"));
-    }
-
-    @Override
-    public Result<Heap<A>> tail() {
-      throw new IllegalStateException("To be implemented");
     }
 
     @Override
@@ -84,11 +78,6 @@ public abstract class Heap<A extends Comparable<A>> {
     @Override
     public Result<A> head() {
       return Result.success(this.head);
-    }
-
-    @Override
-    public Result<Heap<A>> tail() {
-      throw new IllegalStateException("To be implemented");
     }
 
     @Override
