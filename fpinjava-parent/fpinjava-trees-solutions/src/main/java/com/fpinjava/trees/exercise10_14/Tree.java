@@ -401,7 +401,7 @@ public abstract class Tree<A extends Comparable<A>> {
     return balance_(tree.toListInOrderRight().foldLeft(Tree.<A>empty(), t -> a -> new T<>(empty(), a, t)));
   }
 
-  public static <A extends Comparable<A>> Tree<A> balance_(Tree<A> tree) {
+  private static <A extends Comparable<A>> Tree<A> balance_(Tree<A> tree) {
     return !tree.isEmpty() && tree.height() > log2nlz(tree.size())
         ? Math.abs(tree.left().height() - tree.right().height()) > 1
             ? balance_(balanceFirstLevel(tree))

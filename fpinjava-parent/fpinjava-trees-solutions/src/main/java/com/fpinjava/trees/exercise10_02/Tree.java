@@ -88,7 +88,7 @@ public abstract class Tree<A extends Comparable<A>> {
     public boolean member(A value) {
       return value.compareTo(this.value) < 0
           ? left.member(value)
-          : value.compareTo(this.value) <= 0 || right.member(value);
+          : value.compareTo(this.value) == 0 || right.member(value);
     }
 
     @Override
