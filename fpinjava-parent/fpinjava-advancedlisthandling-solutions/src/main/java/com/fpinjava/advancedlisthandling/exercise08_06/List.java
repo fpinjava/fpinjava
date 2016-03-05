@@ -274,4 +274,8 @@ public abstract class List<A> {
   public static <A> Result<List<A>> sequence(List<Result<A>> list) {
     return list.foldRight(Result.success(List.list()), x -> y -> Result.map2(x, y, a -> b -> b.cons(a)));
   }
+
+  public static <A> Result<List<A>> sequence2(List<Result<A>> list) {
+    return list.filter(a -> a.isSuccess() || a.isFailure()).foldRight(Result.success(List.list()), x -> y -> Result.map2(x, y, a -> b -> b.cons(a)));
+  }
 }

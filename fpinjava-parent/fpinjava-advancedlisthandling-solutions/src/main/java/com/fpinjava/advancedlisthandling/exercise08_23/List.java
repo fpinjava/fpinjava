@@ -186,7 +186,7 @@ public abstract class List<A> {
     return new Tuple<>(rt._1._1.reverse(), rt._2);
   }
 
-  public <B> Map<B, List<A>> groupBy_(Function<A, B> f) {
+  public <B> Map<B, List<A>> groupByImperative(Function<A, B> f) {
     List<A> workList = this;
     Map<B, List<A>> m = Map.empty();
     while (!workList.isEmpty()) {

@@ -36,10 +36,7 @@ public abstract class List<A> {
   }
 
   public <A1, A2> Tuple<List<A1>, List<A2>> unzip(Function<A, Tuple<A1, A2>> f) {
-    return this.foldRight(new Tuple<>(list(), list()), a -> tl -> {
-      Tuple<A1, A2> t = f.apply(a);
-      return new Tuple<>(tl._1.cons(t._1), tl._2.cons(t._2));
-    });
+    throw new IllegalStateException("To be implemented");
   }
 
   @SuppressWarnings("rawtypes")
@@ -304,6 +301,6 @@ public abstract class List<A> {
   }
 
   public static <A1, A2> Tuple<List<A1>, List<A2>> unzip(List<Tuple<A1, A2>> list) {
-    throw new IllegalStateException("To be implemented");
+    return list.foldRight(new Tuple<>(list(), list()), t -> tl -> new Tuple<>(tl._1.cons(t._1), tl._2.cons(t._2)));
   }
 }

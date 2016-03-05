@@ -26,10 +26,17 @@ public abstract class List<A> {
   public abstract List<A> filter(Function<A, Boolean> f);
   public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract Result<A> headOption();
-  public abstract Result<A> lastOption_();
 
   public Result<A> lastOption() {
     return foldLeft(Result.empty(), x -> Result::success);
+  }
+
+  public Result<A> lastOption_() {
+    return isEmpty()
+        ? Result.empty()
+        : tail().isEmpty()
+            ? Result.success(head())
+            : tail().lastOption();
   }
 
   public List<A> cons(A a) {
@@ -123,11 +130,6 @@ public abstract class List<A> {
 
     @Override
     public Result<A> headOption() {
-      return Result.empty();
-    }
-
-    @Override
-    public Result<A> lastOption_() {
       return Result.empty();
     }
   }
@@ -255,13 +257,6 @@ public abstract class List<A> {
     @Override
     public Result<A> headOption() {
       return Result.success(head);
-    }
-
-    @Override
-    public Result<A> lastOption_() {
-      return tail.isEmpty()
-          ? Result.success(head)
-          : tail.lastOption();
     }
   }
 

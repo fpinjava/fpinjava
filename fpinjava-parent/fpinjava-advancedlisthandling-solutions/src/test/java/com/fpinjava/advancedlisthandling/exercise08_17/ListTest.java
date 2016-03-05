@@ -21,7 +21,7 @@ public class ListTest {
   );
   @Test
   public void testGroupBy_() throws Exception {
-    Map<String, List<Payment>> map = list.groupBy_(x -> x.name);
+    Map<String, List<Payment>> map = list.groupByImperative(x -> x.name);
     assertEquals(Integer.valueOf(361), map.get("Mickey").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
     assertEquals(Integer.valueOf(601), map.get("Minnie").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
     assertEquals(Integer.valueOf(175), map.get("Donald").map(list -> list.foldLeft(0, a -> b -> a + b.amount)).getOrElse(0));
