@@ -18,7 +18,7 @@ public class Random<A> extends State<RNG, A> {
   public static State<RNG, Integer> notMultipleOfFiveRnd = intRnd.flatMap(x -> {
     int mod = x % 5;
     return mod != 0
-        ? unit(mod)
+        ? unit(x)
         : Random.notMultipleOfFiveRnd;
   });
 

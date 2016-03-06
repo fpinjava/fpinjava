@@ -38,5 +38,5 @@ public interface Random<A> extends Function<RNG, Tuple<A, RNG>> {
 
   Random<Tuple<Integer, Integer>> intPairRnd = map2(intRnd, intRnd, x -> y -> new Tuple<>(x, y));
 
-  Function<Integer, Random<List<Integer>>> integersRnd = length -> sequence(List.fill(length, () -> intRnd));
+  Function<Integer, Random<List<Integer>>> integersRnd = null; // to be implemented
 }
