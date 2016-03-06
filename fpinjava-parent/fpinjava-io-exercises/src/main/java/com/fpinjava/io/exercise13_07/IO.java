@@ -1,14 +1,24 @@
 package com.fpinjava.io.exercise13_07;
 
 
-public interface IO {
+import com.fpinjava.common.Function;
+import com.fpinjava.common.Nothing;
 
-  void run();
+public interface IO<A> {
 
-  default IO add(IO io) {
+  IO<Nothing> empty = () -> Nothing.instance;
+
+  A run();
+
+  default <B> IO<B> map(Function<A, B> f) {
+    return () -> f.apply(this.run());
+  }
+
+  default <B> IO<B> flatMap(Function<A, IO<B>> f) {
     throw new IllegalStateException("To be implemented");
   }
 
-  IO empty = () -> {};
-
+  static <A> IO<A> unit(A a) {
+    return () -> a;
+  }
 }

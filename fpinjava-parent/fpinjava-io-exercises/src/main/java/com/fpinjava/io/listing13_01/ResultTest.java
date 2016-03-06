@@ -3,7 +3,7 @@ package com.fpinjava.io.listing13_01;
 
 import com.fpinjava.common.Effect;
 import com.fpinjava.common.Function;
-import com.fpinjava.io.exercise13_01.Result;
+import com.fpinjava.common.Result;
 
 public class ResultTest {
 

@@ -2,8 +2,8 @@ package com.fpinjava.io.listing13_12;
 
 
 import com.fpinjava.common.Nothing;
-import com.fpinjava.io.exercise13_09.Console;
-import com.fpinjava.io.exercise13_09.IO;
+import com.fpinjava.io.exercise13_07.Console;
+import com.fpinjava.io.exercise13_07.IO;
 
 public class Main {
 

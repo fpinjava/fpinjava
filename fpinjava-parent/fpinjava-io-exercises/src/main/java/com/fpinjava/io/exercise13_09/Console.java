@@ -21,9 +21,13 @@ public class Console {
     };
   }
 
-  public static IO<Nothing> printLine(Object o) {
+  public static IO<String> readLine() {
+    return readLine(Nothing.instance);
+  }
+
+  public static IO<Nothing> printLine(Object s) {
     return () -> {
-      System.out.println(o.toString());
+      System.out.println(s);
       return Nothing.instance;
     };
   }
