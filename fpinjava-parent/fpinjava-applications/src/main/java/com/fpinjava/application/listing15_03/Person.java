@@ -30,7 +30,6 @@ public class Person {
 
   public static Result<Person> getAsPerson(String propertyName, PropertyReader propertyReader) {
     Result<String> rString = propertyReader.getAsPropertyString(propertyName);
-    rString.forEach(System.out::println);
     Result<PropertyReader> rPropReader = rString.map(PropertyReader::stringPropertyReader);
     return rPropReader.flatMap(Person::readPerson);
   }

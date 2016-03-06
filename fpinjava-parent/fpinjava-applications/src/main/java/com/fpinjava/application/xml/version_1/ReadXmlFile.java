@@ -20,7 +20,7 @@ public class ReadXmlFile {
   public static void main(String[] args) {
 
     SAXBuilder builder = new SAXBuilder();
-    File xmlFile = new File("/media/SANSTITRE/fpinjava/fpinjava-parent/fpinjava-common/src/main/java/com/fpinjava/xml2/version_0/empty.xml");
+    File xmlFile = new File("/path/to/file.xml"); // Fix the path
 
     try {
 

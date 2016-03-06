@@ -66,7 +66,7 @@ public final class Assertion {
     assertType(element, clazz, String.format("Wrong type: %s, expected: %s", element.getClass().getName(), clazz.getName()));
   }
 
-  public static <A> void assertType(A element, Class<?> clazz, String message) {
-    assertCondition(element, e -> e.getClass().equals(clazz), message);
+  public static <A> Result<A> assertType(A element, Class<?> clazz, String message) {
+    return assertCondition(element, e -> e.getClass().equals(clazz), message);
   }
 }
