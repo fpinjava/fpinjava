@@ -37,13 +37,15 @@ public class CollectionUtilitiesTest {
 
   @Test
   public void testListTArray() {
-    List<String> list = list("1", "2", "3", "4");
+    String[] array = {"1", "2", "3", "4"};
+    List<String> list = list(array);
     assertEquals(4, list.size());
     assertEquals("1", list.get(0));
     assertEquals("2", list.get(1));
     assertEquals("3", list.get(2));
     assertEquals("4", list.get(3));
-    
+    array[0] = "10";
+    assertEquals("1", list.get(0));
   }
 
 }

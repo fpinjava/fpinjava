@@ -1,9 +1,10 @@
 package com.fpinjava.makingjavafunctional.exercise03_11;
 
+import com.fpinjava.makingjavafunctional.exercise03_10.CollectionUtilities;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fpinjava.makingjavafunctional.exercise03_10.CollectionUtilities.*;
 
 public class Range {
 
@@ -11,7 +12,7 @@ public class Range {
     List<Integer> result = new ArrayList<>();
     int temp = start;
     while (temp < end) {
-      result = append(result, temp);
+      result = CollectionUtilities.append(result, temp);
       temp = temp + 1;
     }
     return result;

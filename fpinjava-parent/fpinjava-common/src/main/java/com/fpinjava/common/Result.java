@@ -506,7 +506,9 @@ public abstract class Result<T> implements Serializable {
   }
 
   public static <T> Result<T> of(final T value) {
-    return of(value, "Null value");
+    return value != null
+        ? success(value)
+        : empty();
   }
 
   public static <T> Result<T> of(final T value, final String message) {
