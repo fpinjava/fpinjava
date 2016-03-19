@@ -508,7 +508,7 @@ public abstract class Result<T> implements Serializable {
   public static <T> Result<T> of(final T value) {
     return value != null
         ? success(value)
-        : empty();
+        : Result.failure("Null value");
   }
 
   public static <T> Result<T> of(final T value, final String message) {
