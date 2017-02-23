@@ -691,9 +691,9 @@ public abstract class List<A> {
     protected List<A> take(int n) {
       return this.isEmpty()
           ? this
-          : n > 1
+          : n > 0
               ? new Cons<>(head(), tail().take(n - 1))
-              : new Cons<>(head(), list());
+              : list();
     }
 
     @Override
