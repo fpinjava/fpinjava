@@ -670,7 +670,7 @@ public abstract class List<A> {
 
     @Override
     public String mkStr(String sep) {
-      return head.toString() + foldLeft("", s -> e -> s + sep + e.toString());
+      return head.toString() + tail.foldLeft("", s -> e -> s + sep + e.toString());
     }
 
     @Override
