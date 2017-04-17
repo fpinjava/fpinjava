@@ -1,7 +1,5 @@
 package com.fpinjava.state.exercise12_05;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 import com.fpinjava.common.Tuple;
