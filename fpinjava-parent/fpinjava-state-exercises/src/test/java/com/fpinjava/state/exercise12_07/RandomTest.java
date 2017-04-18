@@ -1,6 +1,5 @@
 package com.fpinjava.state.exercise12_07;
 
-import com.fpinjava.common.Function;
 import com.fpinjava.common.List;
 import com.fpinjava.common.Tuple;
 import org.junit.Test;
@@ -28,6 +27,4 @@ public class RandomTest {
     Tuple<List<Integer>, RNG> result = makeListOfNonMultipleOfFive(300).apply(rng);
     assertTrue(result._1.forAll(RandomTest::notMultipleOfFive));
   }
-
-
 }

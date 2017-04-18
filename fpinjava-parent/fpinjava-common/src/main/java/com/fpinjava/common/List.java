@@ -647,7 +647,7 @@ public abstract class List<A> {
 
     @Override
     public String mkStr(String sep) {
-      return head.toString() + foldLeft("", s -> e -> s + sep + e.toString());
+      return head.toString() + tail.foldLeft("", s -> e -> s + sep + e.toString());
     }
 
     @Override
@@ -668,9 +668,9 @@ public abstract class List<A> {
     protected List<A> take(int n) {
       return this.isEmpty()
           ? this
-          : n > 1
+          : n > 0
               ? new Cons<>(head(), tail().take(n - 1))
-              : new Cons<>(head(), list());
+              : list();
     }
 
     @Override

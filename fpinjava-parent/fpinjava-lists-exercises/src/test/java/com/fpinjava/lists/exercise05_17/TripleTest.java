@@ -9,7 +9,7 @@ public class TripleTest {
 
   @Test
   public void testTriple() {
-    assertEquals("[2, 3, 4, 5, NIL]", Triple.triple(List.list(1, 2, 3, 4)).toString());
+    assertEquals("[3, 6, 9, 12, NIL]", Triple.triple(List.list(1, 2, 3, 4)).toString());
   }
 
 }
