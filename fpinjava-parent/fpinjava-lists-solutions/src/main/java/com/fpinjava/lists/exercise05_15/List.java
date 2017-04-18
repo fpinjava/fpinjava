@@ -203,4 +203,9 @@ public abstract class List<A> {
   public static <A> List<A> concat(List<A> list1, List<A> list2) {
     return foldRight(list1, list2, x -> y -> new Cons<>(x, y));
   }
+
+  public static <A> List<A> concat_(List<A> list1, List<A> list2) {
+    return list1.reverse().foldLeft(list2, x -> x::cons);
+  }
+
 }

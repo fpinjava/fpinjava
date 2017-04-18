@@ -26,9 +26,6 @@ public abstract class List<A> {
   public abstract <B> B foldLeft(B identity, Function<B, Function<A, B>> f);
   public abstract <B> Tuple<B, List<A>> foldLeft(B identity, B zero, Function<B, Function<A, B>> f);
   public abstract <B> B foldRight(B identity, Function<A, Function<B, B>> f);
-  public abstract <B> List<B> map(Function<A, B> f);
-  public abstract List<A> filter(Function<A, Boolean> f);
-  public abstract <B> List<B> flatMap(Function<A, List<B>> f);
   public abstract A reduce(Function<A, Function<A, A>> f);
   public abstract Result<A> headOption();
   public abstract Result<List<A>> tailOption();
@@ -42,6 +39,18 @@ public abstract class List<A> {
   public abstract List<Tuple<List<A>, List<A>>> split();
   public abstract Result<Tuple<A, List<A>>> headAndTail();
   public abstract Stream<A> toStream();
+
+  public <B> List<B> map(Function<A, B> f) {
+    return foldRight(list(), h -> t -> new Cons<>(f.apply(h),t));
+  }
+
+  public List<A> filter(Function<A, Boolean> f) {
+    return foldRight(list(), h -> t -> f.apply(h) ? new Cons<>(h,t) : t);
+  }
+
+  public <B> List<B> flatMap(Function<A, List<B>> f) {
+    return foldRight(list(), h -> t -> concat(f.apply(h), t));
+  }
 
   public List<List<A>> choices() {
     return subLists().flatMap(List::perms);
@@ -434,21 +443,6 @@ public abstract class List<A> {
     }
 
     @Override
-    public <B> List<B> map(Function<A, B> f) {
-      return list();
-    }
-
-    @Override
-    public List<A> filter(Function<A, Boolean> f) {
-      return this;
-    }
-
-    @Override
-    public <B> List<B> flatMap(Function<A, List<B>> f) {
-      return list();
-    }
-
-    @Override
     public A reduce(Function<A, Function<A, A>> f) {
       throw new IllegalStateException(
           "Can't reduce and empty list without a zero");
@@ -634,23 +628,6 @@ public abstract class List<A> {
     @Override
     public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
       return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
-    }
-
-    @Override
-    public <B> List<B> map(Function<A, B> f) {
-      return foldRight(list(), h -> t -> new Cons<>(f.apply(h),t));
-    }
-
-    @Override
-    public List<A> filter(Function<A, Boolean> f) {
-      return foldRight(list(), h -> t -> f.apply(h) ? new Cons<>(h,t) : t);
-    }
-
-    @Override
-    public <B> List<B> flatMap(Function<A, List<B>> f) {
-      /* Java is unable to infer type of the second parameter for the second function */
-      /* return foldRight(list(), h -> t -> f.apply(h).foldRight(t, x -> (List<B> y) -> new Cons<>(x, y))); */
-      return foldRight(list(), h -> t -> concat(f.apply(h), t));
     }
 
     @Override

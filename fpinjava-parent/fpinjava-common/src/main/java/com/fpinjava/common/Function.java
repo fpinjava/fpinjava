@@ -5,9 +5,9 @@ public interface Function<T, U> {
 
   U apply(T arg);
 
-default <V> Function<V, U> compose(Function<V, T> f) {
-  return x -> apply(f.apply(x));
-}
+  default <V> Function<V, U> compose(Function<V, T> f) {
+    return x -> apply(f.apply(x));
+  }
 
   default <V> Function<T, V> andThen(Function<U, V> f) {
     return x -> f.apply(apply(x));

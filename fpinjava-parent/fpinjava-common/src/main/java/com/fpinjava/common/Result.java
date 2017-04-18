@@ -5,11 +5,16 @@ import com.fpinjava.io.IO;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 
+import static com.fpinjava.io.IO.unit;
+
 
 public abstract class Result<T> implements Serializable {
 
   private Result() {
   }
+
+  public abstract <U> IO<Result<U>> mapIO(Function<T, IO<U>> f);
+  public abstract <V> IO<Result<V>> flatMapIO(Function<T,  IO<Result<V>>> f);
 
   public abstract Boolean isSuccess();
   public abstract Boolean isFailure();
@@ -40,6 +45,11 @@ public abstract class Result<T> implements Serializable {
     return map(x -> this).getOrElse(defaultValue);
   }
 
+  public static <A> IO<Result<A>> foldLIO(Result<IO<A>> r) {
+    IO<Result<A>> z = () -> Result.empty();
+    Function<IO<Result<A>>, Function<IO<A>, IO<Result<A>>>> f = iors -> ios -> iors.flatMap(rs -> ios.flatMap(s -> unit(Result.of(s))));
+    return r.foldLeft(z,f);
+  }
   public static <T, U> Result<T> failure(Failure<U> failure) {
     return new Failure<>(failure.exception);
   }
@@ -191,12 +201,22 @@ public abstract class Result<T> implements Serializable {
     public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
       return failure.apply(exception.getMessage());
     }
+
+    public <U> IO<Result<U>> mapIO(Function<T, IO<U>> f) {
+      return unit(failure(this));
+    }
+
   }
 
   private static class Empty<T> extends Result<T> {
 
     public Empty() {
       super();
+    }
+
+    @Override
+    public <V> IO<Result<V>> flatMapIO(Function<T, IO<Result<V>>> f) {
+      return null;
     }
 
     @Override
@@ -323,6 +343,10 @@ public abstract class Result<T> implements Serializable {
     public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
       return failure.apply("Empty Result");
     }
+
+    public <U> IO<Result<U>> mapIO(Function<T, IO<U>> f) {
+      return IO.unit(Result.empty());
+    }
   }
 
   private static class Success<T> extends Result<T> {
@@ -332,6 +356,11 @@ public abstract class Result<T> implements Serializable {
     public Success(T value) {
       super();
       this.value = value;
+    }
+
+    @Override
+    public <V> IO<Result<V>> flatMapIO(Function<T, IO<Result<V>>> f) {
+      return null;
     }
 
     @Override
@@ -473,6 +502,10 @@ public abstract class Result<T> implements Serializable {
     @Override
     public IO<Nothing> tryIO(Function<T, IO<Nothing>> success, Function<String, IO<Nothing>> failure) {
       return success.apply(this.value);
+    }
+
+    public <U> IO<Result<U>> mapIO(Function<T, IO<U>> f) {
+      return foldLIO( map(f));
     }
   }
 

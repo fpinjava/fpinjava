@@ -18,7 +18,10 @@ public abstract class List<A> {
   public abstract List<A> init();
   public abstract int length();
   public abstract <B> B foldLeft(B identity, Function<B, Function<A, B>> f);
-  public abstract <B> List<B> map(Function<A, B> f);
+
+  public <B> List<B> map(Function<A, B> f) {
+    throw new IllegalStateException("To be implemented");
+  }
 
   public <B> B foldRight(B identity, Function<A, Function<B, B>> f) {
     return reverse().foldLeft(identity, x -> y -> f.apply(y).apply(x));
@@ -86,11 +89,6 @@ public abstract class List<A> {
     @Override
     public <B> B foldLeft(B identity, Function<B, Function<A, B>> f) {
       return identity;
-    }
-
-    @Override
-    public <B> List<B> map(Function<A, B> f) {
-      throw new IllegalStateException("To be implemented");
     }
   }
 
@@ -185,11 +183,6 @@ public abstract class List<A> {
       return list.isEmpty()
           ? ret(acc)
           : sus(() -> foldLeft_(f.apply(acc).apply(list.head()), list.tail(), f));
-    }
-
-    @Override
-    public <B> List<B> map(Function<A, B> f) {
-      throw new IllegalStateException("To be implemented");
     }
   }
 
