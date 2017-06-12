@@ -1,6 +1,6 @@
 ## General questions
 
-###Question: You haven’t defined xyz. What does it mean?
+### Question: You haven’t defined xyz. What does it mean?
 
 Always read the complete explanation before trying to answer the question. Many subjects imply cyclic dependencies between their parts. This kind of explanation must be read at least twice. Take the following example:
 
@@ -60,7 +60,7 @@ But because we might not always put the whole code in one part of the book, you 
 
 ## Lambdas
 
-###Question: How can you instantiate the Xyz interface without a concrete implementation?
+### Question: How can you instantiate the Xyz interface without a concrete implementation?
 
 For example, given the following interface:
 
@@ -88,7 +88,7 @@ This is described in chapter 2, along with the step-by-step process of convertin
 
 The two forms are equivalent only from the programmer’s point of view. Differences exist in the way the two forms are handled by the compiler.
 
-###Question: In the following code, how can the compiler know that the lambda is to be compiled into a Supplier<...> (or whatever)?
+### Question: In the following code, how can the compiler know that the lambda is to be compiled into a Supplier<...> (or whatever)?
 
 		public static <T> DefaultCase<T> mcase(Supplier<Result<T>> value) {
 		  return new DefaultCase<>(() -> true, value);
@@ -105,7 +105,7 @@ Which interface to choose is indicated by the `DefaultCase` constructor:
 
 The first parameter has to be a `Supplier<Boolean>`.
 
-##Method references
+## Method references
 
 Method references are syntactic sugar over lambdas. When the right part of a lambda is a call to a method that takes the left part as its argument, such as this:
 
@@ -133,11 +133,11 @@ This may be replaced with the following:
 
 		map(Person::new)
 
-##Type annotations
+## Type annotations
 
 All Java programmers know how to use class-level type annotations. This is the simplest use of generics. Class-level type annotations come in two categories.
 
-###Class definition
+### Class definition
 
 A class can be defined with a type annotation. For example, a `Comparator` for strings will be defined as follows:
 
@@ -145,7 +145,7 @@ A class can be defined with a type annotation. For example, a `Comparator` for s
 		  ...
 		}
 
-###Class instantiation
+### Class instantiation
 
 When instantiating a class, we can use a type annotation such as this:
 
@@ -157,7 +157,7 @@ We can even use the diamond syntax (since Java 7) to simplify code typing:
 
 We don't need to repeat the type annotation on the right side because the compiler is able to infer it from the left side.
 
-###Parameterized types
+### Parameterized types
 
 We can define `List` and `Comparator` in such ways because these classes are defined with type parameters:
 
@@ -195,7 +195,7 @@ All this is well known. Methods and fields of such classes can be written using 
 
 You can see that the two fields (left and right), the constructor, and the two getters use the `T` type parameter.
 
-###Method declaration type annotations
+### Method declaration type annotations
 
 Methods must sometimes be parameterized with type parameters that aren’t in scope, which means that they weren’t declared with the class. This is most often the case for static methods, because the class type parameters aren’t available to such methods.
 
@@ -213,7 +213,7 @@ Instance methods can also be annotated. For example, we could define a method `m
 		  return new Pair<>(f.apply(left), right);
 		}
 
-###Method invocation type annotations
+### Method invocation type annotations
 
 Type inference is mostly used by Java while dereferencing methods and fields. Sometimes Java isn’t able to infer the correct type, whether because it’s not possible (not enough information) or because Java type inference is weak (not enough information for the Java compiler). For example, a functional `List` class can define a method returning an empty list, such as `List.list()`. An empty list generally has a raw type, which means it’s not type annotated. The same empty list can be used for an empty list of `String` elements or an empty list of `Integer` elements. But to use it, we must give it a type. Java might be able to infer the type, as in the following:
 
@@ -241,11 +241,11 @@ The method type annotations are to be written after the dot, so we must add the 
 		  return <A, A>foldRight().apply(constant());
 		}
 
-###Field type annotations
+### Field type annotations
 
 In imperative Java, it’s rarely (if ever?) useful to annotateion fields with a type. And by the way, field type annotations don’t exist in Java. In functional Java, we sometimes want to declare functions as static properties. So, if the functions must use type annotations, we cannot use fields to represent these properties. We must use methods instead (see below).
 
-###What are properties?
+### What are properties?
 
 As indicated in the Java documentation, a property is a characteristic of an object that can be read and/or written. In imperative Java, properties can often be written and read, so they’re generally implemented as private fields with public getters and setters.
 
