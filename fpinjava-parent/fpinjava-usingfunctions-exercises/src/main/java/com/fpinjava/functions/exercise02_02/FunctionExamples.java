@@ -8,6 +8,6 @@ public class FunctionExamples {
 
   public static final Function<Integer, Integer> compose(final Function<Integer, Integer> f1,
                                                          final Function<Integer, Integer> f2) {
-    throw new RuntimeException("To be implemented.");
+    return x -> f1.apply(f2.apply(x));
   }
 }

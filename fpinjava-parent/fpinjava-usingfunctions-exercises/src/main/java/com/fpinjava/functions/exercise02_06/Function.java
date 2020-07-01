@@ -8,8 +8,16 @@ public interface Function<T, U> {
   static <T, U, V> Function<Function<U, V>, Function<Function<T, U>, Function<T, V>>> higherCompose() {
     return f -> g -> x -> f.apply(g.apply(x));
   }
+  /*
+  X = T
+  f = (T, U)
+  g = (U, V)
 
-  static <T, U, V> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
-    throw new RuntimeException("To be implemented.");
+  F<f, F<g, F<X>>
+  F<F<T,U> , F<F<U,V>, F<T,V>
+   */
+
+  static <T, V, U> Function<Function<T, U>, Function<Function<U, V>, Function<T, V>>> higherAndThen() {
+    return f ->   g -> x -> g.apply(f.apply(x));
   }
 }
